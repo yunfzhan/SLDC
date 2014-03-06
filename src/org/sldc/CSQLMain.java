@@ -1,6 +1,8 @@
 package org.sldc;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -11,8 +13,13 @@ import org.sldc.csql.cSQLParser;
 public final class CSQLMain {
 
 	public static void main(String[] args) throws IOException {
+		String inputfile = null;
+		if(args.length>0) inputfile = args[0];
+		InputStream is = System.in;
+		if(inputfile!=null) is = new FileInputStream(inputfile);
+		
 		// create a stream that reads from file
-		ANTLRInputStream input = new ANTLRInputStream(System.in);
+		ANTLRInputStream input = new ANTLRInputStream(is);
 		// create a lexer that feeds off of input
 		cSQLLexer lexer = new cSQLLexer(input);
 		// create a buffer of tokens pulled from the lexer
@@ -25,6 +32,7 @@ public final class CSQLMain {
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
 		walker.walk(new SQLListener(), tree);
+
 		System.out.println();
 	}
 
