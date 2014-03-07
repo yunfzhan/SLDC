@@ -4,15 +4,15 @@ selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL 
 
 address     : protocols (',' protocols)*  ;
 protocols   : (http|file|ftp|database) ;
-http        : HTTP '://' (domains|IP)+ (':' INT)* ('/' domains ('?' httpparams)* )* ;
+http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains* )* ('?' httpparams+ )? ;
 file        : FILE '://' (windows|unix)+ ;
 ftp         : FTP '://'  ;
 database    : DATABASE '://'  ;
 
 // For http address
 domains     : ID ('.' ID)* ;
-httpparams  : httpparams '&' httpparams
-            | ID '=' ID?
+httpparams  : httpparams ('&' httpparams)*
+            | HTTPCHAR ('=' VARID)?
             ;
 
 // For files
@@ -78,6 +78,7 @@ LETTER		: [A-Za-z] ;
 ID			: LETTER (LETTER|DIGIT)* ;
 fragment
 ALPHABET	: '_'|LETTER ;
+HTTPCHAR	: '#'|(ALPHABET|DIGIT)+ ;
 VARID    	: ALPHABET (ALPHABET|DIGIT)* ;
 FUNCID		: VARID|('$' (ALPHABET|DIGIT)*) ;
 STRING		: '"' .*? '"' ;
@@ -89,5 +90,5 @@ EQUAL		: '==' ;
 NL		    : '\r'? '\n' ;
 
 // Line comment definition
-COMMENT		: '//' .*? NL -> skip ;
+COMMENT		: '//' .*? -> skip ;
 WS			: [ \t]+ -> skip ;
