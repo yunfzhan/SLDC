@@ -31,7 +31,7 @@ public final class CSQLMain {
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		walker.walk(new SQLListener(), tree);
+		walker.walk(new CSQLListener(), tree);
 
 		System.out.println();
 	}

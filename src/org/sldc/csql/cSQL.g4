@@ -10,35 +10,36 @@ ftp         : FTP '://'  ;
 database    : DATABASE '://'  ;
 
 // For http address
-domains     : (ALPHABET ('.' ALPHABET)*) ;
+domains     : ID ('.' ID)* ;
 httpparams  : httpparams '&' httpparams
-            | ALPHABET '=' ALPHABET*
+            | ID '=' ID?
             ;
 
 // For files
-windows     : LETTER ':\\' ('_'|ALPHABET)+ ('\\' ('_'|ALPHABET))* ;
-unix        : '/' ('_'|ALPHABET)+ ('/' ('_'|ALPHABET))* ;
+windows		: LETTER ':\\' VARID ('\\' VARID)* ;
+unix		: '/' VARID ('/' VARID)* ;
 
-condition   : expr ;
-params      : prop (',' prop)* ;
-contents    : '*'|expr;
-expr		: ID '(' exprList? ')' NL	// match function call like f(), f(x), f(1,2)
-			| expr '[' expr ']' NL		// match array index
-			| '-' expr NL
-			| NOT expr NL
-			| expr MULDIV expr NL
-			| expr ADDSUB expr NL
-			| expr EQUAL expr NL
-			| ALPHABET NL				// variables reference
-			| INT NL
-			| '(' expr ')' NL
+condition	: expr ;
+params		: prop (',' prop)* ;
+contents	: '*'|expr ;
+
+expr		: FUNCID '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
+			| expr '[' expr ']'			#Array	// match array index
+			| '-' expr					#Minus
+			| NOT expr					#Not
+			| expr MULDIV expr			#MulDiv
+			| expr ADDSUB expr			#AddSub
+			| expr EQUAL expr			#Equal
+			| VARID						#Var	// variables reference
+			| NUMBER					#Num
+			| '(' expr ')'				#Bracket
 			;
 exprList	: expr (',' expr)* ;
-prop		: ALPHABET '=' STRING NL ;
+prop		: ID '=' STRING ;
 
 // functions definition
-fundecl		: FUNC ID '(' funcParms ')' block;
-funcParms	: ALPHABET (',' ALPHABET)* ;
+fundecl		: FUNC FUNCID '(' funcParms ')' block ;
+funcParms	: VARID (',' VARID)* ;
 
 block		: BEGIN stat* END NL ;
 stat		: block
@@ -48,7 +49,7 @@ stat		: block
 			| VAR? expr '=' expr NL	// assignment
 			| expr NL				// function call
 			;
-varDecl		: VAR ALPHABET (',' ALPHABET)* NL ;
+varDecl		: VAR VARID (',' VARID)* NL ;
 
 // Tokens
 VAR			: [Vv][Aa][Rr] ;
@@ -63,24 +64,30 @@ SELECT		: [Ss][Ee][Ll][Ee][Cc][Tt] ;
 FROM		: [Ff][Rr][Oo][Mm] ;
 WHERE		: [Ww][Hh][Ee][Rr][Ee] ;
 WITH		: [Ww][Ii][Tt][Hh] ;
-SET         : [Ss][Ee][Tt] ;
-HTTP        : [Hh][Tt][Tt][Pp] ;
-FTP         : [Ff][Tt][Pp] ;
-FILE        : [Ff][Ii][Ll][Ee][Ss] ;
-DATABASE    : [Dd][Bb] ;
+SET			: [Ss][Ee][Tt] ;
+HTTP		: [Hh][Tt][Tt][Pp] ;
+FTP			: [Ff][Tt][Pp] ;
+FILE		: [Ff][Ii][Ll][Ee][Ss] ;
+DATABASE	: [Dd][Bb] ;
 FUNC		: [Ff][Uu][Nn] ;
-IP          : INT '.' INT '.' INT '.' INT ;
+IP			: INT '.' INT '.' INT '.' INT ;
+fragment
+DIGIT		: [0-9] ;
+INT			: DIGIT+ ;
 LETTER		: [A-Za-z] ;
-ALPHABET    : [A-Za-z0-9]+ ;
+ID			: LETTER (LETTER|DIGIT)* ;
+fragment
+ALPHABET	: '_'|LETTER ;
+VARID    	: ALPHABET (ALPHABET|DIGIT)* ;
+FUNCID		: VARID|('$' (ALPHABET|DIGIT)*) ;
 STRING		: '"' .*? '"' ;
-INT         : [0-9]+ ;
-ID			: ('$' [A-Z_a-z0-9]*|[A-Z_a-z0-9]+) ;
+NUMBER		: '-'? ('.' DIGIT+ | DIGIT+ ('.' DIGIT*)? ) ;
 NOT			: '!' ;
 MULDIV		: '*'|'/' ;
 ADDSUB		: '+'|'-' ;
 EQUAL		: '==' ;
-NL		    : ';'|('\r'? '\n') ;
+NL		    : '\r'? '\n' ;
 
 // Line comment definition
-COMMENT		: '//' .*? '\n' -> skip ;
-WS          : [ \t\n\r]+ -> skip ;
+COMMENT		: '//' .*? NL -> skip ;
+WS			: [ \t]+ -> skip ;
