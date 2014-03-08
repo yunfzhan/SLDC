@@ -11,9 +11,8 @@ database    : DATABASE '://'  ;
 
 // For http address
 domains     : ID ('.' ID)* ;
-httpparams  : httpparams ('&' httpparams)*
-            | HTTPCHAR ('=' VARID)?
-            ;
+httpparams  : httpparams ('&' httpparams)* ;
+httpparam	: HTTPCHARS ('=' VARID)? ;
 
 // For files
 windows		: LETTER ':\\' VARID ('\\' VARID)* ;
@@ -35,7 +34,7 @@ expr		: FUNCID '(' exprList? ')' 	#Func	// match function call like f(), f(x), f
 			| '(' expr ')'				#Bracket
 			;
 exprList	: expr (',' expr)* ;
-prop		: ID '=' STRING ;
+prop		: ID '=' STRING? ;
 
 // functions definition
 fundecl		: FUNC FUNCID '(' funcParms ')' block ;
@@ -78,7 +77,7 @@ LETTER		: [A-Za-z] ;
 ID			: LETTER (LETTER|DIGIT)* ;
 fragment
 ALPHABET	: '_'|LETTER ;
-HTTPCHAR	: '#'|(ALPHABET|DIGIT)+ ;
+HTTPCHARS	: '#'|(ALPHABET|DIGIT)+ ;
 VARID    	: ALPHABET (ALPHABET|DIGIT)* ;
 FUNCID		: VARID|('$' (ALPHABET|DIGIT)*) ;
 STRING		: '"' .*? '"' ;
