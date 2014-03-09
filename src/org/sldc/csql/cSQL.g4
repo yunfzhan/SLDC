@@ -4,14 +4,13 @@ selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL 
 
 address     : protocols (',' protocols)*  ;
 protocols   : (http|file|ftp|database) ;
-http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains* )* ('?' httpparams+ )? ;
+http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
 ftp         : FTP '://'  ;
 database    : DATABASE '://'  ;
 
 // For http address
 domains     : ID ('.' ID)* ;
-httpparams  : httpparams ('&' httpparams)* ;
 httpparam	: HTTPCHARS ('=' VARID)? ;
 
 // For files
@@ -64,22 +63,24 @@ FROM		: [Ff][Rr][Oo][Mm] ;
 WHERE		: [Ww][Hh][Ee][Rr][Ee] ;
 WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
-HTTP		: [Hh][Tt][Tt][Pp] ;
+HTTP		: [Hh][Tt][Tt][Pp][Ss]? ;
 FTP			: [Ff][Tt][Pp] ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] ;
 DATABASE	: [Dd][Bb] ;
 FUNC		: [Ff][Uu][Nn] ;
 IP			: INT '.' INT '.' INT '.' INT ;
+INT			: DIGIT+ ;
+ID			: (LETTER|DIGIT)+ ;
+
+HTTPCHARS	: ('%'|'#'|VARCHAR|DIGIT)+ ;
+VARID    	: VARCHAR (VARCHAR|DIGIT)* ;
+FUNCID		: VARID|('$' (VARCHAR|DIGIT)*) ;
+
+fragment
+VARCHAR		: '_'|LETTER ;
 fragment
 DIGIT		: [0-9] ;
-INT			: DIGIT+ ;
 LETTER		: [A-Za-z] ;
-ID			: LETTER (LETTER|DIGIT)* ;
-fragment
-ALPHABET	: '_'|LETTER ;
-HTTPCHARS	: '#'|(ALPHABET|DIGIT)+ ;
-VARID    	: ALPHABET (ALPHABET|DIGIT)* ;
-FUNCID		: VARID|('$' (ALPHABET|DIGIT)*) ;
 STRING		: '"' .*? '"' ;
 NUMBER		: '-'? ('.' DIGIT+ | DIGIT+ ('.' DIGIT*)? ) ;
 NOT			: '!' ;
