@@ -1,6 +1,11 @@
 grammar cSQL ;
 @lexer::members {
-	boolean isHttp = false;
+	private boolean isHttp = false;
+	
+	private void clearSign()
+	{
+		isHttp=false;
+	}
 }
 // main entry rule
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL ;
@@ -13,8 +18,8 @@ ftp         : FTP '://'  ;
 database    : DATABASE '://'  ;
 
 // For http address
-domains     : HTTPCHARS+ ('.' HTTPCHARS+)* ;
-httpparam	: HTTPCHARS+ (EQU HTTPCHARS*)? ;
+domains     : HTTPCHARS ('.' HTTPCHARS)* ;
+httpparam	: HTTPCHARS (EQU HTTPCHARS? )? ;
 
 // For files
 windows		: ':\\' ; //ANYCHAR ':\\' ANYCHAR+ ('\\' ANYCHAR+)* ;
@@ -65,7 +70,7 @@ ELSE		: [Ee][Ll][Ss][Ee] ;
 RET			: [Rr][Ee][Tt][Rr] ;
 SELECT		: [Ss][Ee][Ll][Ee][Cc][Tt] ;
 FROM		: [Ff][Rr][Oo][Mm] ;
-WHERE		: [Ww][Hh][Ee][Rr][Ee] {isHttp=false;} ;
+WHERE		: [Ww][Hh][Ee][Rr][Ee] {clearSign();} ;
 WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
 HTTP		: [Hh][Tt][Tt][Pp][Ss]? {isHttp=true;} ;
@@ -79,7 +84,7 @@ IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
 INT			: DIGIT+ ;
 Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
 Identifier	: {isHttp==false}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
-HTTPCHARS	: (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT) {isHttp}? ;
+HTTPCHARS	: (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp}? ;
 String		: '"' .*? '"' ;
 
 fragment
@@ -106,8 +111,8 @@ fragment
 MINUS		: '-' ;
 EQU			: '=' ;
 EQUAL		: '==' ;
-COMMA		: ',' {isHttp=false;} ;
-NL		    : '\r'? '\n' {isHttp=false;} ;
+COMMA		: ',' {clearSign();} ;
+NL		    : '\r'? '\n' {clearSign();} ;
 
 
 
