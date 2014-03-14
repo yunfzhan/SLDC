@@ -1,8 +1,11 @@
 grammar cSQL ;
+@lexer::members {
+	boolean isHttp = false;
+}
 // main entry rule
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL ;
 
-address     : protocols (',' protocols)*  ;
+address     : protocols (COMMA protocols)*  ;
 protocols   : (http|file|ftp|database) ;
 http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
@@ -10,15 +13,15 @@ ftp         : FTP '://'  ;
 database    : DATABASE '://'  ;
 
 // For http address
-domains     : ANYCHAR+ ('.' ANYCHAR+)* ;
-httpparam	: Identifier (EQU ANYCHAR*)? ;
+domains     : HTTPCHARS+ ('.' HTTPCHARS+)* ;
+httpparam	: HTTPCHARS+ (EQU HTTPCHARS*)? ;
 
 // For files
-windows		: ANYCHAR ':\\' ANYCHAR+ ('\\' ANYCHAR+)* ;
-unix		: '/' ANYCHAR+ ('/' ANYCHAR+)* ;
+windows		: ':\\' ; //ANYCHAR ':\\' ANYCHAR+ ('\\' ANYCHAR+)* ;
+unix		: '/' ; //'/' ANYCHAR+ ('/' ANYCHAR+)* ;
 
 condition	: expr ;
-params		: prop (',' prop)* ;
+params		: prop (COMMA prop)* ;
 contents	: '*'|expr ;
 
 expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
@@ -29,15 +32,16 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
 			| Identifier					#Var	// variables reference
+			| INT							#Int
 			| Number						#Num
 			| '(' expr ')'					#Bracket
 			;
-exprList	: expr (',' expr)* ;
-prop		: Identifier '=' ANYCHAR* ;
+exprList	: expr (COMMA expr)* ;
+prop		: Identifier '=' .*? ;
 
 // functions definition
 fundecl		: FUNC Identifier '(' funcParms ')' block ;
-funcParms	: Identifier (',' Identifier)* ;
+funcParms	: Identifier (COMMA Identifier)* ;
 
 block		: BEGIN stat* END NL ;
 stat		: block
@@ -47,7 +51,7 @@ stat		: block
 			| VAR? expr '=' expr NL	// assignment
 			| expr NL				// function call
 			;
-varDecl		: VAR Identifier (',' Identifier)* NL ;
+varDecl		: VAR Identifier (COMMA Identifier)* NL ;
 
 // Keywords
 
@@ -61,19 +65,38 @@ ELSE		: [Ee][Ll][Ss][Ee] ;
 RET			: [Rr][Ee][Tt][Rr] ;
 SELECT		: [Ss][Ee][Ll][Ee][Cc][Tt] ;
 FROM		: [Ff][Rr][Oo][Mm] ;
-WHERE		: [Ww][Hh][Ee][Rr][Ee] ;
+WHERE		: [Ww][Hh][Ee][Rr][Ee] {isHttp=false;} ;
 WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
-HTTP		: [Hh][Tt][Tt][Pp][Ss]? ;
+HTTP		: [Hh][Tt][Tt][Pp][Ss]? {isHttp=true;} ;
 FTP			: [Ff][Tt][Pp] ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] ;
 DATABASE	: [Dd][Bb] ;
 FUNC		: [Ff][Uu][Nn] ;
 
+// Tokens
+IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
+INT			: DIGIT+ ;
+Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
+Identifier	: {isHttp==false}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
+HTTPCHARS	: (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT) {isHttp}? ;
+String		: '"' .*? '"' ;
+
+fragment
+VARCHAR		: UNDERLINE|LETTER ;
+fragment
+DIGIT		: [0-9] ;
+fragment
+LETTER		: [A-Za-z] ;
+fragment
 NUMSIGN		: '#' ;
+fragment
 DOLLAR		: '$' ;
+fragment
 UNDERLINE	: '_' ;
+fragment
 DOT			: '.' ;
+
 NOT			: '!' ;
 MULDIV		: '*'|'/' ;
 ADDSUB		: PLUS|MINUS ;
@@ -83,24 +106,11 @@ fragment
 MINUS		: '-' ;
 EQU			: '=' ;
 EQUAL		: '==' ;
-NL		    : '\r'? '\n' ;
-// Tokens
-IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
-INT			: DIGIT+ ;
+COMMA		: ',' {isHttp=false;} ;
+NL		    : '\r'? '\n' {isHttp=false;} ;
 
-Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
-Identifier	: (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
-String		: '"' .*? '"' ;
 
-fragment
-VARCHAR		: UNDERLINE|LETTER ;
-fragment
-DIGIT		: [0-9] ;
-fragment
-LETTER		: [A-Za-z] ;
 
 // Line comment definition
 COMMENT		: '//' .*? -> skip ;
 WS			: [ \t]+ -> skip ;
-
-ANYCHAR		: ~[.\t\r\n ] ;
