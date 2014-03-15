@@ -16,7 +16,14 @@ grammar cSQL ;
 	}
 }
 // main entry rule
-selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL ;
+program		: row+ ;
+row			: selectExpr
+			| fundecl
+			| varDecl
+			| varAssign
+			| NL
+			;
+selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL? ;
 
 address     : protocols (COMMA protocols)*  ;
 protocols   : (http|file|ftp|database) (AS Identifier)? ;
@@ -62,10 +69,10 @@ exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' .*? ;
 
 // functions definition
-fundecl		: FUNC Identifier '(' funcParms ')' block ;
+fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
 funcParms	: Identifier (COMMA Identifier)* ;
 
-block		: BEGIN stat* END NL ;
+block		: BEGIN NL? stat* END NL ;
 stat		: block
 			| varDecl NL
 			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
@@ -73,7 +80,8 @@ stat		: block
 			| VAR? expr '=' expr NL	// assignment
 			| expr NL				// function call
 			;
-varDecl		: VAR Identifier (COMMA Identifier)* NL ;
+varDecl		: VAR Identifier (EQU (expr|selectExpr))? (COMMA Identifier (EQU (expr|selectExpr))?)* NL ;
+varAssign	: Identifier EQU (expr|selectExpr) NL ;
 
 // Keywords
 
@@ -147,5 +155,5 @@ NL		    : '\r'? '\n' {clearSign();} ;
 
 
 // Line comment definition
-COMMENT		: '//' .*? -> skip ;
+COMMENT		: '//' ~[\r\n]* -> skip ;
 WS			: [ \t]+ -> skip ;
