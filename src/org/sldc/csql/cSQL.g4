@@ -19,7 +19,7 @@ grammar cSQL ;
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL ;
 
 address     : protocols (COMMA protocols)*  ;
-protocols   : (http|file|ftp|database) ;
+protocols   : (http|file|ftp|database) (AS Identifier)? ;
 http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
 ftp         : FTP '://' (user ':' password? '@')? domains ('/' remote?)* ;
@@ -95,6 +95,7 @@ FTP			: [Ff][Tt][Pp] {isFtp=true;} ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] {isFile=true;} ;
 DATABASE	: [Dd][Bb] {isDatabase=true;} ;
 FUNC		: [Ff][Uu][Nn] ;
+AS			: [Aa][Ss] {clearSign();} ;
 
 // Tokens
 IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
@@ -106,7 +107,7 @@ Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE
 URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp||isFtp}? ;
 // File system only
 DriveLetter	: LETTER {isFile}? ;
-PathChars	: (' '|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFile}? ;
+PathChars	: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFile}? ;
 // Ftp only
 User		: (UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
 FtpPath		: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
