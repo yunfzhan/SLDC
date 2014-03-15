@@ -1,10 +1,18 @@
 grammar cSQL ;
 @lexer::members {
 	private boolean isHttp = false;
+	private boolean isFile = false;
+	private boolean isFtp = false;
+	private boolean isDatabase = false;
+	
+	private boolean isAllFalse()
+	{
+		return !isHttp&&!isFile&&!isFtp&&!isDatabase;
+	}
 	
 	private void clearSign()
 	{
-		isHttp=false;
+		isHttp=isFile=isFtp=isDatabase=false;
 	}
 }
 // main entry rule
@@ -14,31 +22,40 @@ address     : protocols (COMMA protocols)*  ;
 protocols   : (http|file|ftp|database) ;
 http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
-ftp         : FTP '://'  ;
+ftp         : FTP '://' (user ':' password? '@')? domains ('/' remote?)* ;
 database    : DATABASE '://'  ;
 
 // For http address
-domains     : HTTPCHARS ('.' HTTPCHARS)* ;
-httpparam	: HTTPCHARS (EQU HTTPCHARS? )? ;
+domains     : URLChars ('.' URLChars)* ;
+httpparam	: URLChars (EQU URLChars? )? ;
 
 // For files
-windows		: ':\\' ; //ANYCHAR ':\\' ANYCHAR+ ('\\' ANYCHAR+)* ;
-unix		: '/' ; //'/' ANYCHAR+ ('/' ANYCHAR+)* ;
+windows		: DriveLetter ':\\' PathChars ('\\' PathChars?)* ;
+unix		: '/' PathChars ('/' PathChars?)* ;
+// For ftp
+user		: User ;
+password	: .*? ;
+remote		: FtpPath ('/' FtpPath?)* ;
+// For database
+
 
 condition	: expr ;
 params		: prop (COMMA prop)* ;
 contents	: '*'|expr ;
 
-expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
+expr		: Identifier '.' expr			#Obj
+			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
 			| expr '[' expr ']'				#Array	// match array index
 			| '-' expr						#Minus
 			| NOT expr						#Not
 			| expr MULDIV expr				#MulDiv
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
+			| expr COMMA expr				#List
 			| Identifier					#Var	// variables reference
 			| INT							#Int
 			| Number						#Num
+			| String						#String
 			| '(' expr ')'					#Bracket
 			;
 exprList	: expr (COMMA expr)* ;
@@ -74,17 +91,27 @@ WHERE		: [Ww][Hh][Ee][Rr][Ee] {clearSign();} ;
 WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
 HTTP		: [Hh][Tt][Tt][Pp][Ss]? {isHttp=true;} ;
-FTP			: [Ff][Tt][Pp] ;
-FILE		: [Ff][Ii][Ll][Ee][Ss] ;
-DATABASE	: [Dd][Bb] ;
+FTP			: [Ff][Tt][Pp] {isFtp=true;} ;
+FILE		: [Ff][Ii][Ll][Ee][Ss] {isFile=true;} ;
+DATABASE	: [Dd][Bb] {isDatabase=true;} ;
 FUNC		: [Ff][Uu][Nn] ;
 
 // Tokens
 IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
 INT			: DIGIT+ ;
 Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
-Identifier	: {isHttp==false}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
-HTTPCHARS	: (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp}? ;
+// Common identifiers
+Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
+// HTTP only
+URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp||isFtp}? ;
+// File system only
+DriveLetter	: LETTER {isFile}? ;
+PathChars	: (' '|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFile}? ;
+// Ftp only
+User		: (UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
+FtpPath		: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
+// Database only
+
 String		: '"' .*? '"' ;
 
 fragment
@@ -93,6 +120,8 @@ fragment
 DIGIT		: [0-9] ;
 fragment
 LETTER		: [A-Za-z] ;
+fragment
+PERCSIGN	: '%' ;
 fragment
 NUMSIGN		: '#' ;
 fragment
