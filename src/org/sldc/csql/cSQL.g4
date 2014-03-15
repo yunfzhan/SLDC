@@ -17,13 +17,13 @@ grammar cSQL ;
 }
 // main entry rule
 program		: row+ ;
-row			: selectExpr
+row			: selectExpr NL?
 			| fundecl
-			| varDecl
-			| varAssign
+			| varDecl NL
+			| varAssign NL
 			| NL
 			;
-selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? NL? ;
+selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
 address     : protocols (COMMA protocols)*  ;
 protocols   : (http|file|ftp|database) (AS Identifier)? ;
@@ -80,8 +80,8 @@ stat		: block
 			| VAR? expr '=' expr NL	// assignment
 			| expr NL				// function call
 			;
-varDecl		: VAR Identifier (EQU (expr|selectExpr))? (COMMA Identifier (EQU (expr|selectExpr))?)* NL ;
-varAssign	: Identifier EQU (expr|selectExpr) NL ;
+varDecl		: VAR Identifier (EQU (expr|selectExpr))? (COMMA Identifier (EQU (expr|selectExpr))?)* ;
+varAssign	: Identifier EQU (expr|selectExpr) ;
 
 // Keywords
 
