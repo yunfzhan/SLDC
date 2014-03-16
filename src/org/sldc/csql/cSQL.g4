@@ -34,7 +34,7 @@ database    : DATABASE '://'  ;
 
 // For http address
 domains     : URLChars ('.' URLChars)* ;
-httpparam	: URLChars (EQU URLChars? )? ;
+httpparam	: URLChars (EQU (INT|URLChars)? )? ;
 
 // For files
 windows		: DriveLetter ':\\' PathChars ('\\' PathChars?)* ;
@@ -106,14 +106,14 @@ FUNC		: [Ff][Uu][Nn] ;
 AS			: [Aa][Ss] {clearSign();} ;
 
 // Tokens
-// HTTP only
-URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp||isFtp}? ;
 IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
 INT			: DIGIT+ ;
 Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
 // Common identifiers
 Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
 
+// HTTP only
+URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp||isFtp}? ;
 // File system only
 DriveLetter	: LETTER {isFile}? ;
 PathChars	: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFile}? ;
