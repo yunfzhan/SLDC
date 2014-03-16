@@ -7,6 +7,7 @@ import java.io.InputStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
 
@@ -26,12 +27,14 @@ public final class CSQLMain {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		// create a parser that feeds off the tokens buffer
 		cSQLParser parser = new cSQLParser(tokens);
+		parser.removeErrorListeners();
+		parser.addErrorListener(new CSQLErrorListener());
 		// begin with the selectExpr rule
-		ParseTree tree = parser.selectExpr();
+		ParseTree tree = parser.program();
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		walker.walk(new CSQLListener(), tree);
+		walker.walk(new CSQLValidator(), tree);
 
 		System.out.println();
 	}
