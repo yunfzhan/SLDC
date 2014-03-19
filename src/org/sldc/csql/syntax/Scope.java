@@ -1,6 +1,8 @@
 package org.sldc.csql.syntax;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.sldc.exception.DefConflictException;
@@ -8,7 +10,8 @@ import org.sldc.exception.DefNotDeclException;
 
 public class Scope {
 	private String _name;
-	private Map<String, Object> _functions = new HashMap<String, Object>();
+	private List<Scope> _anonymous = new ArrayList<Scope>();
+	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
 	private Scope next = null;
 	
@@ -30,9 +33,21 @@ public class Scope {
 		this._name = name;
 	}
 	
-	public void addFunction(String name, Object value) throws DefConflictException {
+	public Scope getUpper(){
+		return this.next;
+	}
+	
+	public Scope addAnonymous() {
+		Scope scope = new Scope(this);
+		_anonymous.add(scope);
+		return scope;
+	}
+	
+	public Scope addFunction(String name) throws DefConflictException {
 		if(_functions.containsKey(name)||_variables.containsKey(name)) throw new DefConflictException();
-		_functions.put(name, value);
+		Scope scope = new Scope(this);
+		_functions.put(name, scope);
+		return scope;
 	}
 	
 	public void addVariables(String name, Object value) throws DefConflictException {
@@ -40,14 +55,9 @@ public class Scope {
 		_variables.put(name, value);
 	}
 	
-	public Object getFuncValue(String name) throws DefNotDeclException {
+	public Scope getFuncValue(String name) throws DefNotDeclException {
 		if(!_functions.containsKey(name)) throw new DefNotDeclException();
 		return _functions.get(name);
-	}
-	
-	public void setFuncValue(String name, Object value) throws DefNotDeclException {
-		if(!_functions.containsKey(name)) throw new DefNotDeclException();
-		_functions.put(name, value);
 	}
 	
 	public Object getVarValue(String name) throws DefNotDeclException {
