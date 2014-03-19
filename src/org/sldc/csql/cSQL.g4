@@ -27,13 +27,13 @@ selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
 address     : protocols (COMMA protocols)*  ;
 protocols   : (http|file|ftp|database) (AS Identifier)? ;
-http        : HTTP '://' (domains|IP) (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
+http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
 ftp         : FTP '://' (user ':' password? '@')? domains ('/' remote?)* ;
 database    : DATABASE '://'  ;
 
 // For http address
-domains     : URLChars ('.' URLChars)* ;
+domains     : (INT|URLChars) ('.' (INT|URLChars))* ;
 httpparam	: URLChars (EQU (INT|URLChars)? )? ;
 
 // For files
@@ -106,9 +106,9 @@ FUNC		: [Ff][Uu][Nn] ;
 AS			: [Aa][Ss] {clearSign();} ;
 
 // Tokens
-IP			: ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) '.' ([1-9] DIGIT*) ;
 INT			: DIGIT+ ;
-Number		: MINUS? (DOT DIGIT+ | DIGIT+ (DOT DIGIT*)? ) ;
+
+Number		: MINUS? ( DIGIT+ (DOT DIGIT*)? ) {!isHttp&&!isFtp}? ;
 // Common identifiers
 Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
 
