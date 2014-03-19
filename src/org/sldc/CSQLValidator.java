@@ -1,9 +1,8 @@
 package org.sldc;
 
 import org.sldc.csql.cSQLBaseListener;
-
-import com.sun.tools.javac.code.Scope;
+import org.sldc.csql.syntax.Scope;
 
 public class CSQLValidator extends cSQLBaseListener {
-	
+	private Scope currentScope = new Scope();
 }
