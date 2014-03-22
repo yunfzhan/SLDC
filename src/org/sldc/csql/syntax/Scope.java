@@ -10,6 +10,7 @@ import org.sldc.exception.DefNotDeclException;
 
 public class Scope {
 	private String _name;
+	private String _input;
 	private List<Scope> _anonymous = new ArrayList<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
@@ -31,6 +32,16 @@ public class Scope {
 	public void setName(String name)
 	{
 		this._name = name;
+	}
+	
+	public String getInput()
+	{
+		return this._input;
+	}
+	
+	public void setInput(String input)
+	{
+		this._input = input;
 	}
 	
 	public Scope getUpper(){

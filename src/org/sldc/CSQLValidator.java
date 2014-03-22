@@ -8,6 +8,11 @@ import org.sldc.csql.syntax.Scope;
 public class CSQLValidator extends cSQLBaseListener {
 	private Scope currentScope = new Scope();
 	
+	public Scope getScope()
+	{
+		return this.currentScope;
+	}
+	
 	@Override 
 	public void exitVarDecl(@NotNull cSQLParser.VarDeclContext ctx) {
 		

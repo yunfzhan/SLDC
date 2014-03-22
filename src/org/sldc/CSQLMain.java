@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
+import org.sldc.csql.syntax.Scope;
 
 public final class CSQLMain {
 
@@ -34,7 +35,10 @@ public final class CSQLMain {
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		walker.walk(new CSQLValidator(), tree);
+		CSQLValidator validator = new CSQLValidator();
+		walker.walk(validator, tree);
+		
+		Scope currentScope = validator.getScope();
 
 		System.out.println();
 	}
