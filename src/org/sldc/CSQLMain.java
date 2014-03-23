@@ -14,12 +14,8 @@ import org.sldc.csql.syntax.Scope;
 
 public final class CSQLMain {
 
-	public static void main(String[] args) throws IOException {
-		String inputfile = null;
-		if(args.length>0) inputfile = args[0];
-		InputStream is = System.in;
-		if(inputfile!=null) is = new FileInputStream(inputfile);
-		
+	public static ParseTree getWalkTree(InputStream is) throws IOException
+	{
 		// create a stream that reads from file
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		// create a lexer that feeds off of input
@@ -31,7 +27,16 @@ public final class CSQLMain {
 		parser.removeErrorListeners();
 		parser.addErrorListener(new CSQLErrorListener());
 		// begin with the selectExpr rule
-		ParseTree tree = parser.program();
+		return parser.program();
+	}
+	
+	public static void main(String[] args) throws IOException {
+		String inputfile = null;
+		if(args.length>0) inputfile = args[0];
+		InputStream is = System.in;
+		if(inputfile!=null) is = new FileInputStream(inputfile);
+		
+		ParseTree tree = getWalkTree(is);
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
@@ -40,6 +45,7 @@ public final class CSQLMain {
 		
 		Scope currentScope = validator.getScope();
 
+		
 		System.out.println();
 	}
 

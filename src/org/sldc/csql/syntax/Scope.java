@@ -14,14 +14,14 @@ public class Scope {
 	private List<Scope> _anonymous = new ArrayList<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
-	private Scope next = null;
+	private Scope upper = null;
 	
 	public Scope(){
 		this(null);
 	}
 	
-	public Scope(Scope next){
-		this.next = next;
+	public Scope(Scope upper){
+		this.upper = upper;
 	}
 	
 	public String getName()
@@ -44,8 +44,8 @@ public class Scope {
 		this._input = input;
 	}
 	
-	public Scope getUpper(){
-		return this.next;
+	public Scope getUpperScope(){
+		return this.upper;
 	}
 	
 	public Scope addAnonymous() {
@@ -57,7 +57,7 @@ public class Scope {
 	public Scope addFunction(String name) throws DefConflictException {
 		if(_functions.containsKey(name)||_variables.containsKey(name)) throw new DefConflictException();
 		Scope scope = new Scope(this);
-		_functions.put(name, scope);
+		_functions.put(name, null);
 		return scope;
 	}
 	
