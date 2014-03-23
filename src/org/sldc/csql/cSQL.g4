@@ -77,7 +77,7 @@ stat		: block
 			| varDecl NL
 			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
 			| RET expr? NL
-			| VAR? expr '=' expr NL	// assignment
+			| varAssign NL	// assignment
 			| expr NL				// function call
 			;
 varDecl		: VAR Identifier (EQU (expr|selectExpr))? (COMMA Identifier (EQU (expr|selectExpr))?)* ;
