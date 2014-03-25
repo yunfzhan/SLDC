@@ -5,7 +5,7 @@ public class SLDCException extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = -1789142200296788800L;
-	private static final String errorMsg = "Unknown error!";
+	private final String errorMsg = "Unknown error!";
 	
 	public long exceptionID(){
 		return this.serialVersionUID;

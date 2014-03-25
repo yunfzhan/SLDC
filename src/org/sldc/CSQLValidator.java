@@ -3,7 +3,6 @@ package org.sldc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.cSQLBaseListener;
@@ -11,9 +10,10 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
+import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.SLDCException;
 
-public class CSQLValidator extends cSQLBaseListener {
+public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	
