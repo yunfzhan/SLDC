@@ -66,18 +66,40 @@ public class Scope {
 		_variables.put(name, value);
 	}
 	
+	public boolean containFunc(String name)
+	{
+		return _functions.containsKey(name)||(upper!=null&&upper.containFunc(name));
+	}
+	
 	public Scope getFuncValue(String name) throws DefNotDeclException {
-		if(!_functions.containsKey(name)) throw new DefNotDeclException();
-		return _functions.get(name);
+		if(_functions.containsKey(name))
+			return _functions.get(name);
+		else if(upper!=null&&upper.containFunc(name))
+			return upper.getFuncValue(name);
+		else
+			throw new DefNotDeclException();
+	}
+	
+	public boolean containVar(String name)
+	{
+		return _variables.containsKey(name)||(upper!=null&&upper.containVar(name));
 	}
 	
 	public Object getVarValue(String name) throws DefNotDeclException {
-		if(!_variables.containsKey(name)) throw new DefNotDeclException();
-		return _variables.get(name);
+		if(_variables.containsKey(name))
+			return _variables.get(name);
+		else if(upper!=null&&upper.containVar(name))
+			return upper.getVarValue(name);
+		else
+			throw new DefNotDeclException();
 	}
 	
 	public void setVarValue(String name, Object value) throws DefNotDeclException {
-		if(!_variables.containsKey(name)) throw new DefNotDeclException();
-		_variables.put(name, value);
+		if(_variables.containsKey(name))
+			_variables.put(name, value);
+		else if(upper!=null)
+			upper.setVarValue(name, value);
+		else
+			throw new DefNotDeclException();
 	}
 }
