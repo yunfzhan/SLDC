@@ -80,8 +80,8 @@ stat		: block
 			| varAssign NL	// assignment
 			| expr NL				// function call
 			;
-varDecl		: VAR Identifier (EQU (expr|selectExpr))? (COMMA Identifier (EQU (expr|selectExpr))?)* ;
-varAssign	: Identifier EQU (expr|selectExpr) ;
+varDecl		: VAR varAssign (COMMA varAssign)* ;
+varAssign	: Identifier (EQU (expr|selectExpr))? ;
 
 // Keywords
 

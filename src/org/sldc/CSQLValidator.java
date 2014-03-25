@@ -3,6 +3,7 @@ package org.sldc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.cSQLBaseListener;
@@ -27,13 +28,21 @@ public class CSQLValidator extends cSQLBaseListener {
 	}
 	
 	@Override 
-	public void exitVarDecl(@NotNull cSQLParser.VarDeclContext ctx) {
-		List<TerminalNode> vars = ctx.Identifier();
-		for(TerminalNode node : vars)
+	public void exitVarDecl(@NotNull cSQLParser.VarDeclContext ctx) 
+	{
+		List<cSQLParser.VarAssignContext> list = ctx.varAssign();
+		for(int i=0;i<list.size();i++)
 		{
+			cSQLParser.VarAssignContext vac = list.get(i);
+			TerminalNode id = vac.Identifier();
+			Object value = null;
+			if(vac.EQU()!=null)
+			{
+				CSQLExecutable run = new CSQLExecutable(this.currentScope);
+				value = run.visit(vac);
+			}
 			try {
-				Object value = node.accept(new CSQLExecutable());
-				this.currentScope.addVariables(node.getText(), value);
+				this.currentScope.addVariables(id.getText(), value);
 			} catch (DefConflictException e) {
 				this.exceptions.add(e);
 			}

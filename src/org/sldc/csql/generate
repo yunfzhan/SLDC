@@ -1,0 +1,3 @@
+#!/bin/sh
+alias antlr4='java -jar /usr/local/lib/antlr-4.2-complete.jar'
+antlr4 -visitor -package org.sldc.csql cSQL.g4
