@@ -42,8 +42,10 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				value = run.visit(vac);
 			}
 			try {
+				if(value instanceof SLDCException) throw (SLDCException)value;
+				
 				this.currentScope.addVariables(id.getText(), value);
-			} catch (DefConflictException e) {
+			} catch (SLDCException e) {
 				this.exceptions.add(e);
 			}
 		}
