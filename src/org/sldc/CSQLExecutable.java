@@ -5,6 +5,7 @@ import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
+import org.sldc.exception.InvalidType;
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
@@ -13,6 +14,37 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public CSQLExecutable(Scope scope)
 	{
 		this.baseScope = scope;
+	}
+	
+	private boolean isNumber(Object obj)
+	{
+		return (obj instanceof Integer) || (obj instanceof Float) || (obj instanceof Double);
+	}
+	
+	@Override 
+	public Object visitMulDiv(@NotNull cSQLParser.MulDivContext ctx) 
+	{
+		Object left = visit(ctx.expr(0));
+		Object right = visit(ctx.expr(1));
+		
+		if(!isNumber(left)||!isNumber(right))
+			return new InvalidType();
+		
+		if(ctx.MULDIV().getText().equals("*")) return (Double)left*(Double)right;
+		else return (Double)left/(Double)right;
+	}
+	
+	@Override 
+	public Object visitAddSub(@NotNull cSQLParser.AddSubContext ctx) 
+	{
+		Object left = visit(ctx.expr(0));
+		Object right = visit(ctx.expr(1));
+		
+		if(!isNumber(left)||!isNumber(right))
+			return new InvalidType();
+		
+		if(ctx.ADDSUB().getText().equals("+")) return (Double)left+(Double)right;
+		else return (Double)left-(Double)right;
 	}
 	
 	@Override 
