@@ -44,7 +44,7 @@ public final class CSQLMain {
 		walker.walk(validator, tree);
 		
 		Scope currentScope = validator.getScope();
-
+		
 		
 		System.out.println();
 	}
