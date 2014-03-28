@@ -72,7 +72,8 @@ prop		: Identifier '=' .*? ;
 fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
 funcParms	: Identifier (COMMA Identifier)* ;
 
-block		: BEGIN NL? stat* END NL ;
+block		: BEGIN NL? stats END NL ;
+stats		: stat* ;
 stat		: block
 			| varDecl NL
 			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
