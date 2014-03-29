@@ -17,12 +17,38 @@ grammar cSQL ;
 }
 // main entry rule
 program		: row+ ;
-row			: selectExpr NL?
-			| fundecl
-			| varDecl NL
-			| expr NL
+row			: stat
 			| NL
 			;
+			
+expr		: Identifier '.' expr			#Obj
+			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
+			| '(' expr ')'					#Bracket
+			| expr '[' expr ']'				#Array	// match array index
+			| varAssign						#Assign
+			| '-' expr						#Minus
+			| NOT expr						#Not
+			| expr MULDIV expr				#MulDiv
+			| expr ADDSUB expr				#AddSub
+			| expr EQUAL expr				#Equal
+			| expr COMMA expr				#List
+			| Identifier					#Var	// variables reference
+			| INT							#Int
+			| Number						#Num
+			| String						#String
+			;
+			
+stat		: fundecl NL
+			| selectExpr NL?
+			| block
+			| varDecl NL
+			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
+			| RET expr? NL
+			| expr NL				// function call
+			;
+varDecl		: VAR varAssign (COMMA varAssign)* ;
+varAssign	: Identifier (EQU (expr|selectExpr))? ;
+
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
 address     : protocols (COMMA protocols)*  ;
@@ -50,22 +76,6 @@ condition	: expr ;
 params		: prop (COMMA prop)* ;
 contents	: '*'|expr ;
 
-expr		: Identifier '.' expr			#Obj
-			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
-			| '(' expr ')'					#Bracket
-			| expr '[' expr ']'				#Array	// match array index
-			| varAssign						#Assign
-			| '-' expr						#Minus
-			| NOT expr						#Not
-			| expr MULDIV expr				#MulDiv
-			| expr ADDSUB expr				#AddSub
-			| expr EQUAL expr				#Equal
-			| expr COMMA expr				#List
-			| Identifier					#Var	// variables reference
-			| INT							#Int
-			| Number						#Num
-			| String						#String
-			;
 exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' .*? ;
 
@@ -75,14 +85,6 @@ funcParms	: Identifier (COMMA Identifier)* ;
 
 block		: BEGIN NL? stats END NL ;
 stats		: stat* ;
-stat		: block
-			| varDecl NL
-			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
-			| RET expr? NL
-			| expr NL				// function call
-			;
-varDecl		: VAR varAssign (COMMA varAssign)* ;
-varAssign	: Identifier (EQU (expr|selectExpr))? ;
 
 // Keywords
 
@@ -161,5 +163,5 @@ NL		    : '\r'? '\n' {clearSign();} ;
 
 
 // Line comment definition
-COMMENT		: '//' ~[\r\n]* -> skip ;
+COMMENT		: '//' ~[\r\n]* NL -> skip ;
 WS			: [ \t]+ -> skip ;
