@@ -1,42 +1,41 @@
 package org.sldc;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
-import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.sldc.csql.CSQLErrorListener;
-import org.sldc.csql.cSQLLexer;
-import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
+import org.sldc.exception.SLDCException;
 
 public final class CSQLMain {
-
-	public static ParseTree getWalkTree(InputStream is) throws IOException
+	
+	public static String getStreamContent(
+			   InputStream is,
+			   String          encoding ) throws IOException
 	{
-		// create a stream that reads from file
-		ANTLRInputStream input = new ANTLRInputStream(is);
-		// create a lexer that feeds off of input
-		cSQLLexer lexer = new cSQLLexer(input);
-		// create a buffer of tokens pulled from the lexer
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		// create a parser that feeds off the tokens buffer
-		cSQLParser parser = new cSQLParser(tokens);
-		parser.removeErrorListeners();
-		parser.addErrorListener(new CSQLErrorListener());
-		// begin with the selectExpr rule
-		return parser.program();
+		BufferedReader br = new BufferedReader( new InputStreamReader(is, encoding ));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while(( line = br.readLine()) != null ) {
+			sb.append( line );
+			sb.append( '\n' );
+		}
+		return sb.toString();
 	}
 	
 	public static void main(String[] args) throws IOException {
 		String inputfile = null;
 		if(args.length>0) inputfile = args[0];
+		
 		InputStream is = System.in;
 		if(inputfile!=null) is = new FileInputStream(inputfile);
 		
-		ParseTree tree = getWalkTree(is);
+		ParseTree tree = CSQLExecutable.getWalkTree(is);
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
@@ -44,7 +43,9 @@ public final class CSQLMain {
 		walker.walk(validator, tree);
 		
 		Scope currentScope = validator.getScope();
-		
+		CSQLExecutable runner = new CSQLExecutable(currentScope);
+		Object value = runner.visit(tree);
+		System.out.println(value);
 		
 		System.out.println();
 	}

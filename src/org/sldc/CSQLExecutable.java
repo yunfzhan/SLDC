@@ -1,11 +1,21 @@
 package org.sldc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
+import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
+import org.sldc.exception.SLDCException;
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
@@ -14,6 +24,30 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public CSQLExecutable(Scope scope)
 	{
 		this.baseScope = scope;
+	}
+	
+	public static ParseTree getWalkTree(InputStream is) throws IOException
+	{
+		// create a stream that reads from file
+		ANTLRInputStream input = new ANTLRInputStream(is);
+		// create a lexer that feeds off of input
+		cSQLLexer lexer = new cSQLLexer(input);
+		// create a buffer of tokens pulled from the lexer
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		// create a parser that feeds off the tokens buffer
+		cSQLParser parser = new cSQLParser(tokens);
+		parser.removeErrorListeners();
+		parser.addErrorListener(new CSQLErrorListener());
+		// begin with the selectExpr rule
+		return parser.program();
+	}
+	
+	public Object run() throws IOException, SLDCException
+	{
+		if(this.baseScope==null) throw new InvalidType();
+		InputStream in = new ByteArrayInputStream(this.baseScope.getInput().getBytes());
+		ParseTree tree = getWalkTree(in);
+		return visit(tree);		
 	}
 	
 	private boolean isNumber(Object obj)

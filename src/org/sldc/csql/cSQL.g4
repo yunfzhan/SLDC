@@ -20,7 +20,7 @@ program		: row+ ;
 row			: selectExpr NL?
 			| fundecl
 			| varDecl NL
-			| varAssign NL
+			| expr NL
 			| NL
 			;
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
@@ -52,7 +52,9 @@ contents	: '*'|expr ;
 
 expr		: Identifier '.' expr			#Obj
 			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
+			| '(' expr ')'					#Bracket
 			| expr '[' expr ']'				#Array	// match array index
+			| varAssign						#Assign
 			| '-' expr						#Minus
 			| NOT expr						#Not
 			| expr MULDIV expr				#MulDiv
@@ -63,7 +65,6 @@ expr		: Identifier '.' expr			#Obj
 			| INT							#Int
 			| Number						#Num
 			| String						#String
-			| '(' expr ')'					#Bracket
 			;
 exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' .*? ;
@@ -78,7 +79,6 @@ stat		: block
 			| varDecl NL
 			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
 			| RET expr? NL
-			| varAssign NL	// assignment
 			| expr NL				// function call
 			;
 varDecl		: VAR varAssign (COMMA varAssign)* ;
@@ -143,8 +143,12 @@ fragment
 DOT			: '.' ;
 
 NOT			: '!' ;
-MULDIV		: '*'|'/' ;
+MULDIV		: STAR|SLASH ;
 ADDSUB		: PLUS|MINUS ;
+fragment
+STAR		: '*' ;
+fragment
+SLASH		: '/' ;
 fragment
 PLUS		: '+' ;
 fragment
