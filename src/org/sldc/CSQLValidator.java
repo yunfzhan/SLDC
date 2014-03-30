@@ -64,6 +64,10 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 			{
 				cSQLParser.FundeclContext parent = (FundeclContext) ctx.parent;
 				scope = this.currentScope.addFunction(parent.Identifier().getText());
+				for(int i=0;i<parent.funcParms().Identifier().size();i++)
+				{
+					scope.addVariables(parent.funcParms().Identifier(i).getText(), null);
+				}
 			}
 			else
 			{
