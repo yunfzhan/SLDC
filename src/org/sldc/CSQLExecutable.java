@@ -3,11 +3,13 @@ package org.sldc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
@@ -16,6 +18,7 @@ import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.SLDCException;
+
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
@@ -50,9 +53,28 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return visit(tree);		
 	}
 	
-	private boolean isNumber(Object obj)
+	private boolean isNumeric(Object obj)
 	{
-		return (obj instanceof Integer) || (obj instanceof Float) || (obj instanceof Double);
+		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))
+			return true;
+		else if(obj instanceof String)
+		{
+			String var = (String)obj;
+			Pattern pattern = Pattern.compile("^[-+]?[\\d]*([.][\\d]+)?$");    
+		    return pattern.matcher(var).matches(); 
+		}
+		else
+			return false;
+	}
+	
+	private Double convertToDbl(Object obj) throws InvalidType
+	{
+		if(obj instanceof Double||obj instanceof Float||obj instanceof Integer)
+			return new Double((Double)obj);
+		else if(obj instanceof String)
+			return Double.valueOf((String)obj);
+		else
+			throw new InvalidType();
 	}
 	
 	@Override 
@@ -61,11 +83,19 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object left = visit(ctx.expr(0));
 		Object right = visit(ctx.expr(1));
 		
-		if(!isNumber(left)||!isNumber(right))
+		if(!isNumeric(left)||!isNumeric(right))
 			return new InvalidType();
-		
-		if(ctx.MULDIV().getText().equals("*")) return (Double)left*(Double)right;
-		else return (Double)left/(Double)right;
+	
+		try
+		{
+			Double l = convertToDbl(left);
+			Double r = convertToDbl(right);
+			
+			return (ctx.op.getText().equals("*"))?l*r:l/r;
+		}catch(InvalidType e)
+		{
+			return e;
+		}
 	}
 	
 	@Override 
@@ -74,11 +104,18 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object left = visit(ctx.expr(0));
 		Object right = visit(ctx.expr(1));
 		
-		if(!isNumber(left)||!isNumber(right))
+		if(!isNumeric(left)||!isNumeric(right))
 			return new InvalidType();
-		
-		if(ctx.ADDSUB().getText().equals("+")) return (Double)left+(Double)right;
-		else return (Double)left-(Double)right;
+	
+		try{
+			Double l = convertToDbl(left);
+			Double r = convertToDbl(right);
+			
+			return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
+		}catch(InvalidType e)
+		{
+			return e;
+		}
 	}
 	
 	@Override 

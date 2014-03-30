@@ -27,7 +27,7 @@ expr		: Identifier '.' expr			#Obj
 			| expr '[' expr ']'				#Array	// match array index
 			| '-' expr						#Minus
 			| NOT expr						#Not
-			| expr ('*'|'/') expr			#MulDiv
+			| expr op=('*'|'/') expr		#MulDiv
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
 			| varAssign						#Assign
@@ -145,7 +145,6 @@ fragment
 DOT			: '.' ;
 
 NOT			: '!' ;
-MULDIV		: ('*'|'/') ;
 ADDSUB		: PLUS|MINUS ;
 
 fragment

@@ -1,7 +1,6 @@
 package org.sldc;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +9,6 @@ import java.io.InputStreamReader;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.sldc.csql.syntax.Scope;
-import org.sldc.exception.SLDCException;
 
 public final class CSQLMain {
 	
@@ -46,8 +44,6 @@ public final class CSQLMain {
 		CSQLExecutable runner = new CSQLExecutable(currentScope);
 		Object value = runner.visit(tree);
 		System.out.println(value);
-		
-		System.out.println();
 	}
 
 }
