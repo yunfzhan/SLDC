@@ -25,12 +25,12 @@ expr		: Identifier '.' expr			#Obj
 			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
 			| '(' expr ')'					#Bracket
 			| expr '[' expr ']'				#Array	// match array index
-			| varAssign						#Assign
 			| '-' expr						#Minus
 			| NOT expr						#Not
-			| expr MULDIV expr				#MulDiv
+			| expr ('*'|'/') expr			#MulDiv
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
+			| varAssign						#Assign
 			| expr COMMA expr				#List
 			| Identifier					#Var	// variables reference
 			| INT							#Int
@@ -145,8 +145,9 @@ fragment
 DOT			: '.' ;
 
 NOT			: '!' ;
-MULDIV		: STAR|SLASH ;
+MULDIV		: ('*'|'/') ;
 ADDSUB		: PLUS|MINUS ;
+
 fragment
 STAR		: '*' ;
 fragment
@@ -155,6 +156,7 @@ fragment
 PLUS		: '+' ;
 fragment
 MINUS		: '-' ;
+
 EQU			: '=' ;
 EQUAL		: '==' ;
 COMMA		: ',' {clearSign();} ;
