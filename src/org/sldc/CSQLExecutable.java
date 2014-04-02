@@ -72,20 +72,6 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return visit(tree);
 	}
 	
-	private boolean isNumeric(Object obj)
-	{
-		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))
-			return true;
-		else if(obj instanceof String)
-		{
-			String var = (String)obj;
-			Pattern pattern = Pattern.compile("^[-+]?[\\d]*([.][\\d]+)?$");    
-		    return pattern.matcher(var).matches(); 
-		}
-		else
-			return false;
-	}
-	
 	@Override 
 	public Object visitMulDiv(@NotNull cSQLParser.MulDivContext ctx) 
 	{
@@ -94,7 +80,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = getVarOrExpr(ctx.expr(0));
 			Object right = getVarOrExpr(ctx.expr(1));
 			
-			if(!isNumeric(left)||!isNumeric(right))
+			if(!CSQLBuildIns.isNumeric(left)||!CSQLBuildIns.isNumeric(right))
 				return new InvalidType();
 			
 			Double l = CSQLBuildIns.convertToDbl(left);
@@ -115,7 +101,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = getVarOrExpr(ctx.expr(0));
 			Object right = getVarOrExpr(ctx.expr(1));
 			
-			if(!isNumeric(left)||!isNumeric(right))
+			if(!CSQLBuildIns.isNumeric(left)||!CSQLBuildIns.isNumeric(right))
 				return new InvalidType();
 	
 			Double l = CSQLBuildIns.convertToDbl(left);

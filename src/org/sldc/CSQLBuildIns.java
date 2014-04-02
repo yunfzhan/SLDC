@@ -3,6 +3,7 @@ package org.sldc;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
@@ -34,6 +35,20 @@ public class CSQLBuildIns {
 				}
 		}
 		return result;
+	}
+	
+	public static boolean isNumeric(Object obj)
+	{
+		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))
+			return true;
+		else if(obj instanceof String)
+		{
+			String var = (String)obj;
+			Pattern pattern = Pattern.compile("^[-+]?[\\d]*([.][\\d]+)?$");    
+		    return pattern.matcher(var).matches(); 
+		}
+		else
+			return false;
 	}
 	
 	public static Double convertToDbl(Object obj) throws InvalidType
