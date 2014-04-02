@@ -86,16 +86,6 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			return false;
 	}
 	
-	private Double convertToDbl(Object obj) throws InvalidType
-	{
-		if(obj instanceof Double||obj instanceof Float||obj instanceof Integer)
-			return new Double((Double)obj);
-		else if(obj instanceof String)
-			return Double.valueOf((String)obj);
-		else
-			throw new InvalidType();
-	}
-	
 	@Override 
 	public Object visitMulDiv(@NotNull cSQLParser.MulDivContext ctx) 
 	{
@@ -107,8 +97,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(!isNumeric(left)||!isNumeric(right))
 				return new InvalidType();
 			
-			Double l = convertToDbl(left);
-			Double r = convertToDbl(right);
+			Double l = CSQLBuildIns.convertToDbl(left);
+			Double r = CSQLBuildIns.convertToDbl(right);
 			
 			return (ctx.op.getText().equals("*"))?l*r:l/r;
 		}catch(InvalidType e)
@@ -128,8 +118,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(!isNumeric(left)||!isNumeric(right))
 				return new InvalidType();
 	
-			Double l = convertToDbl(left);
-			Double r = convertToDbl(right);
+			Double l = CSQLBuildIns.convertToDbl(left);
+			Double r = CSQLBuildIns.convertToDbl(right);
 			
 			return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
 		}catch(InvalidType e)
@@ -146,8 +136,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object[] params = new Object[size];
 			for(int i=0;i<size;i++)
 			{
-				String varName = ctx.exprList().expr(i).getText();
-				params[i] = this.baseScope.getVarValue(varName);
+				params[i] = getVarOrExpr(ctx.exprList().expr(i));
 			}
 			
 			Object result = CSQLBuildIns.invoke(funcName, params);
