@@ -31,20 +31,19 @@ expr		: Identifier '.' expr			#Obj
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
 			| varAssign						#Assign
-			| expr COMMA expr				#List
 			| Identifier					#Var	// variables reference
 			| INT							#Int
 			| Number						#Num
 			| String						#String
 			;
 			
-stat		: fundecl NL
-			| selectExpr NL?
-			| block
-			| varDecl NL
-			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL
-			| RET expr? NL
-			| expr NL				// function call
+stat		: fundecl NL										#StatFuncDecl
+			| selectExpr NL?									#StatSelect
+			| block												#StatBlock
+			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL	#StatIf
+			| RET expr? NL										#StatReturn
+			| expr NL											#StatExpr
+			| varDecl NL										#StatVarDecl
 			;
 varDecl		: VAR varAssign (COMMA varAssign)* ;
 varAssign	: Identifier (EQU (expr|selectExpr))? ;

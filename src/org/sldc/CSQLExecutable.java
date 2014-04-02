@@ -16,6 +16,7 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
+import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
 
 
@@ -28,8 +29,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		this.baseScope = scope;
 	}
 	
-	public static ParseTree getWalkTree(InputStream is) throws IOException
+	private static InputStream StringToStream(String content)
 	{
+		return new ByteArrayInputStream(content.getBytes());
+	}
+	
+	public static cSQLParser getWalkTree(String content) throws IOException
+	{
+		InputStream is = StringToStream(content);
 		// create a stream that reads from file
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		// create a lexer that feeds off of input
@@ -40,16 +47,29 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		cSQLParser parser = new cSQLParser(tokens);
 		parser.removeErrorListeners();
 		parser.addErrorListener(new CSQLErrorListener());
-		// begin with the selectExpr rule
-		return parser.program();
+		return parser;
 	}
 	
-	public Object run() throws IOException, SLDCException
+	/*
+	 * Evaluate if it's a variable or expression.
+	 * 
+	 */
+	private Object getVarOrExpr(ParseTree expr)
+	{
+		String name = expr.getText();
+		Object result = this.baseScope.getVarValue(name);
+		if(result instanceof SLDCException)
+			result = visit(expr);
+		return result;
+	}
+	
+	public Object execScope() throws IOException, SLDCException
 	{
 		if(this.baseScope==null) throw new InvalidType();
-		InputStream in = new ByteArrayInputStream(this.baseScope.getInput().getBytes());
-		ParseTree tree = getWalkTree(in);
-		return visit(tree);		
+		String input = this.baseScope.getInput()+"\n";
+		cSQLParser parser = getWalkTree(input);
+		ParseTree tree = parser.stat();
+		return visit(tree);
 	}
 	
 	private boolean isNumeric(Object obj)
@@ -79,14 +99,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitMulDiv(@NotNull cSQLParser.MulDivContext ctx) 
 	{
-		Object left = visit(ctx.expr(0));
-		Object right = visit(ctx.expr(1));
-		
-		if(!isNumeric(left)||!isNumeric(right))
-			return new InvalidType();
-	
 		try
 		{
+			Object left = getVarOrExpr(ctx.expr(0));
+			Object right = getVarOrExpr(ctx.expr(1));
+			
+			if(!isNumeric(left)||!isNumeric(right))
+				return new InvalidType();
+			
 			Double l = convertToDbl(left);
 			Double r = convertToDbl(right);
 			
@@ -100,13 +120,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitAddSub(@NotNull cSQLParser.AddSubContext ctx) 
 	{
-		Object left = visit(ctx.expr(0));
-		Object right = visit(ctx.expr(1));
-		
-		if(!isNumeric(left)||!isNumeric(right))
-			return new InvalidType();
+		try
+		{
+			Object left = getVarOrExpr(ctx.expr(0));
+			Object right = getVarOrExpr(ctx.expr(1));
+			
+			if(!isNumeric(left)||!isNumeric(right))
+				return new InvalidType();
 	
-		try{
 			Double l = convertToDbl(left);
 			Double r = convertToDbl(right);
 			
@@ -118,15 +139,60 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
+	public Object visitFunc(@NotNull cSQLParser.FuncContext ctx) {
+		String funcName = ctx.Identifier().getText();
+		try{
+			int size = ctx.exprList().expr().size();
+			Object[] params = new Object[size];
+			for(int i=0;i<size;i++)
+			{
+				String varName = ctx.exprList().expr(i).getText();
+				params[i] = this.baseScope.getVarValue(varName);
+			}
+			
+			Object result = CSQLBuildIns.invoke(funcName, params);
+			
+			if(result instanceof NotBuildInFunction)
+			{
+				Scope scope = this.baseScope.getFuncValue(funcName);
+				for(int i=0;i<size;i++)
+				{
+					String varName = ctx.exprList().expr(i).getText();
+					scope.setVarValue(varName, params[i]);
+				}
+				
+				CSQLExecutable runner = new CSQLExecutable(scope);
+				return runner.execScope();
+			}
+			else
+				return result;
+		}catch(DefNotDeclException e){
+			return e;
+		} catch (IOException e) {
+			return e;
+		} catch (SLDCException e) {
+			return e;
+		}
+	}
+	
+	@Override 
+	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) 
+	{
+		Object result = null;
+		if(ctx.expr() != null)
+		{
+			result = getVarOrExpr(ctx.expr());
+		}
+		return result;
+	}
+	
+	@Override 
 	public Object visitVar(@NotNull cSQLParser.VarContext ctx) 
 	{
 		String Id = ctx.getText();
-		try {
-			Object value = this.baseScope.getVarValue(Id);
-			return value;
-		} catch (DefNotDeclException e) {
-			return e;
-		}
+		Object value = this.baseScope.getVarValue(Id);
+		return value;
+		
 	}
 	
 	@Override

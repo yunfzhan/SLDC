@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 
 public final class CSQLMain {
@@ -33,17 +34,19 @@ public final class CSQLMain {
 		InputStream is = System.in;
 		if(inputfile!=null) is = new FileInputStream(inputfile);
 		
-		ParseTree tree = CSQLExecutable.getWalkTree(is);
+		String text = getStreamContent(is, "utf8");
+		cSQLParser parser = CSQLExecutable.getWalkTree(text);
+		ParseTree tree = parser.program();
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		CSQLValidator validator = new CSQLValidator();
+		CSQLValidator validator = new CSQLValidator(text);
 		walker.walk(validator, tree);
 		
 		Scope currentScope = validator.getScope();
 		CSQLExecutable runner = new CSQLExecutable(currentScope);
-		Object value = runner.visit(tree);
-		System.out.println(value);
+		runner.visit(tree);
+		System.out.println();
 	}
 
 }

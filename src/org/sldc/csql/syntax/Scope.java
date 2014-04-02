@@ -57,7 +57,7 @@ public class Scope {
 	public Scope addFunction(String name) throws DefConflictException {
 		if(_functions.containsKey(name)||_variables.containsKey(name)) throw new DefConflictException();
 		Scope scope = new Scope(this);
-		_functions.put(name, null);
+		_functions.put(name, scope);
 		return scope;
 	}
 	
@@ -85,13 +85,13 @@ public class Scope {
 		return _variables.containsKey(name)||(upper!=null&&upper.containVar(name));
 	}
 	
-	public Object getVarValue(String name) throws DefNotDeclException {
+	public Object getVarValue(String name) {
 		if(_variables.containsKey(name))
 			return _variables.get(name);
 		else if(upper!=null&&upper.containVar(name))
 			return upper.getVarValue(name);
 		else
-			throw new DefNotDeclException();
+			return new DefNotDeclException();
 	}
 	
 	public void setVarValue(String name, Object value) throws DefNotDeclException {

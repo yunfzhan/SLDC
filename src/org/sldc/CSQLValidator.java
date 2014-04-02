@@ -10,12 +10,21 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
+import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
+	
+	private String codelines = null;
+	
+	public CSQLValidator(String lines)
+	{
+		this.codelines = lines;
+		this.currentScope.setInput(this.codelines);
+	}
 	
 	public Scope getScope()
 	{
@@ -28,23 +37,15 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 	
 	@Override 
-	public void exitVarDecl(@NotNull cSQLParser.VarDeclContext ctx) 
+	public void enterVarDecl(@NotNull cSQLParser.VarDeclContext ctx) 
 	{
 		List<cSQLParser.VarAssignContext> list = ctx.varAssign();
 		for(int i=0;i<list.size();i++)
 		{
 			cSQLParser.VarAssignContext vac = list.get(i);
 			TerminalNode id = vac.Identifier();
-			Object value = null;
-			if(vac.EQU()!=null)
-			{
-				CSQLExecutable run = new CSQLExecutable(this.currentScope);
-				value = run.visit(vac);
-			}
 			try {
-				if(value instanceof SLDCException) throw (SLDCException)value;
-				
-				this.currentScope.addVariables(id.getText(), value);
+				this.currentScope.addVariables(id.getText(), null);
 			} catch (SLDCException e) {
 				this.exceptions.add(e);
 			}
@@ -52,8 +53,23 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 	
 	@Override 
+	public void enterVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+		if(ctx.EQU()!=null)
+		{
+			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+			Object value = runner.visit(ctx.expr());
+			try {
+				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
+			} catch (DefNotDeclException e) {
+				this.exceptions.add(e);
+			}
+		}
+	}
+	
+	@Override 
 	public void enterStats(@NotNull cSQLParser.StatsContext ctx) {
-		this.currentScope.setInput(ctx.getText());
+		String text = this.codelines.substring(ctx.start.getStartIndex(), ctx.stop.getStopIndex());
+		this.currentScope.setInput(text);
 	}
 	
 	@Override 
@@ -63,10 +79,13 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 			if(ctx.parent instanceof cSQLParser.FundeclContext)
 			{
 				cSQLParser.FundeclContext parent = (FundeclContext) ctx.parent;
-				scope = this.currentScope.addFunction(parent.Identifier().getText());
-				for(int i=0;i<parent.funcParms().Identifier().size();i++)
+				String funcName = parent.Identifier().getText();
+				scope = this.currentScope.addFunction(funcName);
+				int size = parent.funcParms().Identifier().size();
+				for(int i=0;i<size;i++)
 				{
-					scope.addVariables(parent.funcParms().Identifier(i).getText(), null);
+					String param = parent.funcParms().Identifier(i).getText();
+					scope.addVariables(param, null);
 				}
 			}
 			else
