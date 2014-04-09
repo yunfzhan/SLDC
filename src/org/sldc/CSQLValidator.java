@@ -60,7 +60,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		if(ctx.EQU()!=null)
 		{
 			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-			Object value = runner.visit(ctx.expr());
+			Object value = ctx.expr()==null?null:runner.visit(ctx.expr());
 			try {
 				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
 			} catch (DefNotDeclException e) {
@@ -111,7 +111,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		Matcher matcher = pattern.matcher(matchstr);
 		if(!matcher.matches())
 		{
-			this.exceptions.add(new InvalidFormat());
+			this.exceptions.add(new InvalidFormat(matchstr));
 			return false;
 		}
 		return true;
@@ -119,7 +119,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void enterHttp(@NotNull cSQLParser.HttpContext ctx) {
-		String regex = "^http://[_-#$%0-9A-Za-z]+[_-#$%0-9A-Za-z.]*";
+		String regex = "^http://[_\\-#$%0-9A-Za-z]+[_\\-#$%0-9A-Za-z.]*";
 		formatCheck(regex, ctx.getText());
 	}
 	

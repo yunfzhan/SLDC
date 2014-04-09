@@ -1,10 +1,19 @@
 package org.sldc.exception;
 
+@SuppressWarnings("serial")
 public class DefNotDeclException extends SLDCException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6636087893014330865L;
-	private final String errorMsg = "Definition is not defined.";
+	private String varName = null;
+	
+	public DefNotDeclException(String name){
+		this.varName = name;
+	}
+	
+	public long exceptionID() {
+		return super.ERROR_BASE+4;
+	}
+	
+	public String getMessage() {
+		return this.varName+" is not declared yet.";
+	}
 }

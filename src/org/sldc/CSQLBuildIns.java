@@ -19,7 +19,7 @@ public class CSQLBuildIns {
 	
 	public static Object invoke(String funcName, Object[] params)
 	{
-		Object result = new NotBuildInFunction();
+		Object result = new NotBuildInFunction(funcName);
 		if(functions.containsKey(funcName))
 		{
 			Class<?> self = CSQLBuildIns.class;

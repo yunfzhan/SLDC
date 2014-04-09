@@ -5,11 +5,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
+import org.sldc.exception.SLDCException;
 
 public final class CSQLMain {
 	
@@ -43,9 +45,18 @@ public final class CSQLMain {
 		CSQLValidator validator = new CSQLValidator(text);
 		walker.walk(validator, tree);
 		
-		Scope currentScope = validator.getScope();
-		CSQLExecutable runner = new CSQLExecutable(currentScope);
-		runner.visit(tree);
+		List<SLDCException> exs = validator.getErrors();
+		if(exs.size()!=0)
+		{
+			for(int i=0;i<exs.size();i++)
+				System.err.println(exs.get(i).getMessage());
+		}
+		else
+		{
+			Scope currentScope = validator.getScope();
+			CSQLExecutable runner = new CSQLExecutable(currentScope);
+			runner.visit(tree);
+		}
 		System.out.println();
 	}
 
