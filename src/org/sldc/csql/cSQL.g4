@@ -51,7 +51,8 @@ varAssign	: Identifier (EQU (expr|selectExpr))? ;
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
 address     : protocols (COMMA protocols)*  ;
-protocols   : (http|file|ftp|database) (AS Identifier)? ;
+protocols   : protocol (AS Identifier)? ;
+protocol	: (http|file|ftp|database) ;
 http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
 ftp         : FTP '://' (user ':' password? '@')? domains ('/' remote?)* ;
@@ -115,7 +116,7 @@ Number		: MINUS? ( DIGIT+ (DOT DIGIT*)? ) {!isHttp&&!isFtp}? ;
 Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
 
 // HTTP only
-URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isHttp||isFtp}? ;
+URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|MINUS|LETTER|DIGIT)+ {isHttp||isFtp}? ;
 // File system only
 DriveLetter	: LETTER {isFile}? ;
 PathChars	: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFile}? ;

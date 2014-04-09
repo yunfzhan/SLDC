@@ -14,6 +14,7 @@ public class Scope {
 	private List<Scope> _anonymous = new ArrayList<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
+	private Map<String, Object> _alias = new HashMap<String, Object>();
 	private Scope upper = null;
 	
 	public Scope(){
@@ -64,6 +65,17 @@ public class Scope {
 	public void addVariables(String name, Object value) throws DefConflictException {
 		if(_variables.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException();
 		_variables.put(name, value);
+	}
+	
+	public void addAlias(String name, Object value) throws DefConflictException {
+		if(_alias.containsKey(name)) throw new DefConflictException();
+		_alias.put(name, value);
+	}
+	
+	public Object getAlias(String name)
+	{
+		if(!_alias.containsKey(name)) return new DefNotDeclException();
+		return _alias.get(name);
 	}
 	
 	public boolean containFunc(String name)

@@ -2,6 +2,8 @@ package org.sldc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -12,6 +14,7 @@ import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.IRuntimeError;
+import org.sldc.exception.InvalidFormat;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
@@ -53,7 +56,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 	
 	@Override 
-	public void enterVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
 		if(ctx.EQU()!=null)
 		{
 			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
@@ -101,6 +104,52 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	@Override 
 	public void exitBlock(@NotNull cSQLParser.BlockContext ctx) { 
 		this.currentScope = this.currentScope.getUpperScope();
+	}
+	
+	private boolean formatCheck(String regex, String matchstr){
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(matchstr);
+		if(!matcher.matches())
+		{
+			this.exceptions.add(new InvalidFormat());
+			return false;
+		}
+		return true;
+	}
+	
+	@Override 
+	public void enterHttp(@NotNull cSQLParser.HttpContext ctx) {
+		String regex = "^http://[_-#$%0-9A-Za-z]+[_-#$%0-9A-Za-z.]*";
+		formatCheck(regex, ctx.getText());
+	}
+	
+	@Override 
+	public void enterFtp(@NotNull cSQLParser.FtpContext ctx) {
+		String regex = "";
+		formatCheck(regex, ctx.getText());
+	}
+	
+	@Override 
+	public void enterFile(@NotNull cSQLParser.FileContext ctx) {
+		String regex = "";
+		formatCheck(regex, ctx.getText());
+	}
+	
+	@Override 
+	public void enterDatabase(@NotNull cSQLParser.DatabaseContext ctx) {
+		String regex = "";
+		formatCheck(regex, ctx.getText());
+	}
+	
+	@Override 
+	public void exitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
+		if(ctx.Identifier() != null){
+			try {
+				this.currentScope.addAlias(ctx.Identifier().getText(), ctx.protocol().getText());
+			} catch (DefConflictException e) {
+				this.exceptions.add(e);
+			}
+		}
 	}
 
 }
