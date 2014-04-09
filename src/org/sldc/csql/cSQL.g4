@@ -73,7 +73,7 @@ remote		: FtpPath ('/' FtpPath?)* ;
 
 condition	: expr ;
 params		: prop (COMMA prop)* ;
-contents	: '*'|expr ;
+contents	: '*'|exprList ;
 
 exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' .*? ;
