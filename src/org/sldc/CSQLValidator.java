@@ -27,8 +27,9 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private String codelines = null;
 	private CSQLProtocolFactory _pFactory = null;
 	
-	public CSQLValidator(String lines)
+	public CSQLValidator(String lines, CSQLProtocolFactory factory)
 	{
+		this._pFactory = factory;
 		this.codelines = lines;
 		this.currentScope.setInput(this.codelines);
 	}
@@ -70,10 +71,18 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 					value = runner.visit(ctx.expr());
 				else if(ctx.selectExpr()!=null)
 				{
-					String key = CSQLUtils.MD5Code(ctx.selectExpr().getText());
-					value = this.currentScope.getSelectResult(key);
-					if(value instanceof SLDCException)
-						throw (DefNotDeclException)value;
+					List<ProtocolsContext> protos = ctx.selectExpr().address().protocols();
+					for(int i=0;i<protos.size();i++)
+					{
+						String key = null;
+						if(protos.get(i).Identifier()!=null)
+							key = protos.get(i).Identifier().getText();
+						else
+							key = CSQLUtils.MD5Code(protos.get(i).protocol().getText());
+						value = this.currentScope.getAlias(key);
+						if(value instanceof SLDCException)
+							throw (DefNotDeclException)value;
+					}
 				}
 				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
 			} catch (DefNotDeclException e) {
@@ -171,7 +180,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	@Override 
 	public void exitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
 		List<ProtocolsContext> protos = ctx.address().protocols();
-		String key = CSQLUtils.MD5Code(ctx.getText());
+		
 		try {
 			for(int i=0;i<protos.size();i++)
 			{
@@ -179,7 +188,18 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				CSQLProtocol proto;
 				proto = _pFactory.Create(addr);
 				String result = proto.Retrieve();
-				this.currentScope.addSelectResult(key, result);
+				
+				String key = null;
+				if(protos.get(i).Identifier()!=null)
+				{
+					key = protos.get(i).Identifier().getText();
+					this.currentScope.setAlias(key, result);
+				}
+				else
+				{					
+					key = CSQLUtils.MD5Code(addr);
+					this.currentScope.addAlias(key, result);
+				}				
 			}
 		} catch (SLDCException e) {
 			this.exceptions.add(e);
