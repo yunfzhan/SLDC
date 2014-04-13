@@ -15,6 +15,7 @@ public class Scope {
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
 	private Map<String, Object> _alias = new HashMap<String, Object>();
+	private Map<String, Object> _selects = new HashMap<String, Object>();
 	private Scope upper = null;
 	
 	public Scope(){
@@ -76,6 +77,15 @@ public class Scope {
 	{
 		if(!_alias.containsKey(name)) return new DefNotDeclException(name);
 		return _alias.get(name);
+	}
+	
+	public void addSelectResult(String key, Object value) {
+		_selects.put(key, value);
+	}
+	
+	public Object getSelectResult(String key) {
+		if(!_selects.containsKey(key)) return new DefNotDeclException(key);
+		return _selects.get(key);
 	}
 	
 	public boolean containFunc(String name)

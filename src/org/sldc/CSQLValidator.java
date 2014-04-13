@@ -10,11 +10,14 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
+import org.sldc.csql.cSQLParser.ProtocolsContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.InvalidFormat;
+import org.sldc.exception.NotSupportedProtocol;
+import org.sldc.exception.ProtocolException;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
@@ -22,6 +25,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	
 	private String codelines = null;
+	private CSQLProtocolFactory _pFactory = null;
 	
 	public CSQLValidator(String lines)
 	{
@@ -59,9 +63,18 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
 		if(ctx.EQU()!=null)
 		{
-			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-			Object value = ctx.expr()==null?null:runner.visit(ctx.expr());
 			try {
+				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+				Object value = null;
+				if(ctx.expr()!=null)
+					value = runner.visit(ctx.expr());
+				else if(ctx.selectExpr()!=null)
+				{
+					String key = CSQLUtils.MD5Code(ctx.selectExpr().getText());
+					value = this.currentScope.getSelectResult(key);
+					if(value instanceof SLDCException)
+						throw (DefNotDeclException)value;
+				}
 				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
 			} catch (DefNotDeclException e) {
 				this.exceptions.add(e);
@@ -111,15 +124,18 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		Matcher matcher = pattern.matcher(matchstr);
 		if(!matcher.matches())
 		{
-			this.exceptions.add(new InvalidFormat(matchstr));
-			return false;
+//			this.exceptions.add(new InvalidFormat(matchstr));
+//			return false;
 		}
 		return true;
 	}
 	
 	@Override 
 	public void enterHttp(@NotNull cSQLParser.HttpContext ctx) {
-		String regex = "^http://[_\\-#$%0-9A-Za-z]+[_\\-#$%0-9A-Za-z.]*";
+		String urlchars = "_\\-#$%0-9A-Za-z";
+		String domains = "["+urlchars+"]+";
+		String port = "(:[0-9]+)";
+		String regex = "^http://"+domains+"([.]"+domains+")*"+port+"?";
 		formatCheck(regex, ctx.getText());
 	}
 	
@@ -152,4 +168,21 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		}
 	}
 
+	@Override 
+	public void exitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
+		List<ProtocolsContext> protos = ctx.address().protocols();
+		String key = CSQLUtils.MD5Code(ctx.getText());
+		try {
+			for(int i=0;i<protos.size();i++)
+			{
+				String addr = protos.get(i).protocol().getText();
+				CSQLProtocol proto;
+				proto = _pFactory.Create(addr);
+				String result = proto.Retrieve();
+				this.currentScope.addSelectResult(key, result);
+			}
+		} catch (SLDCException e) {
+			this.exceptions.add(e);
+		}
+	}
 }

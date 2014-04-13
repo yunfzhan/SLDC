@@ -166,7 +166,6 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		String Id = ctx.getText();
 		Object value = this.baseScope.getVarValue(Id);
 		return value;
-		
 	}
 	
 	@Override
@@ -186,4 +185,15 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{ 
 		return ctx.String().getText(); 
 	}
+	
+//	@Override 
+//	public Object visitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
+//		try {
+//			if(ctx.Identifier()!=null)
+//				this.baseScope.addAlias(ctx.Identifier().getText(), ctx.protocol().getText());
+//			return ctx.protocol().getText();
+//		} catch (DefConflictException e) {
+//			return e;
+//		}
+//	}
 }

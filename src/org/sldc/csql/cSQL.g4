@@ -77,7 +77,7 @@ params		: prop (COMMA prop)* ;
 contents	: '*'|exprList ;
 
 exprList	: expr (COMMA expr)* ;
-prop		: Identifier '=' .*? ;
+prop		: Identifier '=' String ;
 
 // functions definition
 fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
