@@ -3,11 +3,11 @@ package org.sldc.exception;
 @SuppressWarnings("serial")
 public class ProtocolException extends SLDCException {
 	
-	private String msg = null;
+	private Exception e = null;
 	
-	public ProtocolException(String msg)
+	public ProtocolException(Exception ex)
 	{
-		this.msg = msg;
+		this.e = ex;
 	}
 	
 	public long exceptionID() {
@@ -15,6 +15,10 @@ public class ProtocolException extends SLDCException {
 	}
 	
 	public String getMessage() {
-		return this.msg;
+		return "Protocol Error!";
+	}
+	
+	public Exception getNestedException(){
+		return this.e;
 	}
 }

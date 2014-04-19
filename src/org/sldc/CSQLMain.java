@@ -42,7 +42,7 @@ public final class CSQLMain {
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		CSQLValidator validator = new CSQLValidator(text, new CSQLProtocolFactoryImpl());
+		CSQLValidator validator = new CSQLValidator(tree, new CSQLProtocolFactoryImpl());
 		walker.walk(validator, tree);
 		
 		List<SLDCException> exs = validator.getErrors();

@@ -21,8 +21,7 @@ row			: stat
 			| NL
 			;
 			
-expr		: Identifier '.' expr			#Obj
-			| Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
+expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
 			| '(' expr ')'					#Bracket
 			| expr '[' expr ']'				#Array	// match array index
 			| '-' expr						#Minus
@@ -50,7 +49,7 @@ varAssign	: Identifier (EQU (expr|selectExpr))? ;
 
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
-address     : protocols (COMMA protocols)*  ;
+address     : protocols (COMMA protocols)* ;
 protocols   : protocol (AS Identifier)? ;
 protocol	: (http|file|ftp|database) ;
 http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;

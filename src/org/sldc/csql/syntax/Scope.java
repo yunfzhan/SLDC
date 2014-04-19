@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 
 public class Scope {
 	private String _name;
-	private String _input;
+	private ParseTree _node;
 	private List<Scope> _anonymous = new ArrayList<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
-	private Map<String, Object> _alias = new HashMap<String, Object>();
 	private Scope upper = null;
 	
 	public Scope(){
@@ -35,14 +35,14 @@ public class Scope {
 		this._name = name;
 	}
 	
-	public String getInput()
+	public ParseTree getInput()
 	{
-		return this._input;
+		return this._node;
 	}
 	
-	public void setInput(String input)
+	public void setInput(ParseTree node)
 	{
-		this._input = input;
+		this._node = node;
 	}
 	
 	public Scope getUpperScope(){
@@ -62,26 +62,9 @@ public class Scope {
 		return scope;
 	}
 	
-	public void addVariables(String name, Object value) throws DefConflictException {
+	public void addVariable(String name, Object value) throws DefConflictException {
 		if(_variables.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException(name);
 		_variables.put(name, value);
-	}
-	
-	public void addAlias(String name, Object value) throws DefConflictException {
-		if(_alias.containsKey(name)) throw new DefConflictException(name);
-		_alias.put(name, value);
-	}
-	
-	public Object getAlias(String name)
-	{
-		if(!_alias.containsKey(name)) return new DefNotDeclException(name);
-		return _alias.get(name);
-	}
-	
-	public void setAlias(String name, Object value) throws DefNotDeclException
-	{
-		if(!_alias.containsKey(name)) throw new DefNotDeclException(name);
-		_alias.put(name, value);
 	}
 	
 	public boolean containFunc(String name)

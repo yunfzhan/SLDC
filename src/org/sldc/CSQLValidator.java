@@ -1,11 +1,15 @@
 package org.sldc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
@@ -15,23 +19,18 @@ import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.IRuntimeError;
-import org.sldc.exception.InvalidFormat;
-import org.sldc.exception.NotSupportedProtocol;
-import org.sldc.exception.ProtocolException;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
-	
-	private String codelines = null;
+	private ParseTreeProperty<Object> selResults = new ParseTreeProperty<Object>();
 	private CSQLProtocolFactory _pFactory = null;
 	
-	public CSQLValidator(String lines, CSQLProtocolFactory factory)
+	public CSQLValidator(ParseTree tree, CSQLProtocolFactory factory)
 	{
 		this._pFactory = factory;
-		this.codelines = lines;
-		this.currentScope.setInput(this.codelines);
+		this.currentScope.setInput(tree);
 	}
 	
 	public Scope getScope()
@@ -53,7 +52,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 			cSQLParser.VarAssignContext vac = list.get(i);
 			TerminalNode id = vac.Identifier();
 			try {
-				this.currentScope.addVariables(id.getText(), null);
+				this.currentScope.addVariable(id.getText(), null);
 			} catch (SLDCException e) {
 				this.exceptions.add(e);
 			}
@@ -70,20 +69,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				if(ctx.expr()!=null)
 					value = runner.visit(ctx.expr());
 				else if(ctx.selectExpr()!=null)
-				{
-					List<ProtocolsContext> protos = ctx.selectExpr().address().protocols();
-					for(int i=0;i<protos.size();i++)
-					{
-						String key = null;
-						if(protos.get(i).Identifier()!=null)
-							key = protos.get(i).Identifier().getText();
-						else
-							key = CSQLUtils.MD5Code(protos.get(i).protocol().getText());
-						value = this.currentScope.getAlias(key);
-						if(value instanceof SLDCException)
-							throw (DefNotDeclException)value;
-					}
-				}
+					value = this.selResults.get(ctx.selectExpr());
 				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
 			} catch (DefNotDeclException e) {
 				this.exceptions.add(e);
@@ -93,8 +79,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void enterStats(@NotNull cSQLParser.StatsContext ctx) {
-		String text = this.codelines.substring(ctx.start.getStartIndex(), ctx.stop.getStopIndex());
-		this.currentScope.setInput(text);
+		this.currentScope.setInput(ctx);
 	}
 	
 	@Override 
@@ -110,7 +95,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				for(int i=0;i<size;i++)
 				{
 					String param = parent.funcParms().Identifier(i).getText();
-					scope.addVariables(param, null);
+					scope.addVariable(param, null);
 				}
 			}
 			else
@@ -170,7 +155,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	public void exitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
 		if(ctx.Identifier() != null){
 			try {
-				this.currentScope.addAlias(ctx.Identifier().getText(), ctx.protocol().getText());
+				this.currentScope.addVariable(ctx.Identifier().getText(), ctx.protocol().getText());
 			} catch (DefConflictException e) {
 				this.exceptions.add(e);
 			}
@@ -178,31 +163,51 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 
 	@Override 
+	public void enterSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
+		Scope scope = this.currentScope.addAnonymous();
+		this.currentScope = scope;
+	}
+	
+	@Override 
 	public void exitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
 		List<ProtocolsContext> protos = ctx.address().protocols();
-		
-		try {
+		try{
+			String[] key = new String[protos.size()];
+			// List all addresses, fetch contents from those addresses
 			for(int i=0;i<protos.size();i++)
 			{
-				String addr = protos.get(i).protocol().getText();
-				CSQLProtocol proto;
-				proto = _pFactory.Create(addr);
-				String result = proto.Retrieve();
-				
-				String key = null;
-				if(protos.get(i).Identifier()!=null)
-				{
-					key = protos.get(i).Identifier().getText();
-					this.currentScope.setAlias(key, result);
-				}
+				ProtocolsContext proto = protos.get(i);
+				if(proto.Identifier()==null)
+					key[i] = "Field"+String.valueOf(i+1);
 				else
-				{					
-					key = CSQLUtils.MD5Code(addr);
-					this.currentScope.addAlias(key, result);
-				}				
+					key[i] = proto.Identifier().getText();
+				
+				CSQLProtocol protocol = _pFactory.Create(proto.protocol().getText());
+				String rev = protocol.Retrieve();
+				this.currentScope.setVarValue(key[i], rev);
 			}
-		} catch (SLDCException e) {
+			
+			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+			Object b = true;
+			// Check conditions
+			if(ctx.condition()!=null)
+			{
+				b = runner.visit(ctx.condition());
+				if(b instanceof SLDCException) throw (SLDCException)b;
+			}
+			// Format results into columns
+			if((Boolean)b==true)
+			{
+				Map<String, Object> value = new HashMap<String, Object>();
+				for(int i=0;i<key.length;i++)
+					value.put(key[i], this.currentScope.getVarValue(key[i]));
+				this.selResults.put(ctx, value);
+			}
+		}catch(SLDCException e)
+		{
 			this.exceptions.add(e);
 		}
+		
+		this.currentScope = this.currentScope.getUpperScope();
 	}
 }

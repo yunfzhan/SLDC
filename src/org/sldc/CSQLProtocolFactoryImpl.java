@@ -12,7 +12,7 @@ public class CSQLProtocolFactoryImpl implements CSQLProtocolFactory {
 			{
 				String className = "CSQL"+prtl.toUpperCase()+"Protocol";	
 				Class<?> protoClass = Class.forName("org.sldc.protocols."+className);
-				return (CSQLProtocol) protoClass.newInstance();
+				return (CSQLProtocol) protoClass.getConstructor(String.class).newInstance(protocol);
 			}
 		} catch (Exception e) {
 			throw new NotSupportedProtocol(prtl);

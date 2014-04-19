@@ -21,11 +21,11 @@ import org.sldc.exception.SLDCException;
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
-	private Scope baseScope = null;
+	private Scope currentScope = null;
 	
 	public CSQLExecutable(Scope scope)
 	{
-		this.baseScope = scope;
+		this.currentScope = scope;
 	}
 	
 	private static InputStream StringToStream(String content)
@@ -56,7 +56,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	private Object getVarOrExpr(ParseTree expr)
 	{
 		String name = expr.getText();
-		Object result = this.baseScope.getVarValue(name);
+		Object result = this.currentScope.getVarValue(name);
 		if(result instanceof SLDCException)
 			result = visit(expr);
 		return result;
@@ -64,11 +64,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	public Object execScope() throws IOException, SLDCException
 	{
-		if(this.baseScope==null) throw new InvalidType();
-		String input = this.baseScope.getInput()+"\n";
-		cSQLParser parser = getWalkTree(input);
-		ParseTree tree = parser.stat();
-		return visit(tree);
+		if(this.currentScope==null) throw new InvalidType();
+		return visit(this.currentScope.getInput());
 	}
 	
 	@Override 
@@ -128,7 +125,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			
 			if(result instanceof NotBuildInFunction)
 			{
-				Scope scope = this.baseScope.getFuncValue(funcName);
+				Scope scope = this.currentScope.getFuncValue(funcName);
 				for(int i=0;i<size;i++)
 				{
 					String varName = ctx.exprList().expr(i).getText();
@@ -164,7 +161,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object visitVar(@NotNull cSQLParser.VarContext ctx) 
 	{
 		String Id = ctx.getText();
-		Object value = this.baseScope.getVarValue(Id);
+		Object value = this.currentScope.getVarValue(Id);
 		return value;
 	}
 	
