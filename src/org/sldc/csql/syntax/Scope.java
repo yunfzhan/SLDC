@@ -1,18 +1,17 @@
 package org.sldc.csql.syntax;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 
 public class Scope {
 	private String _name;
 	private ParseTree _node;
-	private List<Scope> _anonymous = new ArrayList<Scope>();
+	private ParseTreeProperty<Scope> _anonymous = new ParseTreeProperty<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
 	private Map<String, Object> _variables = new HashMap<String, Object>();
 	private Scope upper = null;
@@ -49,10 +48,14 @@ public class Scope {
 		return this.upper;
 	}
 	
-	public Scope addAnonymous() {
+	public Scope addAnonymous(ParseTree node) {
 		Scope scope = new Scope(this);
-		_anonymous.add(scope);
+		_anonymous.put(node, scope);
 		return scope;
+	}
+	
+	public Scope getAnonymous(ParseTree node) {
+		return _anonymous.get(node);
 	}
 	
 	public Scope addFunction(String name) throws DefConflictException {

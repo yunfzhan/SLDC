@@ -147,6 +147,15 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
+	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
+		Scope scope = this.currentScope.getAnonymous(ctx);
+		this.currentScope = scope;
+		Object r = visitChildren(ctx);
+		this.currentScope = scope.getUpperScope();
+		return r;
+	}
+	
+	@Override 
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) 
 	{
 		Object result = null;

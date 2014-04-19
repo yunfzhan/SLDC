@@ -61,7 +61,7 @@ public class CSQLBuildIns {
 			throw new InvalidType();
 	}
 	
-	public static String _InCore(Object param){
+	public static String _InCore(Object contents, String tag){
 		return "Not implemented yet";
 	}
 	
@@ -71,6 +71,19 @@ public class CSQLBuildIns {
 	}
 	
 	public static void print(Object obj){
-		System.out.print(obj);
+		if(obj instanceof Map)
+		{
+			Map map = (Map)obj;
+			Object[] keys=map.keySet().toArray();
+			StringBuilder sb = new StringBuilder();
+			for(Object key : keys)
+			{
+				sb.append("|\t"+key+"\n | ");
+				sb.append(map.get(key)+"\n");
+			}
+			System.out.println(sb.toString());
+		}
+		else
+			System.out.print(obj);
 	}
 }

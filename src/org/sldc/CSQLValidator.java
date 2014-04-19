@@ -100,7 +100,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 			}
 			else
 			{
-				scope = this.currentScope.addAnonymous();
+				scope = this.currentScope.addAnonymous(ctx);
 			}
 			this.currentScope = scope;
 		} catch (DefConflictException e) {
@@ -164,7 +164,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 
 	@Override 
 	public void enterSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Scope scope = this.currentScope.addAnonymous();
+		Scope scope = this.currentScope.addAnonymous(ctx);
 		this.currentScope = scope;
 	}
 	
@@ -187,22 +187,10 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				this.currentScope.setVarValue(key[i], rev);
 			}
 			
-			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-			Object b = true;
-			// Check conditions
-			if(ctx.condition()!=null)
-			{
-				b = runner.visit(ctx.condition());
-				if(b instanceof SLDCException) throw (SLDCException)b;
-			}
-			// Format results into columns
-			if((Boolean)b==true)
-			{
-				Map<String, Object> value = new HashMap<String, Object>();
+			Map<String, Object> value = new HashMap<String, Object>();
 				for(int i=0;i<key.length;i++)
 					value.put(key[i], this.currentScope.getVarValue(key[i]));
-				this.selResults.put(ctx, value);
-			}
+			this.selResults.put(ctx, value);
 		}catch(SLDCException e)
 		{
 			this.exceptions.add(e);
