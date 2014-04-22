@@ -19,7 +19,7 @@ public class CSQLHTTPProtocol implements CSQLProtocol {
 	}
 	
 	@Override
-	public String Retrieve() throws ProtocolException {
+	public Object Retrieve() throws ProtocolException {
 		InputStream is = null;
 		try {
 			URL url = new URL(this.address);

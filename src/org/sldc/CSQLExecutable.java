@@ -76,11 +76,11 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = getVarOrExpr(ctx.expr(0));
 			Object right = getVarOrExpr(ctx.expr(1));
 			
-			if(!CSQLBuildIns.isNumeric(left)||!CSQLBuildIns.isNumeric(right))
+			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType();
 			
-			Double l = CSQLBuildIns.convertToDbl(left);
-			Double r = CSQLBuildIns.convertToDbl(right);
+			Double l = CSQLUtils.convertToDbl(left);
+			Double r = CSQLUtils.convertToDbl(right);
 			
 			return (ctx.op.getText().equals("*"))?l*r:l/r;
 		}catch(InvalidType e)
@@ -97,11 +97,11 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = getVarOrExpr(ctx.expr(0));
 			Object right = getVarOrExpr(ctx.expr(1));
 			
-			if(!CSQLBuildIns.isNumeric(left)||!CSQLBuildIns.isNumeric(right))
+			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType();
 	
-			Double l = CSQLBuildIns.convertToDbl(left);
-			Double r = CSQLBuildIns.convertToDbl(right);
+			Double l = CSQLUtils.convertToDbl(left);
+			Double r = CSQLUtils.convertToDbl(right);
 			
 			return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
 		}catch(InvalidType e)
@@ -148,10 +148,12 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Scope scope = this.currentScope.getAnonymous(ctx);
-		this.currentScope = scope;
-		Object r = visitChildren(ctx);
-		this.currentScope = scope.getUpperScope();
+		Boolean where = true;
+		if(ctx.condition()!=null)
+			where = (Boolean)visit(ctx.condition());
+		Object r = null;
+		if(where)
+			r = visit(ctx.contents());
 		return r;
 	}
 	
@@ -170,8 +172,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object visitVar(@NotNull cSQLParser.VarContext ctx) 
 	{
 		String Id = ctx.getText();
-		Object value = this.currentScope.getVarValue(Id);
-		return value;
+		return this.currentScope.getVarValue(Id);
 	}
 	
 	@Override
@@ -191,15 +192,4 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{ 
 		return ctx.String().getText(); 
 	}
-	
-//	@Override 
-//	public Object visitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
-//		try {
-//			if(ctx.Identifier()!=null)
-//				this.baseScope.addAlias(ctx.Identifier().getText(), ctx.protocol().getText());
-//			return ctx.protocol().getText();
-//		} catch (DefConflictException e) {
-//			return e;
-//		}
-//	}
 }

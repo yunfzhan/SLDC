@@ -9,11 +9,12 @@ import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 
 public class Scope {
-	private String _name;
+//	private String _name;
 	private ParseTree _node;
-	private ParseTreeProperty<Scope> _anonymous = new ParseTreeProperty<Scope>();
+	private ParseTreeProperty<Scope> _anonymousScope = new ParseTreeProperty<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
-	private Map<String, Object> _variables = new HashMap<String, Object>();
+	private Map<String, Object> _namedVars = new HashMap<String, Object>();
+	private ParseTreeProperty<Object> _anonymousVars = new ParseTreeProperty<Object>();
 	private Scope upper = null;
 	
 	public Scope(){
@@ -24,16 +25,16 @@ public class Scope {
 		this.upper = upper;
 	}
 	
-	public String getName()
-	{
-		return this._name;
-	}
-	
-	public void setName(String name)
-	{
-		this._name = name;
-	}
-	
+//	public String getName()
+//	{
+//		return this._name;
+//	}
+//	
+//	public void setName(String name)
+//	{
+//		this._name = name;
+//	}
+//	
 	public ParseTree getInput()
 	{
 		return this._node;
@@ -50,24 +51,19 @@ public class Scope {
 	
 	public Scope addAnonymous(ParseTree node) {
 		Scope scope = new Scope(this);
-		_anonymous.put(node, scope);
+		_anonymousScope.put(node, scope);
 		return scope;
 	}
 	
 	public Scope getAnonymous(ParseTree node) {
-		return _anonymous.get(node);
+		return _anonymousScope.get(node);
 	}
 	
 	public Scope addFunction(String name) throws DefConflictException {
-		if(_functions.containsKey(name)||_variables.containsKey(name)) throw new DefConflictException(name);
+		if(_functions.containsKey(name)||_namedVars.containsKey(name)) throw new DefConflictException(name);
 		Scope scope = new Scope(this);
 		_functions.put(name, scope);
 		return scope;
-	}
-	
-	public void addVariable(String name, Object value) throws DefConflictException {
-		if(_variables.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException(name);
-		_variables.put(name, value);
 	}
 	
 	public boolean containFunc(String name)
@@ -84,26 +80,64 @@ public class Scope {
 			throw new DefNotDeclException(name);
 	}
 	
+	public void addVariable(String name, Object value) throws DefConflictException {
+		if(_namedVars.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException(name);
+		_namedVars.put(name, value);
+	}
+	
+	public void addVariable(ParseTree node, Object value) {
+		_anonymousVars.put(node, value);
+	}
+	
+	public void addVariable(Object key, Object value) throws DefConflictException {
+		if(key instanceof ParseTree)
+			addVariable((ParseTree)key, value);
+		else if(key instanceof String)
+			addVariable((String)key, value);
+	}
+	
 	public boolean containVar(String name)
 	{
-		return _variables.containsKey(name)||(upper!=null&&upper.containVar(name));
+		return _namedVars.containsKey(name)||(upper!=null&&upper.containVar(name));
+	}
+	
+	public boolean containVar(ParseTree node){
+		return this._anonymousVars.get(node)!=null;
 	}
 	
 	public Object getVarValue(String name) {
-		if(_variables.containsKey(name))
-			return _variables.get(name);
+		if(_namedVars.containsKey(name))
+			return _namedVars.get(name);
 		else if(upper!=null&&upper.containVar(name))
 			return upper.getVarValue(name);
 		else
 			return new DefNotDeclException(name);
 	}
 	
+	public Object getVarValue(ParseTree node) {
+		if(containVar(node))
+			return _anonymousVars.get(node);
+		else if(upper!=null&&upper.containVar(node))
+			return upper.getVarValue(node);
+		else
+			return new DefNotDeclException("Anonymous var "+node.getText());
+	}
+	
 	public void setVarValue(String name, Object value) throws DefNotDeclException {
-		if(_variables.containsKey(name))
-			_variables.put(name, value);
+		if(_namedVars.containsKey(name))
+			_namedVars.put(name, value);
 		else if(upper!=null)
 			upper.setVarValue(name, value);
 		else
 			throw new DefNotDeclException(name);
+	}
+	
+	public void setVarValue(ParseTree node, Object value) throws DefNotDeclException {
+		if(_namedVars.containsKey(node))
+			_anonymousVars.put(node, value);
+		else if(upper!=null)
+			upper.setVarValue(node, value);
+		else
+			throw new DefNotDeclException("Anonymous var "+node.getText());
 	}
 }

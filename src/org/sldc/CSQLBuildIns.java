@@ -1,18 +1,21 @@
 package org.sldc;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
+import org.sldc.protocols.HTMLAnalyzer;
 
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
+		functions.put("isnull", "isNull");
 		functions.put("print", "print");
 		functions.put("pow", "Pow");
 	}
@@ -29,50 +32,57 @@ public class CSQLBuildIns {
 				if(methods[i].getName().equals(functions.get(funcName)))
 				{
 					try {
+						Class<?>[] ptypes = methods[i].getParameterTypes();
+						if(ptypes.length!=params.length) continue;
 						result = methods[i].invoke(self, params);
 						break;
-					} catch (Exception e) {	}
+					} catch (Exception e) {
+						result = e;
+					}
 				}
 		}
 		return result;
 	}
 	
-	public static boolean isNumeric(Object obj)
-	{
-		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))
-			return true;
-		else if(obj instanceof String)
-		{
-			String var = (String)obj;
-			Pattern pattern = Pattern.compile("^[-+]?[\\d]*([.][\\d]+)?$");    
-		    return pattern.matcher(var).matches(); 
+	public static boolean isNull(Object obj) {
+		return obj==null;
+	}
+	
+	public static Object _InCore(Object contents, String plain){
+		return _InCore(contents, plain, "p");
+	}
+	
+	public static Object _InCore(Object contents, String srchable, String indicator) {
+		if(srchable!=null&&!srchable.equals(""))
+			srchable = srchable.substring(1,srchable.length()-1);
+		if(indicator.startsWith("\"")) indicator = indicator.substring(1);
+		if(indicator.endsWith("\"")) indicator = indicator.substring(0,indicator.length()-1);
+		
+		if(indicator.equalsIgnoreCase("p")){
+			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) contents);
+			return res.size()!=0;
+		}else if(indicator.equalsIgnoreCase("r")){
+			
+		}else if(indicator.equalsIgnoreCase("t")){
+			try {
+				String[] res = HTMLAnalyzer.startAnalyze((String) contents, srchable);
+				return res;
+			} catch (IOException e) {
+				return e;
+			}
 		}
-		else
-			return false;
+		return null;
 	}
-	
-	public static Double convertToDbl(Object obj) throws InvalidType
-	{
-		if(obj instanceof Double||obj instanceof Float||obj instanceof Integer)
-			return new Double((Double)obj);
-		else if(obj instanceof String)
-			return Double.valueOf((String)obj);
-		else
-			throw new InvalidType();
-	}
-	
-	public static String _InCore(Object contents, String tag){
-		return "Not implemented yet";
-	}
-	
+
 	public static Double Pow(Object base, Object pow) throws InvalidType
 	{
-		return Math.pow(convertToDbl(base), convertToDbl(pow));
+		return Math.pow(CSQLUtils.convertToDbl(base), CSQLUtils.convertToDbl(pow));
 	}
 	
 	public static void print(Object obj){
 		if(obj instanceof Map)
 		{
+			@SuppressWarnings("rawtypes")
 			Map map = (Map)obj;
 			Object[] keys=map.keySet().toArray();
 			StringBuilder sb = new StringBuilder();

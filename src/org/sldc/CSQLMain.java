@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -29,7 +30,19 @@ public final class CSQLMain {
 		return sb.toString();
 	}
 	
+	public static void unittest() {
+		String text = "This is a example of an sample tet for SQL-Like core test module tet unit test.";
+		String pattern = "tet";
+		ArrayList<Integer> found = CSQLUtils.BoyerMoore(pattern, text);
+		if(found.size()!=0)
+		{
+			for(int i=0;i<found.size();i++)
+				System.out.println(found.get(i));
+		}
+	}
+	
 	public static void main(String[] args) throws IOException {
+//		unittest();
 		String inputfile = null;
 		if(args.length>0) inputfile = args[0];
 		
