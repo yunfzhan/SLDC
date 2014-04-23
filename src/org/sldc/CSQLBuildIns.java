@@ -53,13 +53,13 @@ public class CSQLBuildIns {
 	}
 	
 	public static Object _InCore(Object contents, String srchable, String indicator) {
-		if(srchable!=null&&!srchable.equals(""))
-		{
-			if(srchable.startsWith("\""))
-				srchable = srchable.substring(1);
-			if(srchable.endsWith("\""))
-				srchable = srchable.substring(0,srchable.length()-1);
-		}
+		if(srchable==null||srchable.equals("")) return "";
+		
+		if(srchable.startsWith("\""))
+			srchable = srchable.substring(1);
+		if(srchable.endsWith("\""))
+			srchable = srchable.substring(0,srchable.length()-1);
+		
 		if(indicator.startsWith("\"")) indicator = indicator.substring(1);
 		if(indicator.endsWith("\"")) indicator = indicator.substring(0,indicator.length()-1);
 		
@@ -76,7 +76,7 @@ public class CSQLBuildIns {
 				return e;
 			}
 		}
-		return null;
+		return "";
 	}
 
 	public static Double Pow(Object base, Object pow) throws InvalidType

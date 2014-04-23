@@ -5,7 +5,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.sldc.exception.InvalidType;
@@ -82,13 +81,13 @@ public class CSQLUtils {
 	private static Object fetchArrayItem(Object[] arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
 		Integer index = checkIntegerIndex(idx);
 		if(index==null) throw new InvalidType(new Throwable());
-		return arr[(Integer) idx];
+		return arr[(Integer) index];
 	}
 	
 	private static Character fetchStringItem(String arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
 		Integer index = checkIntegerIndex(idx);
 		if(index==null) throw new InvalidType(new Throwable());
-		return arr.charAt((Integer) idx);
+		return arr.charAt((Integer) index);
 	}
 	
 	private static Integer checkIntegerIndex(Object idx){
