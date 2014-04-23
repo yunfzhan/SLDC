@@ -198,8 +198,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitString(@NotNull cSQLParser.StringContext ctx) 
 	{ 
-		String text = ctx.String().getText();
-		return text.substring(1, text.length()-1); // skip double quote
+		return ctx.String().getText();
 	}
 	
 	@Override 
