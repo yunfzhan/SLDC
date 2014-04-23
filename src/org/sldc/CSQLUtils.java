@@ -3,6 +3,9 @@ package org.sldc;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.sldc.exception.InvalidType;
@@ -45,11 +48,75 @@ public class CSQLUtils {
 		else if(obj instanceof String)
 			return Double.valueOf((String)obj);
 		else
-			throw new InvalidType();
+			throw new InvalidType(new Throwable());
 	}
 	
-	public static Object fetchArrayItem(Object arr, Object idx) {
+	private static Object fetchMapItem(Map<String, Object> arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
+		Integer index = checkIntegerIndex(idx);
+		if(index!=null) {
+			for(String key : arr.keySet())
+			{
+				if(index--==0)
+					return arr.get(key);
+			}
+			return new ArrayIndexOutOfBoundsException((Integer)idx);
+		}else if(idx instanceof String) {
+			return arr.get(idx);
+		}
+		else
+			throw new InvalidType(new Throwable());
+	}
+	
+	private static Object fetchListItem(@SuppressWarnings("rawtypes") Collection arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
+		Integer index = checkIntegerIndex(idx);
+		if(index==null) throw new InvalidType(new Throwable());
+		
+		for(Object item : arr)
+		{
+			if(index--==0)
+				return item;
+		}
+		return new ArrayIndexOutOfBoundsException((Integer)idx);
+	}
+	
+	private static Object fetchArrayItem(Object[] arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
+		Integer index = checkIntegerIndex(idx);
+		if(index==null) throw new InvalidType(new Throwable());
+		return arr[(Integer) idx];
+	}
+	
+	private static Character fetchStringItem(String arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
+		Integer index = checkIntegerIndex(idx);
+		if(index==null) throw new InvalidType(new Throwable());
+		return arr.charAt((Integer) idx);
+	}
+	
+	private static Integer checkIntegerIndex(Object idx){
+		try{
+			if(idx instanceof String) {
+				return Integer.valueOf((String)idx);
+			}
+		}catch(NumberFormatException ex){
+		}
 		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static Object fetchArray(Object arr, Object idx) {
+		try{			
+			if(arr instanceof Map<?, ?>){
+				return fetchMapItem((Map<String, Object>) arr,idx);
+			}else if(arr instanceof Collection) {
+				return fetchListItem((Collection) arr,idx);
+			}else if(arr.getClass().isArray()) {
+				return fetchArrayItem((Object[]) arr,idx);
+			}else if(arr instanceof String) {
+				return fetchStringItem((String) arr, idx);
+			}
+			return arr;
+		}catch(Exception e) {
+			return e;
+		}
 	}
 	 
 	private static int[] PreBmBc(String pattern)

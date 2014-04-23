@@ -5,8 +5,9 @@ public class ProtocolException extends SLDCException {
 	
 	private Exception e = null;
 	
-	public ProtocolException(Exception ex)
+	public ProtocolException(Exception ex, Throwable t)
 	{
+		super(t);
 		this.e = ex;
 	}
 	

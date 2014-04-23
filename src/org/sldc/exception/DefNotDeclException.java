@@ -5,7 +5,8 @@ public class DefNotDeclException extends SLDCException {
 
 	private String varName = null;
 	
-	public DefNotDeclException(String name){
+	public DefNotDeclException(String name, Throwable t){
+		super(t);
 		this.varName = name;
 	}
 	

@@ -5,7 +5,8 @@ public class NotBuildInFunction extends SLDCException {
 	
 	private String funcName = null;
 	
-	public NotBuildInFunction(String name) {
+	public NotBuildInFunction(String name, Throwable t) {
+		super(t);
 		this.funcName = name;
 	}
 	

@@ -5,7 +5,8 @@ public class NotSupportedProtocol extends SLDCException {
 	
 	private String protocol = null;
 	
-	public NotSupportedProtocol(String name){
+	public NotSupportedProtocol(String name, Throwable t){
+		super(t);
 		this.protocol = name;
 	}
 	

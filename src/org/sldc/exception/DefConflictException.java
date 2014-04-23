@@ -5,7 +5,8 @@ public class DefConflictException extends SLDCException {
 	
 	private String varName = null;
 	
-	public DefConflictException(String name) {
+	public DefConflictException(String name, Throwable t) {
+		super(t);
 		this.varName = name;
 	}
 	

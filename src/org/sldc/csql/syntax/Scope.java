@@ -60,7 +60,7 @@ public class Scope {
 	}
 	
 	public Scope addFunction(String name) throws DefConflictException {
-		if(_functions.containsKey(name)||_namedVars.containsKey(name)) throw new DefConflictException(name);
+		if(_functions.containsKey(name)||_namedVars.containsKey(name)) throw new DefConflictException(name, new Throwable());
 		Scope scope = new Scope(this);
 		_functions.put(name, scope);
 		return scope;
@@ -77,11 +77,11 @@ public class Scope {
 		else if(upper!=null&&upper.containFunc(name))
 			return upper.getFuncValue(name);
 		else
-			throw new DefNotDeclException(name);
+			throw new DefNotDeclException(name, new Throwable());
 	}
 	
 	public void addVariable(String name, Object value) throws DefConflictException {
-		if(_namedVars.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException(name);
+		if(_namedVars.containsKey(name)||_functions.containsKey(name)) throw new DefConflictException(name, new Throwable());
 		_namedVars.put(name, value);
 	}
 	
@@ -111,7 +111,7 @@ public class Scope {
 		else if(upper!=null&&upper.containVar(name))
 			return upper.getVarValue(name);
 		else
-			return new DefNotDeclException(name);
+			return new DefNotDeclException(name, new Throwable());
 	}
 	
 	public Object getVarValue(ParseTree node) {
@@ -120,7 +120,7 @@ public class Scope {
 		else if(upper!=null&&upper.containVar(node))
 			return upper.getVarValue(node);
 		else
-			return new DefNotDeclException("Anonymous var "+node.getText());
+			return new DefNotDeclException("Anonymous var "+node.getText(), new Throwable());
 	}
 	
 	public void setVarValue(String name, Object value) throws DefNotDeclException {
@@ -129,7 +129,7 @@ public class Scope {
 		else if(upper!=null)
 			upper.setVarValue(name, value);
 		else
-			throw new DefNotDeclException(name);
+			throw new DefNotDeclException(name, new Throwable());
 	}
 	
 	public void setVarValue(ParseTree node, Object value) throws DefNotDeclException {
@@ -138,6 +138,6 @@ public class Scope {
 		else if(upper!=null)
 			upper.setVarValue(node, value);
 		else
-			throw new DefNotDeclException("Anonymous var "+node.getText());
+			throw new DefNotDeclException("Anonymous var "+node.getText(), new Throwable());
 	}
 }

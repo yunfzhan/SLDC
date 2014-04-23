@@ -14,7 +14,6 @@ import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
-import org.sldc.csql.cSQLParser.ExprContext;
 import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
@@ -69,7 +68,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	public Object execScope() throws IOException, SLDCException
 	{
-		if(this.currentScope==null) throw new InvalidType();
+		if(this.currentScope==null) throw new InvalidType(new Throwable());
 		return visit(this.currentScope.getInput());
 	}
 	
@@ -82,7 +81,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object right = getValueOfExpr(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
-				return new InvalidType();
+				return new InvalidType(new Throwable());
 			
 			Double l = CSQLUtils.convertToDbl(left);
 			Double r = CSQLUtils.convertToDbl(right);
@@ -103,7 +102,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object right = getValueOfExpr(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
-				return new InvalidType();
+				return new InvalidType(new Throwable());
 	
 			Double l = CSQLUtils.convertToDbl(left);
 			Double r = CSQLUtils.convertToDbl(right);
@@ -208,6 +207,6 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object id = getValueOfExpr(ctx.expr(0));
 		Object idx = getValueOfExpr(ctx.expr(1));
 		
-		return CSQLUtils.fetchArrayItem(id, idx); 
+		return CSQLUtils.fetchArray(id, idx); 
 	}
 }

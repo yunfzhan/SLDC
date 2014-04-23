@@ -5,7 +5,8 @@ public class InvalidFormat extends SLDCException {
 	
 	private String varName = null;
 	
-	public InvalidFormat(String name){
+	public InvalidFormat(String name, Throwable t){
+		super(t);
 		this.varName = name;
 	}
 	

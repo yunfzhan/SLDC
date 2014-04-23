@@ -33,9 +33,9 @@ public class CSQLHTTPProtocol implements CSQLProtocol {
 			is.close();
 			return sb.toString();
 		} catch (MalformedURLException e) {
-			throw new ProtocolException(e);
+			throw new ProtocolException(e, new Throwable());
 		} catch (IOException e) {
-			throw new ProtocolException(e);
+			throw new ProtocolException(e, new Throwable());
 		}
 	}
 

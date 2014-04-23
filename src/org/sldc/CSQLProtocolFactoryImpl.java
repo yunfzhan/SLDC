@@ -15,7 +15,7 @@ public class CSQLProtocolFactoryImpl implements CSQLProtocolFactory {
 				return (CSQLProtocol) protoClass.getConstructor(String.class).newInstance(protocol);
 			}
 		} catch (Exception e) {
-			throw new NotSupportedProtocol(prtl);
+			throw new NotSupportedProtocol(prtl, new Throwable());
 		}
 		return null;
 	}
