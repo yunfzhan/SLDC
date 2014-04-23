@@ -29,8 +29,8 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| expr op=('*'|'/') expr		#MulDiv
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
-			| varAssign						#Assign
 			| Identifier					#Var	// variables reference
+			| varAssign						#Assign			
 			| INT							#Int
 			| Number						#Num
 			| String						#String

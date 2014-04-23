@@ -14,6 +14,7 @@ import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.ExprContext;
 import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
@@ -56,10 +57,11 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	 * Evaluate if it's a variable or expression.
 	 * 
 	 */
-	private Object getVarOrExpr(ParseTree expr)
+	private Object getValueOfExpr(ParseTree expr)
 	{
-		String name = expr.getText();
-		Object result = this.currentScope.getVarValue(name);
+		Object result = this.currentScope.getVarValue(expr.getText());
+		if(result instanceof SLDCException)
+			result = this.currentScope.getVarValue(expr);
 		if(result instanceof SLDCException)
 			result = visit(expr);
 		return result;
@@ -76,8 +78,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{
 		try
 		{
-			Object left = getVarOrExpr(ctx.expr(0));
-			Object right = getVarOrExpr(ctx.expr(1));
+			Object left = getValueOfExpr(ctx.expr(0));
+			Object right = getValueOfExpr(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType();
@@ -97,8 +99,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{
 		try
 		{
-			Object left = getVarOrExpr(ctx.expr(0));
-			Object right = getVarOrExpr(ctx.expr(1));
+			Object left = getValueOfExpr(ctx.expr(0));
+			Object right = getValueOfExpr(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType();
@@ -121,7 +123,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object[] params = new Object[size];
 			for(int i=0;i<size;i++)
 			{
-				params[i] = getVarOrExpr(ctx.exprList().expr(i));
+				params[i] = getValueOfExpr(ctx.exprList().expr(i));
 			}
 			
 			Object result = CSQLBuildIns.invoke(funcName, params);
@@ -172,12 +174,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) 
 	{
-		Object result = null;
-		if(ctx.expr() != null)
-		{
-			result = getVarOrExpr(ctx.expr());
-		}
-		return result;
+		return ctx.expr()==null?null:getValueOfExpr(ctx.expr());
 	}
 	
 	@Override 
@@ -202,6 +199,15 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitString(@NotNull cSQLParser.StringContext ctx) 
 	{ 
-		return ctx.String().getText(); 
+		String text = ctx.String().getText();
+		return text.substring(1, text.length()-1); // skip double quote
+	}
+	
+	@Override 
+	public Object visitArray(@NotNull cSQLParser.ArrayContext ctx) {
+		Object id = getValueOfExpr(ctx.expr(0));
+		Object idx = getValueOfExpr(ctx.expr(1));
+		
+		return CSQLUtils.fetchArrayItem(id, idx); 
 	}
 }

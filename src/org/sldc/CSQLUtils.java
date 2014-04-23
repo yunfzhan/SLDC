@@ -47,6 +47,10 @@ public class CSQLUtils {
 		else
 			throw new InvalidType();
 	}
+	
+	public static Object fetchArrayItem(Object arr, Object idx) {
+		return null;
+	}
 	 
 	private static int[] PreBmBc(String pattern)
 	{	 
@@ -54,14 +58,10 @@ public class CSQLUtils {
 		int m = pattern.length();
 		int[] bmBc = new int[MAX_CHAR];
 	    for(int i = 0; i < MAX_CHAR; i++)
-	    {
 	        bmBc[i] = m;
-	    }
 	 
 	    for(int i = 0; i < m - 1; i++)
-	    {
-	        bmBc[patternBytes[i]] = m - 1 - i;
-	    }
+	        bmBc[patternBytes[i]&0xFF] = m - 1 - i;
 	    return bmBc;
 	 }
 	
@@ -78,7 +78,7 @@ public class CSQLUtils {
 				suff[i] = suff[i + m - 1 - f];
 			else {
 				if (i < g)
-				g = i;
+					g = i;
 				f = i;
 				while (g >= 0 && patternBytes[g] == patternBytes[g + m - 1 - f])
 					--g;
@@ -95,9 +95,7 @@ public class CSQLUtils {
 	    int m = pattern.length();
 	    int[] suff = suffix(pattern);
 	    for(int i = 0; i < m; i++)
-	    {
 	        bmGs[i] = m;
-	    }
 	 
 	    // Case2
 	    int j = 0;
@@ -115,9 +113,7 @@ public class CSQLUtils {
 	 
 	    // Case1
 	    for(int i = 0; i <= m - 2; i++)
-	    {
 	        bmGs[m - 1 - suff[i]] = m - 1 - i;
-	    }
 	    return bmGs;
 	}
 	
