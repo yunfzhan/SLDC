@@ -3,6 +3,8 @@ package org.sldc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -12,6 +14,7 @@ import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
@@ -151,9 +154,18 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Boolean where = true;
 		if(ctx.condition()!=null)
 			where = (Boolean)visit(ctx.condition());
-		Object r = null;
+		Map<String, Object> r = new HashMap<String, Object>();
 		if(where)
-			r = visit(ctx.contents());
+			if(ctx.contents().getText().equals("*"))
+				r.put("*", visit(ctx.contents()));
+			else {
+				ExprListContext exprs = ctx.contents().exprList();
+				int num = exprs.expr().size();
+				for(int i=0;i<num;i++)
+				{
+					r.put(exprs.expr(i).getText(), visit(exprs.expr(i)));
+				}
+			}
 		return r;
 	}
 	

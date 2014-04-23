@@ -79,21 +79,38 @@ public class CSQLBuildIns {
 		return Math.pow(CSQLUtils.convertToDbl(base), CSQLUtils.convertToDbl(pow));
 	}
 	
-	public static void print(Object obj){
-		if(obj instanceof Map)
+	@SuppressWarnings("rawtypes")
+	private static String printMap(Map map) {
+		Object[] keys=map.keySet().toArray();
+		StringBuilder sb = new StringBuilder();
+		for(Object key : keys)
 		{
-			@SuppressWarnings("rawtypes")
-			Map map = (Map)obj;
-			Object[] keys=map.keySet().toArray();
-			StringBuilder sb = new StringBuilder();
-			for(Object key : keys)
-			{
-				sb.append("|\t"+key+"\n | ");
-				sb.append(map.get(key)+"\n");
-			}
-			System.out.println(sb.toString());
+			sb.append("|\t"+key+"\n | ");
+			sb.append(printObject(map.get(key))+"\n");
 		}
+		return sb.toString();
+	}
+	
+	private static String printArray(Object[] objs) {
+		StringBuilder sb = new StringBuilder();
+		for(int i=0;i<objs.length;i++)
+		{
+			sb.append(printObject(objs[i])+"\n");
+		}
+		return sb.toString();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static String printObject(Object obj){
+		if(obj instanceof Map)
+			return printMap((Map)obj);
+		else if(obj.getClass().isArray())
+			return printArray((Object[]) obj);
 		else
-			System.out.print(obj);
+			return obj.toString();
+	}
+	
+	public static void print(Object obj){
+		System.out.print(printObject(obj));
 	}
 }
