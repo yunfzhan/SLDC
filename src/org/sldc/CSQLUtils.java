@@ -50,6 +50,15 @@ public class CSQLUtils {
 			throw new InvalidType(new Throwable());
 	}
 	
+	public static String removeStringBounds(String input) {
+		String ret = input;
+		if(ret.startsWith("\"")||ret.startsWith("'"))
+			ret = ret.substring(1);
+		if(ret.endsWith("\"")||ret.endsWith("'"))
+			ret = ret.substring(0,ret.length()-1);
+		return ret;
+	}
+	
 	private static Object fetchMapItem(Map<String, Object> arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
 		Integer index = checkIntegerIndex(idx);
 		if(index!=null) {
@@ -60,6 +69,7 @@ public class CSQLUtils {
 			}
 			return new ArrayIndexOutOfBoundsException((Integer)idx);
 		}else if(idx instanceof String) {
+			idx = removeStringBounds((String) idx);
 			return arr.get(idx);
 		}
 		else
@@ -95,6 +105,9 @@ public class CSQLUtils {
 			if(idx instanceof String) {
 				return Integer.valueOf((String)idx);
 			}
+			Class<? extends Object> c = idx.getClass();
+			if(c==Integer.class||c==int.class)
+				return (Integer)idx;
 		}catch(NumberFormatException ex){
 		}
 		return null;

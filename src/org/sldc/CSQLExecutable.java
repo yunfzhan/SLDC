@@ -179,20 +179,19 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitVar(@NotNull cSQLParser.VarContext ctx) 
 	{
-		String Id = ctx.getText();
-		return this.currentScope.getVarValue(Id);
+		return this.currentScope.getVarValue(ctx.getText());
 	}
 	
 	@Override
 	public Object visitInt(@NotNull cSQLParser.IntContext ctx) 
 	{
-		return ctx.INT().getText();
+		return Integer.valueOf(ctx.INT().getText());
 	}
 	
 	@Override 
 	public Object visitNum(@NotNull cSQLParser.NumContext ctx) 
 	{ 
-		return ctx.Number().getText();
+		return Double.valueOf(ctx.Number().getText());
 	}
 	
 	@Override 

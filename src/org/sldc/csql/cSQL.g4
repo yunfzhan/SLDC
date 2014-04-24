@@ -124,7 +124,9 @@ User		: (UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
 FtpPath		: (NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)+ {isFtp}? ;
 // Database only
 
-String		: '"' .*? '"' ;
+String		: '"' .*? '"'
+			| '\'' .*? '\'' 
+			;
 
 fragment
 VARCHAR		: UNDERLINE|LETTER ;

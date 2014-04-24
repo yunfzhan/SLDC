@@ -48,20 +48,16 @@ public class CSQLBuildIns {
 		return obj==null;
 	}
 	
+	
+	
 	public static Object _InCore(Object contents, String plain){
 		return _InCore(contents, plain, "p");
 	}
 	
 	public static Object _InCore(Object contents, String srchable, String indicator) {
 		if(srchable==null||srchable.equals("")) return "";
-		
-		if(srchable.startsWith("\""))
-			srchable = srchable.substring(1);
-		if(srchable.endsWith("\""))
-			srchable = srchable.substring(0,srchable.length()-1);
-		
-		if(indicator.startsWith("\"")) indicator = indicator.substring(1);
-		if(indicator.endsWith("\"")) indicator = indicator.substring(0,indicator.length()-1);
+		srchable = CSQLUtils.removeStringBounds(srchable);
+		indicator = CSQLUtils.removeStringBounds(indicator);
 		
 		if(indicator.equalsIgnoreCase("p")){
 			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) contents);
