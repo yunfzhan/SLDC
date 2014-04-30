@@ -29,6 +29,9 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| expr op=('*'|'/') expr		#MulDiv
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
+			| expr NE expr					#Unequal
+			| expr AND expr					#And
+			| expr OR expr					#Or
 			| Identifier					#Var	// variables reference
 			| varAssign						#Assign			
 			| INT							#Int
@@ -39,13 +42,24 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 stat		: fundecl NL										#StatFuncDecl
 			| selectExpr NL?									#StatSelect
 			| block												#StatBlock
-			| IF expr THEN stat (ELSEIF stat)* (ELSE stat)? NL	#StatIf
+			| ifStat NL?										#StatIf
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
 			| varDecl NL										#StatVarDecl
 			;
+ifStat		: IF expr THEN NL? stats (ELSEIF expr THEN NL? stats)* NL? (ELSE NL? stats)? ENDIF ;
 varDecl		: VAR varAssign (COMMA varAssign)* ;
 varAssign	: Identifier (EQU (expr|selectExpr))? ;
+
+exprList	: expr (COMMA expr)* ;
+prop		: Identifier '=' String ;
+
+// functions definition
+fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
+funcParms	: Identifier (COMMA Identifier)* ;
+
+block		: BEGIN NL? stats END NL ;
+stats		: stat* ;
 
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
@@ -75,15 +89,6 @@ condition	: expr ;
 params		: prop (COMMA prop)* ;
 contents	: '*'|exprList ;
 
-exprList	: expr (COMMA expr)* ;
-prop		: Identifier '=' String ;
-
-// functions definition
-fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
-funcParms	: Identifier (COMMA Identifier)* ;
-
-block		: BEGIN NL? stats END NL ;
-stats		: stat* ;
 
 // Keywords
 
@@ -91,6 +96,7 @@ VAR			: [Vv][Aa][Rr] ;
 BEGIN		: [Bb][Ee][Gg][Ii][Nn] ;
 END			: [Ee][Nn][Dd] ;
 IF			: [Ii][Ff] ;
+ENDIF		: [Ff][Ii] ;
 THEN		: [Tt][Hh][Ee][Nn] ;
 ELSEIF		: [Ee][Ll][Ii][Ff] ;
 ELSE		: [Ee][Ll][Ss][Ee] ;
@@ -105,6 +111,8 @@ FTP			: [Ff][Tt][Pp] {isFtp=true;} ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] {isFile=true;} ;
 DATABASE	: [Dd][Bb] {isDatabase=true;} ;
 FUNC		: [Ff][Uu][Nn] ;
+AND			: [Aa][Nn][Dd] ;
+OR			: [Oo][Rr] ;
 AS			: [Aa][Ss] {clearSign();} ;
 
 // Tokens
@@ -159,6 +167,7 @@ MINUS		: '-' ;
 
 EQU			: '=' ;
 EQUAL		: '==' ;
+NE			: '!=' ;
 COMMA		: ',' {clearSign();} ;
 NL		    : '\r'? '\n' {clearSign();} ;
 

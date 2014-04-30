@@ -201,6 +201,44 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
+	public Object visitAnd(@NotNull cSQLParser.AndContext ctx) { 
+		Object expr1 = getValueOfExpr(ctx.expr(0));
+		Object expr2 = getValueOfExpr(ctx.expr(1));
+		
+		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
+			return (Boolean)expr1&&(Boolean)expr2;
+		else
+			return new InvalidType(new Throwable());
+	}
+	
+	@Override 
+	public Object visitEqual(@NotNull cSQLParser.EqualContext ctx) {
+		Object expr1 = getValueOfExpr(ctx.expr(0));
+		Object expr2 = getValueOfExpr(ctx.expr(1));
+		
+		return expr1==expr2;
+	}
+	
+	@Override 
+	public Object visitOr(@NotNull cSQLParser.OrContext ctx) {
+		Object expr1 = getValueOfExpr(ctx.expr(0));
+		Object expr2 = getValueOfExpr(ctx.expr(1));
+		
+		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
+			return (Boolean)expr1||(Boolean)expr2;
+		else
+			return new InvalidType(new Throwable());
+	}
+	
+	@Override 
+	public Object visitUnequal(@NotNull cSQLParser.UnequalContext ctx) {
+		Object expr1 = getValueOfExpr(ctx.expr(0));
+		Object expr2 = getValueOfExpr(ctx.expr(1));
+		
+		return expr1!=expr2;
+	}
+	
+	@Override 
 	public Object visitArray(@NotNull cSQLParser.ArrayContext ctx) {
 		Object id = getValueOfExpr(ctx.expr(0));
 		Object idx = getValueOfExpr(ctx.expr(1));

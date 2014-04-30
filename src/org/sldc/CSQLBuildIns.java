@@ -48,8 +48,6 @@ public class CSQLBuildIns {
 		return obj==null;
 	}
 	
-	
-	
 	public static Object _InCore(Object contents, String plain){
 		return _InCore(contents, plain, "p");
 	}
