@@ -17,6 +17,8 @@ public class Scope {
 	private ParseTreeProperty<Object> _anonymousVars = new ParseTreeProperty<Object>();
 	private Scope upper = null;
 	
+	public static final Object UnDefined = new Object();
+	
 	public Scope(){
 		this(null);
 	}

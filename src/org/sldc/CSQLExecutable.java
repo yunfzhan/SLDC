@@ -114,14 +114,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		String funcName = ctx.Identifier().getText();
 		try{
 			int size = ctx.exprList().expr().size();
-			Map<String, Object> params = new HashMap<String, Object>();
+			Object[] params = new Object[size];
 			for(int i=0;i<size;i++)
 			{
-				String name = ctx.exprList().expr(i).getText();
-				params.put(name, visit(ctx.exprList().expr(i)));
+				params[i] = visit(ctx.exprList().expr(i));
 			}
 			
-			Object result = CSQLBuildIns.invoke(funcName, params.values().toArray());
+			Object result = CSQLBuildIns.invoke(funcName, params);
 			
 			if(result instanceof NotBuildInFunction)
 			{
@@ -129,7 +128,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				for(int i=0;i<size;i++)
 				{
 					String varName = ctx.exprList().expr(i).getText();
-					scope.setVarValue(varName, params.get(varName));
+					scope.setVarValue(varName, params[i]);
 				}
 				
 				CSQLExecutable runner = new CSQLExecutable(scope);

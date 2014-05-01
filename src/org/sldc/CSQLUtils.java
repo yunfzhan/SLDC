@@ -42,8 +42,10 @@ public class CSQLUtils {
 	
 	public static Double convertToDbl(Object obj) throws InvalidType
 	{
-		if(obj instanceof Double||obj instanceof Float||obj instanceof Integer)
+		if(obj instanceof Double||obj instanceof Float)
 			return new Double((Double)obj);
+		else if(obj instanceof Integer)
+			return (Integer)obj*1.0;
 		else if(obj instanceof String)
 			return Double.valueOf((String)obj);
 		else

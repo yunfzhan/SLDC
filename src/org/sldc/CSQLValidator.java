@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
@@ -21,6 +20,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	private CSQLProtocolFactory _pFactory = null;
+	private boolean bNotProcessed = false;
 	
 	public CSQLValidator(ParseTree tree, CSQLProtocolFactory factory)
 	{
@@ -39,37 +39,43 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 	
 	@Override 
-	public void enterVarDecl(@NotNull cSQLParser.VarDeclContext ctx) 
-	{
-		List<cSQLParser.VarAssignContext> list = ctx.varAssign();
-		for(int i=0;i<list.size();i++)
+	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+		if(ctx.EQU()!=null)
 		{
-			cSQLParser.VarAssignContext vac = list.get(i);
-			TerminalNode id = vac.Identifier();
-			try {
-				this.currentScope.addVariable(id.getText(), null);
-			} catch (SLDCException e) {
-				this.exceptions.add(e);
+			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+			Object value = null;
+			if(ctx.expr()!=null)
+				value = runner.visit(ctx.expr());
+			else if(ctx.selectExpr()!=null)
+				value = this.currentScope.getVarValue(ctx.selectExpr());
+			try{
+				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
+			} catch (DefNotDeclException e) {
+				try {
+					this.currentScope.addVariable(ctx.Identifier().getText(), value);
+				} catch (DefConflictException e1) {
+					this.exceptions.add(e);
+				}
 			}
 		}
 	}
 	
 	@Override 
-	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
-		if(ctx.EQU()!=null)
-		{
-			try {
-				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-				Object value = null;
-				if(ctx.expr()!=null)
-					value = runner.visit(ctx.expr());
-				else if(ctx.selectExpr()!=null)
-					value = this.currentScope.getVarValue(ctx.selectExpr());
-				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
-			} catch (DefNotDeclException e) {
-				this.exceptions.add(e);
-			}
-		}
+	public void enterFundecl(@NotNull cSQLParser.FundeclContext ctx) {
+		this.bNotProcessed=true;
+	}
+	
+	@Override 
+	public void exitFundecl(@NotNull cSQLParser.FundeclContext ctx) {
+		this.bNotProcessed=false;
+	}
+	
+	@Override 
+	public void exitFunc(@NotNull cSQLParser.FuncContext ctx) {
+		if(this.bNotProcessed) return;
+		CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+		Object r = runner.visit(ctx);
+		this.currentScope.addVariable(ctx, r);
 	}
 	
 	@Override 
@@ -86,12 +92,6 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				cSQLParser.FundeclContext parent = (FundeclContext) ctx.parent;
 				String funcName = parent.Identifier().getText();
 				scope = this.currentScope.addFunction(funcName);
-				int size = parent.funcParms().Identifier().size();
-				for(int i=0;i<size;i++)
-				{
-					String param = parent.funcParms().Identifier(i).getText();
-					scope.addVariable(param, null);
-				}
 			}
 			else
 			{
