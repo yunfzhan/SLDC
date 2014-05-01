@@ -45,10 +45,9 @@ stat		: fundecl NL										#StatFuncDecl
 			| ifStat NL?										#StatIf
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
-			| varDecl NL										#StatVarDecl
+			| varAssign (COMMA varAssign)* 						#StatVar
 			;
 ifStat		: IF expr THEN NL? stats (ELSEIF expr THEN NL? stats)* NL? (ELSE NL? stats)? ENDIF ;
-varDecl		: VAR varAssign (COMMA varAssign)* ;
 varAssign	: Identifier (EQU (expr|selectExpr))? ;
 
 exprList	: expr (COMMA expr)* ;
@@ -92,7 +91,6 @@ contents	: '*'|exprList ;
 
 // Keywords
 
-VAR			: [Vv][Aa][Rr] ;
 BEGIN		: [Bb][Ee][Gg][Ii][Nn] ;
 END			: [Ee][Nn][Dd] ;
 IF			: [Ii][Ff] ;

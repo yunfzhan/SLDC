@@ -11,7 +11,6 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.sldc.csql.cSQLParser;
-import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.SLDCException;
 
 public final class CSQLMain {
@@ -64,12 +63,12 @@ public final class CSQLMain {
 			for(int i=0;i<exs.size();i++)
 				System.err.println(exs.get(i).getMessage());
 		}
-		else
-		{
-			Scope currentScope = validator.getScope();
-			CSQLExecutable runner = new CSQLExecutable(currentScope);
-			runner.visit(tree);
-		}
+//		else
+//		{
+//			Scope currentScope = validator.getScope();
+//			CSQLExecutable runner = new CSQLExecutable(currentScope);
+//			runner.visit(tree);
+//		}
 		System.out.println();
 	}
 

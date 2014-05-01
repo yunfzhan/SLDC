@@ -52,24 +52,19 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return parser;
 	}
 	
-	/*
-	 * Evaluate if it's a variable or expression.
-	 * 
-	 */
-	private Object getValueOfExpr(ParseTree expr)
-	{
-		Object result = this.currentScope.getVarValue(expr.getText());
-		if(result instanceof SLDCException)
-			result = this.currentScope.getVarValue(expr);
-		if(result instanceof SLDCException)
-			result = visit(expr);
-		return result;
-	}
-	
 	public Object execScope() throws IOException, SLDCException
 	{
 		if(this.currentScope==null) throw new InvalidType(new Throwable());
 		return visit(this.currentScope.getInput());
+	}
+	
+	public Object visit(@NotNull ParseTree tree) {
+		Object result = this.currentScope.getVarValue(tree.getText());
+		if(result instanceof SLDCException)
+			result = this.currentScope.getVarValue(tree);
+		if(result instanceof SLDCException)
+			result = super.visit(tree);
+		return result;
 	}
 	
 	@Override 
@@ -77,8 +72,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{
 		try
 		{
-			Object left = getValueOfExpr(ctx.expr(0));
-			Object right = getValueOfExpr(ctx.expr(1));
+			Object left = visit(ctx.expr(0));
+			Object right = visit(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
@@ -98,8 +93,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	{
 		try
 		{
-			Object left = getValueOfExpr(ctx.expr(0));
-			Object right = getValueOfExpr(ctx.expr(1));
+			Object left = visit(ctx.expr(0));
+			Object right = visit(ctx.expr(1));
 			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
@@ -119,13 +114,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		String funcName = ctx.Identifier().getText();
 		try{
 			int size = ctx.exprList().expr().size();
-			Object[] params = new Object[size];
+			Map<String, Object> params = new HashMap<String, Object>();
 			for(int i=0;i<size;i++)
 			{
-				params[i] = getValueOfExpr(ctx.exprList().expr(i));
+				String name = ctx.exprList().expr(i).getText();
+				params.put(name, visit(ctx.exprList().expr(i)));
 			}
 			
-			Object result = CSQLBuildIns.invoke(funcName, params);
+			Object result = CSQLBuildIns.invoke(funcName, params.values().toArray());
 			
 			if(result instanceof NotBuildInFunction)
 			{
@@ -133,7 +129,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				for(int i=0;i<size;i++)
 				{
 					String varName = ctx.exprList().expr(i).getText();
-					scope.setVarValue(varName, params[i]);
+					scope.setVarValue(varName, params.get(varName));
 				}
 				
 				CSQLExecutable runner = new CSQLExecutable(scope);
@@ -173,7 +169,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) 
 	{
-		return ctx.expr()==null?null:getValueOfExpr(ctx.expr());
+		return ctx.expr()==null?null:visit(ctx.expr());
 	}
 	
 	@Override 
@@ -202,8 +198,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitAnd(@NotNull cSQLParser.AndContext ctx) { 
-		Object expr1 = getValueOfExpr(ctx.expr(0));
-		Object expr2 = getValueOfExpr(ctx.expr(1));
+		Object expr1 = visit(ctx.expr(0));
+		Object expr2 = visit(ctx.expr(1));
 		
 		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
 			return (Boolean)expr1&&(Boolean)expr2;
@@ -213,16 +209,16 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitEqual(@NotNull cSQLParser.EqualContext ctx) {
-		Object expr1 = getValueOfExpr(ctx.expr(0));
-		Object expr2 = getValueOfExpr(ctx.expr(1));
+		Object expr1 = visit(ctx.expr(0));
+		Object expr2 = visit(ctx.expr(1));
 		
 		return expr1==expr2;
 	}
 	
 	@Override 
 	public Object visitOr(@NotNull cSQLParser.OrContext ctx) {
-		Object expr1 = getValueOfExpr(ctx.expr(0));
-		Object expr2 = getValueOfExpr(ctx.expr(1));
+		Object expr1 = visit(ctx.expr(0));
+		Object expr2 = visit(ctx.expr(1));
 		
 		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
 			return (Boolean)expr1||(Boolean)expr2;
@@ -232,16 +228,16 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitUnequal(@NotNull cSQLParser.UnequalContext ctx) {
-		Object expr1 = getValueOfExpr(ctx.expr(0));
-		Object expr2 = getValueOfExpr(ctx.expr(1));
+		Object expr1 = visit(ctx.expr(0));
+		Object expr2 = visit(ctx.expr(1));
 		
 		return expr1!=expr2;
 	}
 	
 	@Override 
 	public Object visitArray(@NotNull cSQLParser.ArrayContext ctx) {
-		Object id = getValueOfExpr(ctx.expr(0));
-		Object idx = getValueOfExpr(ctx.expr(1));
+		Object id = visit(ctx.expr(0));
+		Object idx = visit(ctx.expr(1));
 		
 		return CSQLUtils.fetchArray(id, idx); 
 	}
