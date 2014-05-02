@@ -26,6 +26,10 @@ public class CSQLUtils {
         return result;
     }
 	
+	public static boolean isBool(Object o) {
+		return (o instanceof Boolean||o.getClass().equals(boolean.class));
+	}
+	
 	public static boolean isNumeric(Object obj)
 	{
 		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))

@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
+import org.sldc.exception.SLDCException;
 import org.sldc.protocols.HTMLAnalyzer;
 
 public class CSQLBuildIns {
@@ -15,7 +17,7 @@ public class CSQLBuildIns {
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
-		functions.put("isnull", "isNull");
+		functions.put("isvoid", "isNull");
 		functions.put("print", "print");
 		functions.put("pow", "Pow");
 	}
@@ -45,7 +47,7 @@ public class CSQLBuildIns {
 	}
 	
 	public static boolean isNull(Object obj) {
-		return obj==null;
+		return obj==null||obj.equals(Scope.UnDefined)||(obj instanceof SLDCException);
 	}
 	
 	public static Object _InCore(Object contents, String plain){

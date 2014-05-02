@@ -30,6 +30,10 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| expr ADDSUB expr				#AddSub
 			| expr EQUAL expr				#Equal
 			| expr NE expr					#Unequal
+			| expr GE expr					#GreaterEqual
+			| expr LE expr					#LowerEqual
+			| expr GT expr					#Greater
+			| expr LT expr					#Lower
 			| expr AND expr					#And
 			| expr OR expr					#Or
 			| Identifier					#Var	// variables reference
@@ -43,10 +47,16 @@ stat		: fundecl NL										#StatFuncDecl
 			| selectExpr NL?									#StatSelect
 			| block												#StatBlock
 			| ifStat elifStat* NL? elseStat? END NL?			#StatIf
+			| loopStat NL										#StatLoop
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
 			| varAssign (COMMA varAssign)* 						#StatVar
 			;
+loopStat	: whileStat						#WhileLoop
+			| forStat						#ForLoop
+			;
+whileStat	: WHILE expr NL stats END ;
+forStat		: FOR varAssign ',' expr ',' expr NL stats END ;
 ifStat		: IF expr THEN NL? stats ;
 elifStat	: ELSEIF expr THEN NL? stats ;
 elseStat	: ELSE NL? stats ;
@@ -69,7 +79,7 @@ protocols   : protocol (AS Identifier)? ;
 protocol	: (http|file|ftp|database) ;
 http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
-ftp         : FTP '://' (user ':' password? '@')? domains ('/' remote?)* ;
+ftp         : FTP '://' (user ':' password '@')? domains ('/' remote?)* ;
 database    : DATABASE '://'  ;
 
 // For http address
@@ -105,6 +115,8 @@ FROM		: [Ff][Rr][Oo][Mm] ;
 WHERE		: [Ww][Hh][Ee][Rr][Ee] {clearSign();} ;
 WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
+WHILE		: [Ww][Hh][Ii][Ll][Ee] ;
+FOR			: [Ff][Oo][Rr] ;
 HTTP		: [Hh][Tt][Tt][Pp][Ss]? {isHttp=true;} ;
 FTP			: [Ff][Tt][Pp] {isFtp=true;} ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] {isFile=true;} ;
@@ -167,6 +179,10 @@ MINUS		: '-' ;
 EQU			: '=' ;
 EQUAL		: '==' ;
 NE			: '!=' ;
+GE			: '>=' ;
+LE			: '<=' ;
+GT			: '>' ;
+LT			: '<' ;
 COMMA		: ',' {clearSign();} ;
 NL		    : '\r'? '\n' {clearSign();} ;
 

@@ -38,24 +38,10 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
-		if(ctx.EQU()!=null)
-		{
-			CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-			Object value = null;
-			if(ctx.expr()!=null)
-				value = runner.visit(ctx.expr());
-			else if(ctx.selectExpr()!=null)
-				value = this.currentScope.getVarValue(ctx.selectExpr());
-			try{
-				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
-			} catch (DefNotDeclException e) {
-				try {
-					this.currentScope.addVariable(ctx.Identifier().getText(), value);
-				} catch (DefConflictException e1) {
-					this.exceptions.add(e);
-				}
-			}
-		}
+		CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+		Object r = runner.visit(ctx);
+		if(r instanceof SLDCException)
+			this.exceptions.add((SLDCException) r);
 	}
 	
 	@Override 

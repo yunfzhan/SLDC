@@ -16,6 +16,7 @@ import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
+import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
@@ -149,9 +150,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitStatIf(@NotNull cSQLParser.StatIfContext ctx) {
 		Object r = visit(ctx.ifStat().expr());
-		boolean b = r instanceof Boolean||r.getClass().equals(boolean.class);
 		//the condition expression is not a boolean. Then return exception
-		if(!b) return new SyntaxException(new Throwable());
+		if(!CSQLUtils.isBool(r)) return new SyntaxException(new Throwable());
 		// go into if block
 		if((Boolean)r) return visit(ctx.ifStat().stats());
 		
@@ -162,9 +162,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			for(int i=0;i<size;i++)
 			{
 				r = visit(ctx.elifStat(i).expr());
-				b = r instanceof Boolean||r.getClass().equals(boolean.class);
 				//the condition expression is not a boolean. Then return exception
-				if(!b) return new SyntaxException(new Throwable());
+				if(!CSQLUtils.isBool(r)) return new SyntaxException(new Throwable());
 				// go into if block
 				if((Boolean)r) return visit(ctx.elifStat(i).stats());
 			}
@@ -179,21 +178,41 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
-	public Object visitIfStat(@NotNull cSQLParser.IfStatContext ctx) { 
-		Object b = visit(ctx.expr());
-		boolean cond = b instanceof Boolean || b.getClass().equals(boolean.class);
-		if(!cond) return new SyntaxException(new Throwable());
-		return (Boolean)b?visit(ctx.stats()):Scope.UnDefined;
-	}
-
-	@Override 
-	public Object visitElifStat(@NotNull cSQLParser.ElifStatContext ctx) {
-		return visitChildren(ctx); 
+	public Object visitForStat(@NotNull cSQLParser.ForStatContext ctx) {
+		Object r = visit(ctx.varAssign());
+		if(r instanceof SLDCException) return r;
+		Object cond = visit(ctx.expr(0));
+		if(!CSQLUtils.isBool(cond)) return new SyntaxException(new Throwable());
+		while((Boolean)cond)
+		{
+			r=visit(ctx.stats());
+			visit(ctx.expr(1));
+			cond = visit(ctx.expr(0));
+		}
+		return r;
 	}
 	
 	@Override 
-	public Object visitElseStat(@NotNull cSQLParser.ElseStatContext ctx) {
-		return visitChildren(ctx); 
+	public Object visitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+		Object value = this.currentScope.containVar(ctx.Identifier())?this.currentScope.getVarValue(ctx.Identifier()):null;
+		if(ctx.EQU()!=null)
+		{			
+			if(ctx.expr()!=null)
+				value = visit(ctx.expr());
+			else if(ctx.selectExpr()!=null)
+				value = this.currentScope.getVarValue(ctx.selectExpr());
+			
+			try{
+				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
+			} catch (DefNotDeclException e) {
+				try {
+					this.currentScope.addVariable(ctx.Identifier().getText(), value);
+				} catch (DefConflictException e1) {
+					value = e1;
+				}
+			}
+		}
+		return value;
 	}
 	
 	@Override 
@@ -251,7 +270,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
+		if(CSQLUtils.isBool(expr1) && CSQLUtils.isBool(expr2))
 			return (Boolean)expr1&&(Boolean)expr2;
 		else
 			return new InvalidType(new Throwable());
@@ -270,7 +289,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		if(expr1 instanceof Boolean && expr2 instanceof Boolean)
+		if(CSQLUtils.isBool(expr1) && CSQLUtils.isBool(expr2))
 			return (Boolean)expr1||(Boolean)expr2;
 		else
 			return new InvalidType(new Throwable());
@@ -282,6 +301,70 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr2 = visit(ctx.expr(1));
 		
 		return expr1!=expr2;
+	}
+	
+	@Override 
+	public Object visitNot(@NotNull cSQLParser.NotContext ctx) {
+		Object r = visit(ctx.expr()); 
+		if(!CSQLUtils.isBool(r)) return new SyntaxException(new Throwable());
+		Boolean b = (Boolean)r;
+		return !b;
+	}
+	
+	@Override 
+	public Object visitGreaterEqual(@NotNull cSQLParser.GreaterEqualContext ctx) {
+		Object r0 = visit(ctx.expr(0));
+		Object r1 = visit(ctx.expr(1));
+		
+		try {
+			Double d0 = CSQLUtils.convertToDbl(r0);
+			Double d1 = CSQLUtils.convertToDbl(r1);
+			return d0>=d1;
+		} catch (InvalidType e) {
+			return new InvalidType(new Throwable());
+		}
+	}
+	
+	@Override 
+	public Object visitGreater(@NotNull cSQLParser.GreaterContext ctx) {
+		Object r0 = visit(ctx.expr(0));
+		Object r1 = visit(ctx.expr(1));
+		
+		try {
+			Double d0 = CSQLUtils.convertToDbl(r0);
+			Double d1 = CSQLUtils.convertToDbl(r1);
+			return d0>d1;
+		} catch (InvalidType e) {
+			return new InvalidType(new Throwable());
+		}
+	}
+	
+	@Override 
+	public Object visitLower(@NotNull cSQLParser.LowerContext ctx) {
+		Object r0 = visit(ctx.expr(0));
+		Object r1 = visit(ctx.expr(1));
+		
+		try {
+			Double d0 = CSQLUtils.convertToDbl(r0);
+			Double d1 = CSQLUtils.convertToDbl(r1);
+			return d0<d1;
+		} catch (InvalidType e) {
+			return new InvalidType(new Throwable());
+		}
+	}
+	
+	@Override 
+	public Object visitLowerEqual(@NotNull cSQLParser.LowerEqualContext ctx) {
+		Object r0 = visit(ctx.expr(0));
+		Object r1 = visit(ctx.expr(1));
+		
+		try {
+			Double d0 = CSQLUtils.convertToDbl(r0);
+			Double d1 = CSQLUtils.convertToDbl(r1);
+			return d0<=d1;
+		} catch (InvalidType e) {
+			return new InvalidType(new Throwable());
+		} 
 	}
 	
 	@Override 
