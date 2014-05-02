@@ -12,7 +12,6 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
-import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.SLDCException;
 

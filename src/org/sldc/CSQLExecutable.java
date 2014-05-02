@@ -207,13 +207,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+		// If the variable is defined before, assign value. Otherwise we leave it until it is used.
 		Object value = this.currentScope.containVar(ctx.Identifier())?this.currentScope.getVarValue(ctx.Identifier()):null;
 		if(ctx.EQU()!=null)
-		{			
+		{
 			if(ctx.expr()!=null)
 				value = visit(ctx.expr());
 			else if(ctx.selectExpr()!=null)
-				value = this.currentScope.getVarValue(ctx.selectExpr());
+				value = this.currentScope.getVarValue(ctx.selectExpr());	// selectExpr was dealt with in Listerner mode in terms of performance 
 			
 			try{
 				this.currentScope.setVarValue(ctx.Identifier().getText(), value);
@@ -294,7 +295,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		return expr1==expr2;
+		return expr1.equals(expr2);
 	}
 	
 	@Override 
@@ -313,7 +314,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		return expr1!=expr2;
+		return !expr1.equals(expr2);
 	}
 	
 	@Override 
