@@ -110,6 +110,6 @@ public class CSQLBuildIns {
 	}
 	
 	public static void print(Object obj){
-		System.out.print(printObject(obj));
+		System.out.println(printObject(obj));
 	}
 }

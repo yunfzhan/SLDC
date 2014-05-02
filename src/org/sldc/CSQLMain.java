@@ -63,12 +63,11 @@ public final class CSQLMain {
 			for(int i=0;i<exs.size();i++)
 				System.err.println(exs.get(i).getMessage());
 		}
-//		else
-//		{
-//			Scope currentScope = validator.getScope();
-//			CSQLExecutable runner = new CSQLExecutable(currentScope);
-//			runner.visit(tree);
-//		}
+		else
+		{
+			CSQLExecutable runner = new CSQLExecutable(validator.getScope());
+			runner.visit(tree);
+		}
 		System.out.println();
 	}
 

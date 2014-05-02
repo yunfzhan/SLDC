@@ -42,12 +42,14 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 stat		: fundecl NL										#StatFuncDecl
 			| selectExpr NL?									#StatSelect
 			| block												#StatBlock
-			| ifStat NL?										#StatIf
+			| ifStat elifStat* NL? elseStat? END NL?			#StatIf
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
 			| varAssign (COMMA varAssign)* 						#StatVar
 			;
-ifStat		: IF expr THEN NL? stats (ELSEIF expr THEN NL? stats)* NL? (ELSE NL? stats)? ENDIF ;
+ifStat		: IF expr THEN NL? stats ;
+elifStat	: ELSEIF expr THEN NL? stats ;
+elseStat	: ELSE NL? stats ;
 varAssign	: Identifier (EQU (expr|selectExpr))? ;
 
 exprList	: expr (COMMA expr)* ;
@@ -94,7 +96,6 @@ contents	: '*'|exprList ;
 BEGIN		: [Bb][Ee][Gg][Ii][Nn] ;
 END			: [Ee][Nn][Dd] ;
 IF			: [Ii][Ff] ;
-ENDIF		: [Ff][Ii] ;
 THEN		: [Tt][Hh][Ee][Nn] ;
 ELSEIF		: [Ee][Ll][Ii][Ff] ;
 ELSE		: [Ee][Ll][Ss][Ee] ;

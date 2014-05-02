@@ -20,6 +20,7 @@ import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
+import org.sldc.exception.SyntaxException;
 
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
@@ -128,7 +129,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				for(int i=0;i<size;i++)
 				{
 					String varName = ctx.exprList().expr(i).getText();
-					scope.setVarValue(varName, params[i]);
+					scope.addVariable(varName, params[i]);
 				}
 				
 				CSQLExecutable runner = new CSQLExecutable(scope);
@@ -143,6 +144,56 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		} catch (SLDCException e) {
 			return e;
 		}
+	}
+
+	@Override 
+	public Object visitStatIf(@NotNull cSQLParser.StatIfContext ctx) {
+		Object r = visit(ctx.ifStat().expr());
+		boolean b = r instanceof Boolean||r.getClass().equals(boolean.class);
+		//the condition expression is not a boolean. Then return exception
+		if(!b) return new SyntaxException(new Throwable());
+		// go into if block
+		if((Boolean)r) return visit(ctx.ifStat().stats());
+		
+		//Check if there are 'else if' statements
+		if(ctx.elifStat()!=null)
+		{
+			int size = ctx.elifStat().size();
+			for(int i=0;i<size;i++)
+			{
+				r = visit(ctx.elifStat(i).expr());
+				b = r instanceof Boolean||r.getClass().equals(boolean.class);
+				//the condition expression is not a boolean. Then return exception
+				if(!b) return new SyntaxException(new Throwable());
+				// go into if block
+				if((Boolean)r) return visit(ctx.elifStat(i).stats());
+			}
+		}
+		
+		if(ctx.elseStat()!=null)
+		{
+			return visit(ctx.elseStat().stats());
+		}
+		
+		return null;
+	}
+	
+	@Override 
+	public Object visitIfStat(@NotNull cSQLParser.IfStatContext ctx) { 
+		Object b = visit(ctx.expr());
+		boolean cond = b instanceof Boolean || b.getClass().equals(boolean.class);
+		if(!cond) return new SyntaxException(new Throwable());
+		return (Boolean)b?visit(ctx.stats()):Scope.UnDefined;
+	}
+
+	@Override 
+	public Object visitElifStat(@NotNull cSQLParser.ElifStatContext ctx) {
+		return visitChildren(ctx); 
+	}
+	
+	@Override 
+	public Object visitElseStat(@NotNull cSQLParser.ElseStatContext ctx) {
+		return visitChildren(ctx); 
 	}
 	
 	@Override 

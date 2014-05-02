@@ -20,8 +20,6 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	private CSQLProtocolFactory _pFactory = null;
-	private boolean bNotProcessed = false;
-	
 	public CSQLValidator(ParseTree tree, CSQLProtocolFactory factory)
 	{
 		this._pFactory = factory;
@@ -58,24 +56,6 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				}
 			}
 		}
-	}
-	
-	@Override 
-	public void enterFundecl(@NotNull cSQLParser.FundeclContext ctx) {
-		this.bNotProcessed=true;
-	}
-	
-	@Override 
-	public void exitFundecl(@NotNull cSQLParser.FundeclContext ctx) {
-		this.bNotProcessed=false;
-	}
-	
-	@Override 
-	public void exitFunc(@NotNull cSQLParser.FuncContext ctx) {
-		if(this.bNotProcessed) return;
-		CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-		Object r = runner.visit(ctx);
-		this.currentScope.addVariable(ctx, r);
 	}
 	
 	@Override 
