@@ -193,6 +193,19 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
+	public Object visitWhileStat(@NotNull cSQLParser.WhileStatContext ctx) {
+		Object r = visit(ctx.expr());
+		if(!CSQLUtils.isBool(r)) return r;
+		Boolean cond = (Boolean)r;
+		while(cond)
+		{
+			r=visit(ctx.stats());
+			cond = (Boolean)visit(ctx.expr());
+		}
+		return r;
+	}
+	
+	@Override 
 	public Object visitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
 		Object value = this.currentScope.containVar(ctx.Identifier())?this.currentScope.getVarValue(ctx.Identifier()):null;
 		if(ctx.EQU()!=null)
