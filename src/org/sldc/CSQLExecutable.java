@@ -321,8 +321,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitGreaterEqual(@NotNull cSQLParser.GreaterEqualContext ctx) {
-		ParseTree n = ctx.expr(0);
-		Object r0 = visit(n);
+		Object r0 = visit(ctx.expr(0));
 		Object r1 = visit(ctx.expr(1));
 		
 		try {

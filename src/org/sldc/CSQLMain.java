@@ -66,7 +66,11 @@ public final class CSQLMain {
 		else
 		{
 			CSQLExecutable runner = new CSQLExecutable(validator.getScope());
-			runner.visit(tree);
+			Object r = runner.visit(tree);
+			if(r instanceof SLDCException)
+				((SLDCException)r).printStackTrace();
+			else
+				System.out.println(r);
 		}
 		System.out.println();
 	}
