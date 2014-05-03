@@ -5,8 +5,11 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
+import org.sldc.exception.SyntaxException;
 
 public class Scope {
 //	private String _name;
@@ -141,5 +144,51 @@ public class Scope {
 			upper.setVarValue(node, value);
 		else
 			throw new DefNotDeclException("Anonymous var "+node.getText(), new Throwable());
+	}
+	
+	private cSQLParser.FundeclContext getFuncDeclaration(ParseTree node) {
+		while(node!=null&&!(node instanceof cSQLParser.FundeclContext))
+		{
+			node = node.getParent();
+		}
+		return  (node==null)?null:(FundeclContext)node;
+	}
+	
+	public void assignFunValues(Object[] params) throws SyntaxException, DefNotDeclException, DefConflictException {
+		cSQLParser.FundeclContext node = getFuncDeclaration(getInput());
+		if(node==null) throw new SyntaxException(new Throwable());
+		//add support of default parameter if the number of formal parameters are not equal to the one of real parameters later.
+		int fpsize = node.funcParms().Identifier().size();
+		int rpsize = params.length;
+		if(rpsize>=fpsize)
+		{
+			int j = 0;
+			for(int i=0;i<fpsize;j++,i++)
+			{
+				String varName = node.funcParms().Identifier(i).getText();
+				if(this._namedVars.containsKey(varName))
+					setVarValue(varName, params[j]);
+				else
+					addVariable(varName, params[j]);
+			}
+		}else{
+			int j=0;
+			for(int i=0;i<rpsize;i++,j++)
+			{
+				String varName = node.funcParms().Identifier(j).getText();
+				if(this._namedVars.containsKey(varName))
+					setVarValue(varName, params[i]);
+				else
+					addVariable(varName, params[i]);
+			}
+			for(int i=j;i<fpsize;i++)
+			{
+				String varName = node.funcParms().Identifier(i).getText();
+				if(this._namedVars.containsKey(varName))
+					setVarValue(varName, UnDefined);
+				else
+					addVariable(varName, UnDefined);
+			}
+		}
 	}
 }

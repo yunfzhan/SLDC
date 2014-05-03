@@ -127,22 +127,16 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(result instanceof NotBuildInFunction)
 			{
 				Scope scope = this.currentScope.getFuncValue(funcName);
-				for(int i=0;i<size;i++)
-				{
-					String varName = ctx.exprList().expr(i).getText();
-					scope.addVariable(varName, params[i]);
-				}
+				scope.assignFunValues(params); // assign parameter values to formal parameters.
 				
 				CSQLExecutable runner = new CSQLExecutable(scope);
 				return runner.execScope();
 			}
 			else
 				return result;
-		}catch(DefNotDeclException e){
+		}catch(SLDCException e){
 			return e;
 		} catch (IOException e) {
-			return e;
-		} catch (SLDCException e) {
 			return e;
 		}
 	}
@@ -327,7 +321,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitGreaterEqual(@NotNull cSQLParser.GreaterEqualContext ctx) {
-		Object r0 = visit(ctx.expr(0));
+		ParseTree n = ctx.expr(0);
+		Object r0 = visit(n);
 		Object r1 = visit(ctx.expr(1));
 		
 		try {
