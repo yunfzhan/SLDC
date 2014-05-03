@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.sldc.CSQLProtocol;
+import org.sldc.assist.CSQLProtocol;
 import org.sldc.exception.ProtocolException;
 
 public class CSQLHTTPProtocol implements CSQLProtocol {

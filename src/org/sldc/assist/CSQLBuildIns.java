@@ -1,4 +1,4 @@
-package org.sldc;
+package org.sldc.assist;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

@@ -1,4 +1,4 @@
-package org.sldc;
+package org.sldc.assist;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

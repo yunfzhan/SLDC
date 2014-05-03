@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.sldc.assist.CSQLProtocol;
+import org.sldc.assist.CSQLProtocolFactory;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;

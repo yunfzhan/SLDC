@@ -1,4 +1,4 @@
-package org.sldc;
+package org.sldc.assist;
 
 import org.sldc.exception.ProtocolException;
 

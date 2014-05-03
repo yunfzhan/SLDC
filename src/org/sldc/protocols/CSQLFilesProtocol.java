@@ -3,7 +3,7 @@ package org.sldc.protocols;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.sldc.CSQLProtocol;
+import org.sldc.assist.CSQLProtocol;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.ProtocolException;
 
