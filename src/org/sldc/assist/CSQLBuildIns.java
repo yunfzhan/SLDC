@@ -5,11 +5,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
+import org.sldc.protocols.CSQLChunkDataImpl;
 import org.sldc.protocols.HTMLAnalyzer;
 
 public class CSQLBuildIns {
@@ -55,15 +58,44 @@ public class CSQLBuildIns {
 	}
 	
 	public static Object _InCore(Object contents, String srchable, String indicator) {
-		if(srchable==null||srchable.equals("")) return "";
+		if(srchable==null||srchable.equals("")) return false;
 		srchable = CSQLUtils.removeStringBounds(srchable);
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
+		if(contents instanceof String)
+			return coreByType((String)contents, srchable, indicator);
+		else if(contents instanceof CSQLChunkDataImpl)
+			return coreByType((CSQLChunkDataImpl)contents, srchable, indicator);
+		return false;
+	}
+	
+	private static Object coreByType(CSQLChunkDataImpl o, String srchable, String indicator) {
+		if(indicator.equalsIgnoreCase("p")||indicator.equalsIgnoreCase("r")){
+			Object r = o.search(srchable);
+			if(CSQLUtils.isBool(r)&&(Boolean)r==false) return false;
+			
+			return (indicator.equalsIgnoreCase("p"))?true:(String[])r;
+		}else if(indicator.equalsIgnoreCase("t")){
+			return o.searchByTag(srchable);
+		}
+		return false;
+	}
+	
+	private static Object coreByType(String contents, String srchable, String indicator) {
 		if(indicator.equalsIgnoreCase("p")){
 			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) contents);
 			return res.size()!=0;
 		}else if(indicator.equalsIgnoreCase("r")){
+			Pattern p = Pattern.compile(srchable);
+			Matcher m = p.matcher(contents);
+			if(!m.find()) return false;
 			
+			String[] res = new String[m.groupCount()];
+			for(int i=0;i<res.length;i++)
+			{
+				res[i]=m.group(i);
+			}
+			return res;
 		}else if(indicator.equalsIgnoreCase("t")){
 			try {
 				String[] res = HTMLAnalyzer.startAnalyze((String) contents, srchable);
@@ -72,7 +104,7 @@ public class CSQLBuildIns {
 				return e;
 			}
 		}
-		return "";
+		return false;
 	}
 
 	public static Double Pow(Object base, Object pow) throws InvalidType

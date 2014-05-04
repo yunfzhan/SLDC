@@ -44,6 +44,26 @@ public class CSQLUtils {
 			return false;
 	}
 	
+	public static boolean isInt(Object o)
+	{
+		if(o instanceof Integer||o.getClass().equals(int.class))
+			return true;
+		else if(o instanceof String)
+		{
+			try{
+				Integer.parseInt((String) o);
+				return true;
+			}catch(NumberFormatException e)
+			{return false;}
+		}
+		else
+			return false;
+	}
+	
+	public static boolean isString(Object o){
+		return o instanceof String;
+	}
+	
 	public static Double convertToDbl(Object obj) throws InvalidType
 	{
 		if(obj instanceof Double||obj instanceof Float)
@@ -119,7 +139,7 @@ public class CSQLUtils {
 		return null;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object fetchArray(Object arr, Object idx) {
 		try{			
 			if(arr instanceof Map<?, ?>){
@@ -130,6 +150,8 @@ public class CSQLUtils {
 				return fetchArrayItem((Object[]) arr,idx);
 			}else if(arr instanceof String) {
 				return fetchStringItem((String) arr, idx);
+			}else if(arr instanceof CSQLChunkDataIntf) {
+				return ((CSQLChunkDataIntf)arr).fetchItem(idx);
 			}
 			return arr;
 		}catch(Exception e) {

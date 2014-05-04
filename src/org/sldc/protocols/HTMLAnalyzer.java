@@ -1,6 +1,10 @@
 package org.sldc.protocols;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -12,19 +16,45 @@ import javax.swing.text.html.parser.ParserDelegator;
 
 public class HTMLAnalyzer extends ParserCallback {
 	
-	public static String[] startAnalyze(String contents, String tag) throws IOException {
+	private static HTMLAnalyzer startAnalyze(Reader r, String tag) throws IOException {
 		ParserDelegator ps = new ParserDelegator();
 		ParserCallback pc = new HTMLAnalyzer(tag);
+		
+		ps.parse(r, pc, true);
+		return (HTMLAnalyzer) pc;
+	}
+	
+	public static String[] startAnalyze(String contents, String tag) throws IOException {
 		StringReader reader = new StringReader(contents);
-		ps.parse(reader, pc, true);
-		int size = ((HTMLAnalyzer)pc).tagpos.size();
+		HTMLAnalyzer pa = startAnalyze(reader,tag);
+		int size = pa.tagpos.size();
 		String[] res = new String[size];
 		for(int i=0;i<size;i++)
 		{
-			ArrayList<Integer> arr = ((HTMLAnalyzer)pc).tagpos.get(i);
+			ArrayList<Integer> arr = pa.tagpos.get(i);
 			res[i] = contents.substring(arr.get(0),arr.get(1)+1);
 			//System.out.println("Index: "+i+","+res[i]);
 		}
+		return res;
+	}
+	
+	public static String[] startAnalyze(File f, String tag) throws IOException {
+		FileReader reader = new FileReader(f);
+		HTMLAnalyzer pa = startAnalyze(reader, tag);
+		int size = pa.tagpos.size();
+		RandomAccessFile raf = new RandomAccessFile(f,"r");
+		String[] res = new String[size];
+		for(int i=0;i<size;i++)
+		{
+			ArrayList<Integer> arr = pa.tagpos.get(i);
+			int beg = arr.get(0);
+			int end = arr.get(1);
+			byte[] buff = new byte[end-beg];
+			raf.seek(beg);
+			raf.read(buff);
+			res[i] = new String(buff);
+		}
+		raf.close();
 		return res;
 	}
 	
