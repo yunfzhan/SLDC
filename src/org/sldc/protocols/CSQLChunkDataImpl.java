@@ -10,6 +10,12 @@ public abstract class CSQLChunkDataImpl implements CSQLChunkDataIntf {
 		return File.createTempFile("sldc", "dmp");
 	}
 	
+	public String toString() {
+		return this.getClass().getName();
+	}
+	
+	public abstract long size();
+	
 	public abstract Object searchByTag(String tag); // Specific for html-like or xml-like
 	public abstract Object search(String re); // regular expression search
 }

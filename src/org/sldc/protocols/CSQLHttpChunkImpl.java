@@ -36,7 +36,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 	}
 	
 	@Override
-	public Object fetchItem(Object idx) {
+	public Object getItem(Object idx) {
 		try{
 			if(CSQLUtils.isInt(idx))
 			{
@@ -80,7 +80,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
 	@Override
 	public Object searchByTag(String tag) {
-		return fetchItem(tag);
+		return getItem(tag);
 	}
 
 	@Override
@@ -121,5 +121,10 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		} catch (IOException e) {
 			return e;
 		}
+	}
+
+	@Override
+	public long size() {
+		return this.internalPath.length();
 	}
 }

@@ -1,19 +1,17 @@
 package org.sldc.assist;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.sldc.assist.multitypes.BuildInLength;
+import org.sldc.assist.multitypes.BuildInPrint;
+import org.sldc.assist.multitypes.BuildInSearchFunction;
+import org.sldc.assist.multitypes.BuildInStrConv;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
-import org.sldc.protocols.CSQLChunkDataImpl;
-import org.sldc.protocols.HTMLAnalyzer;
 
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
@@ -23,6 +21,8 @@ public class CSQLBuildIns {
 		functions.put("isvoid", "isNull");
 		functions.put("print", "print");
 		functions.put("pow", "Pow");
+		functions.put("len", "getLength");
+		functions.put("string", "convertToString");
 	}
 	
 	public static Object invoke(String funcName, Object[] params)
@@ -53,6 +53,14 @@ public class CSQLBuildIns {
 		return obj==null||obj.equals(Scope.UnDefined)||(obj instanceof SLDCException);
 	}
 	
+	public static long getLength(Object o) {
+		return BuildInLength.length(o);
+	}
+	
+	public static String convertToString(Object o) {
+		return BuildInStrConv.toString(o);
+	}
+	
 	public static Object _InCore(Object contents, String plain){
 		return _InCore(contents, plain, "p");
 	}
@@ -63,53 +71,7 @@ public class CSQLBuildIns {
 		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
-		if(contents instanceof String)
-			return coreByType((String)contents, srchable, indicator);
-		else if(contents instanceof CSQLChunkDataImpl)
-			return coreByType((CSQLChunkDataImpl)contents, srchable, indicator);
-		return false;
-	}
-	/**
-	 * 
-	 * @param o - internal data from select expression
-	 * @param srchable
-	 * @param indicator - p(plain), r(regular expression), t(tag, only valid in html-like file)
-	 * @return
-	 */
-	private static Object coreByType(CSQLChunkDataImpl o, String srchable, String indicator) {
-		if(indicator.equalsIgnoreCase("p")||indicator.equalsIgnoreCase("r")){
-			Object r = o.search(srchable);
-			if(CSQLUtils.isBool(r)&&(Boolean)r==false) return false;
-			
-			return (indicator.equalsIgnoreCase("p"))?true:(String[])r;
-		}else if(indicator.equalsIgnoreCase("t")){
-			return o.searchByTag(srchable);
-		}
-		return false;
-	}
-	
-	private static Object coreByType(String contents, String srchable, String indicator) {
-		if(indicator.equalsIgnoreCase("p")){
-			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) contents);
-			return res.size()!=0;
-		}else if(indicator.equalsIgnoreCase("r")){
-			Pattern p = Pattern.compile(srchable);
-			Matcher m = p.matcher(contents);
-			
-			ArrayList<String> rs = new ArrayList<String>();
-			while(m.find()){
-				rs.add(m.group());
-			}
-			return rs.toArray();
-		}else if(indicator.equalsIgnoreCase("t")){
-			try {
-				String[] res = HTMLAnalyzer.startAnalyze((String) contents, srchable);
-				return res;
-			} catch (IOException e) {
-				return e;
-			}
-		}
-		return false;
+		return BuildInSearchFunction.search(contents, srchable, indicator);
 	}
 
 	public static Double Pow(Object base, Object pow) throws InvalidType
@@ -117,38 +79,7 @@ public class CSQLBuildIns {
 		return Math.pow(CSQLUtils.convertToDbl(base), CSQLUtils.convertToDbl(pow));
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private static String printMap(Map map) {
-		Object[] keys=map.keySet().toArray();
-		StringBuilder sb = new StringBuilder();
-		for(Object key : keys)
-		{
-			sb.append("|\t"+key+"\n | ");
-			sb.append(printObject(map.get(key))+"\n");
-		}
-		return sb.toString();
-	}
-	
-	private static String printArray(Object[] objs) {
-		StringBuilder sb = new StringBuilder();
-		for(int i=0;i<objs.length;i++)
-		{
-			sb.append(printObject(objs[i])+"\n");
-		}
-		return sb.toString();
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private static String printObject(Object obj){
-		if(obj instanceof Map)
-			return printMap((Map)obj);
-		else if(obj.getClass().isArray())
-			return printArray((Object[]) obj);
-		else
-			return obj.toString();
-	}
-	
 	public static void print(Object obj){
-		System.out.println(printObject(obj));
+		System.out.println(BuildInPrint.print(obj));
 	}
 }

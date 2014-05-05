@@ -22,7 +22,7 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 	}
 	
 	@Override
-	public Object fetchItem(Object idx) {
+	public Object getItem(Object idx) {
 		try {
 			Object result = null;
 			RandomAccessFile raf = new RandomAccessFile(this.file, "r");
@@ -83,6 +83,27 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 		} catch (IOException e) {
 			return e;
 		}
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		try {
+			InputStream is = new FileInputStream(this.file);
+			byte[] buff= new byte[1024];
+			while(is.read(buff)!=-1)
+				sb.append(new String(buff));
+			is.close();
+			return sb.toString();
+		} catch (FileNotFoundException e) {
+			return "";
+		} catch (IOException e) {
+			return "";
+		}
+	}
+	
+	@Override
+	public long size() {
+		return this.file.length();
 	}
 	
 }

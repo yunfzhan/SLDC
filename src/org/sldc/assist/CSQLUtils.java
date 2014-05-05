@@ -3,10 +3,9 @@ package org.sldc.assist;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.sldc.assist.multitypes.ArrayFetchAssist;
 import org.sldc.exception.InvalidType;
 
 public class CSQLUtils {
@@ -28,6 +27,10 @@ public class CSQLUtils {
 	
 	public static boolean isBool(Object o) {
 		return (o instanceof Boolean||o.getClass().equals(boolean.class));
+	}
+	
+	public static boolean isArray(Object o) {
+		return o.getClass().isArray();
 	}
 	
 	public static boolean isNumeric(Object obj)
@@ -85,78 +88,8 @@ public class CSQLUtils {
 		return ret;
 	}
 	
-	private static Object fetchMapItem(Map<String, Object> arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
-		if(index!=null) {
-			for(String key : arr.keySet())
-			{
-				if(index--==0)
-					return arr.get(key);
-			}
-			return new ArrayIndexOutOfBoundsException((Integer)idx);
-		}else if(idx instanceof String) {
-			idx = removeStringBounds((String) idx);
-			return arr.get(idx);
-		}
-		else
-			throw new InvalidType(new Throwable());
-	}
-	
-	private static Object fetchListItem(@SuppressWarnings("rawtypes") Collection arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
-		if(index==null) throw new InvalidType(new Throwable());
-		
-		for(Object item : arr)
-		{
-			if(index--==0)
-				return item;
-		}
-		return new ArrayIndexOutOfBoundsException((Integer)idx);
-	}
-	
-	private static Object fetchArrayItem(Object[] arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
-		if(index==null) throw new InvalidType(new Throwable());
-		return arr[(Integer) index];
-	}
-	
-	private static Character fetchStringItem(String arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
-		if(index==null) throw new InvalidType(new Throwable());
-		return arr.charAt((Integer) index);
-	}
-	
-	private static Integer checkIntegerIndex(Object idx){
-		try{
-			if(idx instanceof String) {
-				return Integer.valueOf((String)idx);
-			}
-			Class<? extends Object> c = idx.getClass();
-			if(c==Integer.class||c==int.class)
-				return (Integer)idx;
-		}catch(NumberFormatException ex){
-		}
-		return null;
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object fetchArray(Object arr, Object idx) {
-		try{
-			if(arr instanceof Map<?, ?>){
-				return fetchMapItem((Map<String, Object>) arr,idx);
-			}else if(arr instanceof Collection) {
-				return fetchListItem((Collection) arr,idx);
-			}else if(arr.getClass().isArray()) {
-				return fetchArrayItem((Object[]) arr,idx);
-			}else if(arr instanceof String) {
-				return fetchStringItem((String) arr, idx);
-			}else if(arr instanceof CSQLChunkDataIntf) {
-				return ((CSQLChunkDataIntf)arr).fetchItem(idx);
-			}
-			return arr;
-		}catch(Exception e) {
-			return e;
-		}
+		return ArrayFetchAssist.get(arr, idx);
 	}
 	 
 	private static int[] PreBmBc(String pattern)
