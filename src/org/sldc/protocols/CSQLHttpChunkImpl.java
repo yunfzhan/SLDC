@@ -2,6 +2,7 @@ package org.sldc.protocols;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -84,15 +85,41 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
 	@Override
 	public Object search(String re) {
-		String s = toString();
-		Pattern p = Pattern.compile(re);
-		Matcher m = p.matcher(s);
-		
-		ArrayList<String> rs = new ArrayList<String>();
-		while(m.find())
-		{
-			rs.add(m.group());
+		final int PAGESIZE = 2048;
+		try {
+			Pattern p = Pattern.compile(re);
+			ArrayList<String> res = new ArrayList<String>();
+			
+			InputStream is = new FileInputStream(this.internalPath);
+			/*
+			 * Read one page at a time. And search regular expression matches in two pages.
+			 * 
+			 */
+			byte[] page = new byte[PAGESIZE*2];
+			int bytesread = 0, beg = 0, lastop = 0;
+			while((bytesread=is.read(page, beg, PAGESIZE))!=-1){
+				String s = new String(page,0,beg==0?PAGESIZE:(PAGESIZE+bytesread)/*Specify range especially for bytesread not equal to PAGESIZE*/);
+				Matcher m = p.matcher(s);
+				while(m.find()){
+					if(m.start()<=lastop) continue;
+					res.add(m.group());
+					//res.add(s.substring(m.start()-50,m.end()+20));
+					lastop = m.start();
+				}
+				
+				lastop=(lastop>=beg)?lastop-beg:0;
+				
+				if(beg!=0)
+					System.arraycopy(page, PAGESIZE, page, 0, bytesread);
+				else
+					beg = PAGESIZE;
+			}
+			is.close();
+			return res.size()==0?false:res;
+		} catch (FileNotFoundException e) {
+			return e;
+		} catch (IOException e) {
+			return e;
 		}
-		return rs.size()==0?false:rs.toArray();
 	}
 }

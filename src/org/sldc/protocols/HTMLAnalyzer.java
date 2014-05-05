@@ -52,7 +52,7 @@ public class HTMLAnalyzer extends ParserCallback {
 			byte[] buff = new byte[end-beg+1];
 			raf.seek(beg);
 			raf.read(buff);
-			res[i] = new String(buff);
+			res[i] = new String(buff/*,"utf8"*/);
 		}
 		raf.close();
 		return res;

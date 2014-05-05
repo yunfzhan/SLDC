@@ -69,7 +69,13 @@ public class CSQLBuildIns {
 			return coreByType((CSQLChunkDataImpl)contents, srchable, indicator);
 		return false;
 	}
-	
+	/**
+	 * 
+	 * @param o - internal data from select expression
+	 * @param srchable
+	 * @param indicator - p(plain), r(regular expression), t(tag, only valid in html-like file)
+	 * @return
+	 */
 	private static Object coreByType(CSQLChunkDataImpl o, String srchable, String indicator) {
 		if(indicator.equalsIgnoreCase("p")||indicator.equalsIgnoreCase("r")){
 			Object r = o.search(srchable);
