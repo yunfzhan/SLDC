@@ -71,7 +71,7 @@ public final class CSQLMain {
 			Object r = runner.visit(tree);
 			if(r instanceof SLDCException)
 				((SLDCException)r).printStackTrace();
-			else
+			else if(r!=null)
 				System.out.println(r);
 		}
 		System.out.println();

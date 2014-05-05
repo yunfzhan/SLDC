@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,10 +87,12 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		String s = toString();
 		Pattern p = Pattern.compile(re);
 		Matcher m = p.matcher(s);
-		if(!m.find()) return false;
-		String[] res = new String[m.groupCount()];
-		for(int i=0;i<res.length;i++)
-			res[i] = m.group(i);
-		return res;
+		
+		ArrayList<String> rs = new ArrayList<String>();
+		while(m.find())
+		{
+			rs.add(m.group());
+		}
+		return rs.size()==0?false:rs.toArray();
 	}
 }

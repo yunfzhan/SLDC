@@ -60,6 +60,7 @@ public class CSQLBuildIns {
 	public static Object _InCore(Object contents, String srchable, String indicator) {
 		if(srchable==null||srchable.equals("")) return false;
 		srchable = CSQLUtils.removeStringBounds(srchable);
+		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
 		if(contents instanceof String)
@@ -88,14 +89,12 @@ public class CSQLBuildIns {
 		}else if(indicator.equalsIgnoreCase("r")){
 			Pattern p = Pattern.compile(srchable);
 			Matcher m = p.matcher(contents);
-			if(!m.find()) return false;
 			
-			String[] res = new String[m.groupCount()];
-			for(int i=0;i<res.length;i++)
-			{
-				res[i]=m.group(i);
+			ArrayList<String> rs = new ArrayList<String>();
+			while(m.find()){
+				rs.add(m.group());
 			}
-			return res;
+			return rs.toArray();
 		}else if(indicator.equalsIgnoreCase("t")){
 			try {
 				String[] res = HTMLAnalyzer.startAnalyze((String) contents, srchable);

@@ -49,7 +49,7 @@ public class HTMLAnalyzer extends ParserCallback {
 			ArrayList<Integer> arr = pa.tagpos.get(i);
 			int beg = arr.get(0);
 			int end = arr.get(1);
-			byte[] buff = new byte[end-beg];
+			byte[] buff = new byte[end-beg+1];
 			raf.seek(beg);
 			raf.read(buff);
 			res[i] = new String(buff);

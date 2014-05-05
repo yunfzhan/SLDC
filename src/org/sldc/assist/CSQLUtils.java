@@ -141,7 +141,7 @@ public class CSQLUtils {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object fetchArray(Object arr, Object idx) {
-		try{			
+		try{
 			if(arr instanceof Map<?, ?>){
 				return fetchMapItem((Map<String, Object>) arr,idx);
 			}else if(arr instanceof Collection) {
