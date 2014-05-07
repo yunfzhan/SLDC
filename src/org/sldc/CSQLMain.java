@@ -63,7 +63,11 @@ public final class CSQLMain {
 		if(exs.size()!=0)
 		{
 			for(int i=0;i<exs.size();i++)
+			{
 				System.err.println(exs.get(i).getMessage());
+				exs.get(i).printStackTrace();
+				System.err.println();
+			}
 		}
 		else
 		{
