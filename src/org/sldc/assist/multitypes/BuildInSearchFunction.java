@@ -6,8 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.HTMLAnalyzer;
 import org.sldc.protocols.CSQLChunkDataImpl;
-import org.sldc.protocols.HTMLAnalyzer;
 
 public class BuildInSearchFunction {
 	public static Object search(Object o, String srchable, String indicator) {

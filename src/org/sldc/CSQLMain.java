@@ -74,7 +74,6 @@ public final class CSQLMain {
 			else if(r!=null)
 				System.out.println(r);
 		}
-		System.out.println();
 	}
 
 }

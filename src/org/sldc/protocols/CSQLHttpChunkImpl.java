@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.HTMLAnalyzer;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
