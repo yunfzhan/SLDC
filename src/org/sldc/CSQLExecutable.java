@@ -79,6 +79,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = visit(ctx.expr(0));
 			Object right = visit(ctx.expr(1));
 			
+			if(CSQLUtils.isInt(left)&&CSQLUtils.isInt(right))
+			{
+				Long l = CSQLUtils.convertToInt(left);
+				Long r = CSQLUtils.convertToInt(right);
+				
+				return (ctx.op.getText().equals("*"))?l*r:l/r;
+			}
+			
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
 			
@@ -100,6 +108,17 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			Object left = visit(ctx.expr(0));
 			Object right = visit(ctx.expr(1));
 			
+			if(ctx.ADDSUB().getText().equals("+")&&(CSQLUtils.isString(left)||CSQLUtils.isString(right)))
+			{
+				return String.valueOf(left) + String.valueOf(right);
+			}else if(CSQLUtils.isInt(left)&&CSQLUtils.isInt(right))
+			{
+				Long l = CSQLUtils.convertToInt(left);
+				Long r = CSQLUtils.convertToInt(right);
+				
+				return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
+			}
+		
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
 	
@@ -260,7 +279,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override
 	public Object visitInt(@NotNull cSQLParser.IntContext ctx) 
 	{
-		return Integer.valueOf(ctx.INT().getText());
+		return Long.valueOf(ctx.INT().getText());
 	}
 	
 	@Override 
@@ -327,6 +346,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object r1 = visit(ctx.expr(1));
 		
 		try {
+			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
+			{
+				Long d0 = CSQLUtils.convertToInt(r0);
+				Long d1 = CSQLUtils.convertToInt(r1);
+				return d0>=d1;
+			}
+			
 			Double d0 = CSQLUtils.convertToDbl(r0);
 			Double d1 = CSQLUtils.convertToDbl(r1);
 			return d0>=d1;
@@ -341,6 +367,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object r1 = visit(ctx.expr(1));
 		
 		try {
+			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
+			{
+				Long d0 = CSQLUtils.convertToInt(r0);
+				Long d1 = CSQLUtils.convertToInt(r1);
+				return d0>d1;
+			}
+			
 			Double d0 = CSQLUtils.convertToDbl(r0);
 			Double d1 = CSQLUtils.convertToDbl(r1);
 			return d0>d1;
@@ -355,6 +388,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object r1 = visit(ctx.expr(1));
 		
 		try {
+			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
+			{
+				Long d0 = CSQLUtils.convertToInt(r0);
+				Long d1 = CSQLUtils.convertToInt(r1);
+				return d0<d1;
+			}
+			
 			Double d0 = CSQLUtils.convertToDbl(r0);
 			Double d1 = CSQLUtils.convertToDbl(r1);
 			return d0<d1;
@@ -369,6 +409,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object r1 = visit(ctx.expr(1));
 		
 		try {
+			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
+			{
+				Long d0 = CSQLUtils.convertToInt(r0);
+				Long d1 = CSQLUtils.convertToInt(r1);
+				return d0<=d1;
+			}
+			
 			Double d0 = CSQLUtils.convertToDbl(r0);
 			Double d1 = CSQLUtils.convertToDbl(r1);
 			return d0<=d1;

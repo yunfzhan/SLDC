@@ -35,7 +35,7 @@ public class CSQLUtils {
 	
 	public static boolean isNumeric(Object obj)
 	{
-		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer))
+		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer)||(obj instanceof Long))
 			return true;
 		else if(obj instanceof String)
 		{
@@ -50,6 +50,8 @@ public class CSQLUtils {
 	public static boolean isInt(Object o)
 	{
 		if(o instanceof Integer||o.getClass().equals(int.class))
+			return true;
+		else if(o instanceof Long||o.getClass().equals(long.class))
 			return true;
 		else if(o instanceof String)
 		{
@@ -67,13 +69,22 @@ public class CSQLUtils {
 		return o instanceof String;
 	}
 	
+	public static Long convertToInt(Object o) throws InvalidType {
+		if(isInt(o))
+			return Long.valueOf(o.toString());
+		else if(isString(o))
+			return Long.valueOf((String)o);
+		else
+			throw new InvalidType(new Throwable());
+	}
+	
 	public static Double convertToDbl(Object obj) throws InvalidType
 	{
-		if(obj instanceof Double||obj instanceof Float)
+		if(isInt(obj))
+			return (Long)obj*1.0;
+		else if(isNumeric(obj))
 			return new Double((Double)obj);
-		else if(obj instanceof Integer)
-			return (Integer)obj*1.0;
-		else if(obj instanceof String)
+		else if(isString(obj))
 			return Double.valueOf((String)obj);
 		else
 			throw new InvalidType(new Throwable());

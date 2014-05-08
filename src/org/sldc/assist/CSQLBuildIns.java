@@ -13,8 +13,10 @@ import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
 
+@SuppressWarnings("unchecked")
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
+	private static Map<String, Object> _internalFuncs = new HashMap<String, Object>();
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
@@ -25,26 +27,56 @@ public class CSQLBuildIns {
 		functions.put("string", "convertToString");
 	}
 	
+	static {
+		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
+		for(int i=0;i<methods.length;i++)
+		{
+			String name = methods[i].getName();
+			if(name.equals("invoke")) continue;
+			if(_internalFuncs.containsKey(name))
+			{
+				Object o = _internalFuncs.get(name);
+				Map<Class<?>[], Method> duplicates = null;
+				if(o instanceof Method)
+				{
+					duplicates = new HashMap<Class<?>[], Method>();
+					Method m = (Method)o;
+					duplicates.put(m.getParameterTypes(), m);
+				}
+				else
+					duplicates = (Map<Class<?>[], Method>) o;
+				duplicates.put(methods[i].getParameterTypes(), methods[i]);
+				_internalFuncs.put(name, duplicates);
+				continue;
+			}
+			_internalFuncs.put(name, methods[i]);
+		}
+	}
+	
 	public static Object invoke(String funcName, Object[] params)
 	{
 		Object result = new NotBuildInFunction(funcName, new Throwable());
 		if(functions.containsKey(funcName))
 		{
-			Class<?> self = CSQLBuildIns.class;
-			Method[] methods = self.getDeclaredMethods();
+			Object o = _internalFuncs.get(functions.get(funcName));
 			
-			for(int i=0;i<methods.length;i++)
-				if(methods[i].getName().equals(functions.get(funcName)))
+			try {
+				if(o instanceof Method)
 				{
-					try {
-						Class<?>[] ptypes = methods[i].getParameterTypes();
-						if(ptypes.length!=params.length) continue;
-						result = methods[i].invoke(self, params);
-						break;
-					} catch (Exception e) {
-						result = e;
-					}
-				}
+					Method method = (Method)o;
+					result = method.invoke(CSQLUtils.class, params);
+				}else{
+					Map<Class<?>[], Method> m = (Map<Class<?>[], Method>)o;
+					for(Class<?>[] ptypes : m.keySet())
+						if(ptypes.length==params.length)
+						{
+							result = m.get(ptypes).invoke(CSQLUtils.class, params);
+							break;
+						}
+				}				
+			} catch (Exception e) {
+				result = e;
+			}
 		}
 		return result;
 	}

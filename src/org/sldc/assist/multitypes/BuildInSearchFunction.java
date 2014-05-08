@@ -49,11 +49,10 @@ public class BuildInSearchFunction {
 			while(m.find()){
 				rs.add(m.group());
 			}
-			return rs.toArray();
+			return rs;
 		}else if(indicator.equalsIgnoreCase("t")){
 			try {
-				String[] res = HTMLAnalyzer.startAnalyze((String) contents, srchable);
-				return res;
+				return HTMLAnalyzer.startAnalyze((String) contents, srchable);
 			} catch (IOException e) {
 				return e;
 			}

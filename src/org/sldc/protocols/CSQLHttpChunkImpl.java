@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
+import org.sldc.exception.InvalidType;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
@@ -43,19 +44,19 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 			{
 				RandomAccessFile raf = new RandomAccessFile(this.internalPath,"r");
 				try{
-					int beg = (Integer)idx;
-					raf.seek(beg);
+					raf.seek(CSQLUtils.convertToInt(idx));
 					return raf.read();
 				}finally{
 					raf.close();
 				}
 			}else if(CSQLUtils.isString(idx))
 			{
-				String[] res = HTMLAnalyzer.startAnalyze(this.internalPath, (String)idx);
-				return res;
+				return HTMLAnalyzer.startAnalyze(this.internalPath, (String)idx);
 			}
 			return null;
-		} catch (FileNotFoundException e) {
+		} catch (InvalidType e) {
+			return e;
+		}catch (FileNotFoundException e) {
 			return e;
 		} catch (IOException e) {
 			return e;

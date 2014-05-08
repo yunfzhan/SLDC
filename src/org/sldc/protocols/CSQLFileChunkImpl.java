@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
+import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotSupportOperation;
 
 public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
@@ -26,13 +27,17 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 		try {
 			Object result = null;
 			RandomAccessFile raf = new RandomAccessFile(this.file, "r");
-			if(CSQLUtils.isInt(idx)){
-				int beg = (Integer)idx;
-				raf.seek(beg);
-				result = raf.read();
+			try{
+				if(CSQLUtils.isInt(idx)){
+					raf.seek(CSQLUtils.convertToInt(idx));
+					result = raf.read();
+				}
+			}finally{
+				raf.close();
 			}
-			raf.close();
 			return result;
+		} catch(InvalidType e){
+			return e;
 		} catch (FileNotFoundException e) {
 			return e;
 		} catch (IOException e) {

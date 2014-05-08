@@ -29,14 +29,14 @@ public class ArrayFetchAssist {
 	}
 	
 	private static Object getMapItem(Map<String, Object> arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
+		Long index = checkIntegerIndex(idx);
 		if(index!=null) {
 			for(String key : arr.keySet())
 			{
 				if(index--==0)
 					return arr.get(key);
 			}
-			return new ArrayIndexOutOfBoundsException((Integer)idx);
+			return new ArrayIndexOutOfBoundsException(CSQLUtils.convertToInt(idx).intValue());
 		}else if(idx instanceof String) {
 			idx = CSQLUtils.removeStringBounds((String) idx);
 			return arr.get(idx);
@@ -46,7 +46,7 @@ public class ArrayFetchAssist {
 	}
 	
 	private static Object getListItem(@SuppressWarnings("rawtypes") Collection arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
+		Long index = checkIntegerIndex(idx);
 		if(index==null) throw new InvalidType(new Throwable());
 		
 		for(Object item : arr)
@@ -54,31 +54,26 @@ public class ArrayFetchAssist {
 			if(index--==0)
 				return item;
 		}
-		return new ArrayIndexOutOfBoundsException((Integer)idx);
+		return new ArrayIndexOutOfBoundsException(CSQLUtils.convertToInt(idx).intValue());
 	}
 	
 	private static Object getArrayItem(Object[] arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
+		Long index = checkIntegerIndex(idx);
 		if(index==null) throw new InvalidType(new Throwable());
-		return arr[(Integer) index];
+		return arr[index.intValue()];
 	}
 	
 	private static Character getStringItem(String arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
-		Integer index = checkIntegerIndex(idx);
+		Long index = checkIntegerIndex(idx);
 		if(index==null) throw new InvalidType(new Throwable());
-		return arr.charAt((Integer) index);
+		return arr.charAt(index.intValue());
 	}
 	
-	private static Integer checkIntegerIndex(Object idx){
+	private static Long checkIntegerIndex(Object idx){
 		try{
-			if(idx instanceof String) {
-				return Integer.valueOf((String)idx);
-			}
-			Class<? extends Object> c = idx.getClass();
-			if(c==Integer.class||c==int.class)
-				return (Integer)idx;
-		}catch(NumberFormatException ex){
-		}
+			if(CSQLUtils.isInt(idx))
+				return CSQLUtils.convertToInt(idx);
+		}catch (InvalidType e) {}
 		return null;
 	}
 }
