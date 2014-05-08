@@ -37,7 +37,7 @@ public class CSQLUtils {
 	{
 		if((obj instanceof Double)||(obj instanceof Float)||(obj instanceof Integer)||(obj instanceof Long))
 			return true;
-		else if(obj instanceof String)
+		else if(isString(obj))
 		{
 			String var = (String)obj;
 			Pattern pattern = Pattern.compile("^[-+]?[\\d]*([.][\\d]+)?$");    
@@ -53,7 +53,7 @@ public class CSQLUtils {
 			return true;
 		else if(o instanceof Long||o.getClass().equals(long.class))
 			return true;
-		else if(o instanceof String)
+		else if(isString(o))
 		{
 			try{
 				Integer.parseInt((String) o);

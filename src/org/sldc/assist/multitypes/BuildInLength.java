@@ -11,7 +11,7 @@ public class BuildInLength {
 	public static long length(Object o) {
 		if(o instanceof CSQLChunkDataImpl)
 			return ((CSQLChunkDataImpl)o).size();
-		else if(o instanceof String)
+		else if(CSQLUtils.isString(o))
 			return ((String)o).length();
 		else if(CSQLUtils.isArray(o))
 			return ((Object[])o).length;
