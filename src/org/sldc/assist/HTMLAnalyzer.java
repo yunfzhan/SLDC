@@ -1,103 +1,38 @@
 package org.sldc.assist;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Stack;
 
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLEditorKit.ParserCallback;
-import javax.swing.text.html.parser.ParserDelegator;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
-public class HTMLAnalyzer extends ParserCallback {
-	
-	private static HTMLAnalyzer startAnalyze(Reader r, String tag) throws IOException {
-		ParserDelegator ps = new ParserDelegator();
-		ParserCallback pc = new HTMLAnalyzer(tag);
-		
-		ps.parse(r, pc, true);
-		return (HTMLAnalyzer) pc;
-	}
-	
+public class HTMLAnalyzer {
 	public static String[] startAnalyze(String contents, String tag) throws IOException {
-		StringReader reader = new StringReader(contents);
-		HTMLAnalyzer pa = startAnalyze(reader,tag);
-		int size = pa.tagpos.size();
-		String[] res = new String[size];
-		for(int i=0;i<size;i++)
-		{
-			ArrayList<Integer> arr = pa.tagpos.get(i);
-			res[i] = contents.substring(arr.get(0),arr.get(1)+1);
-			//System.out.println("Index: "+i+","+res[i]);
-		}
-		return res;
+		Document doc = Jsoup.parse(contents);
+		Elements elems = doc.getElementsByTag(tag);
+		ArrayList<String> res = new ArrayList<String>();
+		for(int i=0;i<elems.size();i++)
+			res.add(elems.get(i).toString());
+		return (String[]) res.toArray();
 	}
 	
 	public static String[] startAnalyze(File f, String tag) throws IOException {
-		FileReader reader = new FileReader(f);
-		HTMLAnalyzer pa = startAnalyze(reader, tag);
-		int size = pa.tagpos.size();
-		RandomAccessFile raf = new RandomAccessFile(f,"r");
-		String[] res = new String[size];
-		for(int i=0;i<size;i++)
+		CharsetDetector detector = new CharsetDetector();
+		String[] probs = detector.detectAllCharsets(new FileInputStream(f));
+		ArrayList<String> res = new ArrayList<String>();
+		if(probs.length>0)
 		{
-			ArrayList<Integer> arr = pa.tagpos.get(i);
-			int beg = arr.get(0);
-			int end = arr.get(1);
-			byte[] buff = new byte[end-beg+1];
-			raf.seek(beg);
-			raf.read(buff);
-			res[i] = new String(buff/*,"utf8"*/);
+			Document doc = Jsoup.parse(f,probs[0]);
+			Elements elems = doc.getElementsByTag(tag);
+			for(int i=0;i<elems.size();i++)
+			{
+				//System.out.println(elems.get(i));
+				res.add(elems.get(i).toString());
+			}
 		}
-		raf.close();
-		return res;
-	}
-	
-	private String tag = null;
-	ArrayList<ArrayList<Integer>> tagpos = new ArrayList<ArrayList<Integer>>();
-	private Stack<ArrayList<Integer>> stack = new Stack<ArrayList<Integer>>();
-	
-	public HTMLAnalyzer(String tag) {
-		this.tag = tag;
-	}
-	
-	public void handleText(char[] data, int pos) {
-		
-	}
-	
-	public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-		if(this.tag.equalsIgnoreCase(t.toString()))
-		{
-			ArrayList<Integer> arr = new ArrayList<Integer>();
-			arr.add(pos);
-			stack.push(arr);
-		}
-	}
-	
-	public void handleError(String errorMsg, int pos) {
-		
-	}
-	
-	public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
-		
-	}
-	
-	public void handleComment(char[] data, int pos) {
-		
-	}
-	
-	public void handleEndTag(HTML.Tag t, int pos) {
-		String endtag = t.toString();
-		if(this.tag.equalsIgnoreCase(endtag))
-		{
-			ArrayList<Integer> arr = stack.pop();
-			arr.add(pos+endtag.length()+2);
-			tagpos.add(arr);
-		}
+		return (String[]) res.toArray();
 	}
 }
