@@ -1,6 +1,7 @@
 package org.sldc.assist;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,15 +25,16 @@ public class CSQLBuildIns {
 		functions.put("print", "print");
 		functions.put("pow", "Pow");
 		functions.put("len", "getLength");
-		functions.put("string", "convertToString");
-	}
-	
-	static {
+		functions.put("str", "convertToString");
+		functions.put("cut", "splitString");
+		functions.put("suck", "extractString");
+		functions.put("find", "findFirst");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
 		for(int i=0;i<methods.length;i++)
 		{
 			String name = methods[i].getName();
-			if(name.equals("invoke")) continue;
+			int modifier = methods[i].getModifiers();
+			if(name.equals("invoke")||!Modifier.isPublic(modifier)) continue;
 			if(_internalFuncs.containsKey(name))
 			{
 				Object o = _internalFuncs.get(name);
@@ -91,6 +93,20 @@ public class CSQLBuildIns {
 	
 	public static String convertToString(Object o) {
 		return BuildInStrConv.toString(o);
+	}
+	
+	public static String[] splitString(String o, String deli) {
+		deli = CSQLUtils.removeStringBounds(deli);
+		return o.split(deli);
+	}
+	
+	public static String extractString(String o, int beg, int end) {
+		return o.substring(beg, end);
+	}
+	
+	public static int findString(String o, String sub) {
+		sub = CSQLUtils.removeStringBounds(sub);
+		return o.indexOf(sub);
 	}
 	
 	public static Object _InCore(Object contents, String plain){
