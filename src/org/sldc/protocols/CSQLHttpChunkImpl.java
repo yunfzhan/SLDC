@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -42,12 +41,17 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		try{
 			if(CSQLUtils.isInt(idx))
 			{
-				RandomAccessFile raf = new RandomAccessFile(this.internalPath,"r");
+				BufferedReader reader = new BufferedReader(new FileReader(this.internalPath));
 				try{
-					raf.seek(CSQLUtils.convertToInt(idx));
-					return raf.read();
+					if(CSQLUtils.isInt(idx)){
+						long index = CSQLUtils.convertToInt(idx);
+						reader.skip(index-1);
+						char[] result = new char[1];
+						reader.read(result);
+						return result[0];
+					}
 				}finally{
-					raf.close();
+					reader.close();
 				}
 			}else if(CSQLUtils.isString(idx))
 			{

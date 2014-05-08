@@ -1,11 +1,12 @@
 package org.sldc.protocols;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,6 +17,7 @@ import org.sldc.exception.NotSupportOperation;
 
 public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 
+	private final int PAGESIZE = 2048;
 	private File file = null;
 	
 	public CSQLFileChunkImpl(File f){
@@ -25,17 +27,19 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 	@Override
 	public Object getItem(Object idx) {
 		try {
-			Object result = null;
-			RandomAccessFile raf = new RandomAccessFile(this.file, "r");
+			BufferedReader reader = new BufferedReader(new FileReader(this.file));
 			try{
 				if(CSQLUtils.isInt(idx)){
-					raf.seek(CSQLUtils.convertToInt(idx));
-					result = raf.read();
+					long index = CSQLUtils.convertToInt(idx);
+					reader.skip(index-1);
+					char[] result = new char[1];
+					reader.read(result);
+					return result[0];
 				}
 			}finally{
-				raf.close();
+				reader.close();
 			}
-			return result;
+			return null;
 		} catch(InvalidType e){
 			return e;
 		} catch (FileNotFoundException e) {
@@ -52,7 +56,6 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 
 	@Override
 	public Object search(String re) {
-		final int PAGESIZE = 2048;
 		try {
 			Pattern p = Pattern.compile(re);
 			ArrayList<String> res = new ArrayList<String>();

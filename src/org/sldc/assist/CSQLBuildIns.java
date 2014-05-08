@@ -46,7 +46,7 @@ public class CSQLBuildIns {
 					duplicates.put(m.getParameterTypes(), m);
 				}
 				else
-					duplicates = (Map<Class<?>[], Method>) o;
+					duplicates = (Map<Class<?>[], Method>) o; // in case of duplicated names.
 				duplicates.put(methods[i].getParameterTypes(), methods[i]);
 				_internalFuncs.put(name, duplicates);
 				continue;
@@ -54,7 +54,12 @@ public class CSQLBuildIns {
 			_internalFuncs.put(name, methods[i]);
 		}
 	}
-	
+	/**
+	 * 
+	 * @param funcName: function name to be called
+	 * @param params: parameters passed to the function
+	 * @return execution result
+	 */
 	public static Object invoke(String funcName, Object[] params)
 	{
 		Object result = new NotBuildInFunction(funcName, new Throwable());
