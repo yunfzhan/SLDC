@@ -23,6 +23,7 @@ public class CSQLBuildIns {
 		functions.put("$", "_InCore");	// '$'
 		functions.put("isvoid", "isNull");
 		functions.put("print", "print");
+		functions.put("println", "println");
 		functions.put("pow", "Pow");
 		functions.put("len", "getLength");
 		functions.put("str", "convertToString");
@@ -133,6 +134,10 @@ public class CSQLBuildIns {
 	}
 	
 	public static void print(Object obj){
+		System.out.print(BuildInPrint.print(obj));
+	}
+	
+	public static void println(Object obj){
 		System.out.println(BuildInPrint.print(obj));
 	}
 }

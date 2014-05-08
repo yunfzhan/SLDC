@@ -69,6 +69,10 @@ public class CSQLUtils {
 		return o instanceof String;
 	}
 	
+	public static boolean isChar(Object o){
+		return (o instanceof Character)||o.getClass().equals(char.class);
+	}
+	
 	public static Long convertToInt(Object o) throws InvalidType {
 		if(isInt(o))
 			return Long.valueOf(o.toString());

@@ -111,6 +111,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(ctx.ADDSUB().getText().equals("+")&&(CSQLUtils.isString(left)||CSQLUtils.isString(right)))
 			{
 				return String.valueOf(left) + String.valueOf(right);
+			}else if(ctx.ADDSUB().getText().equals("+")&&CSQLUtils.isChar(left)&&CSQLUtils.isChar(right)){
+				return String.valueOf(left)+String.valueOf(right);
 			}else if(CSQLUtils.isInt(left)&&CSQLUtils.isInt(right))
 			{
 				Long l = CSQLUtils.convertToInt(left);
