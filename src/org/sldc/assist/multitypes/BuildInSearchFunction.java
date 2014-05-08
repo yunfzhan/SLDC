@@ -11,51 +11,56 @@ import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class BuildInSearchFunction {
 	public static Object search(Object o, String srchable, String indicator) {
-		if(o instanceof String)
-			return searchByType((String)o, srchable, indicator);
-		else if(o instanceof CSQLChunkDataImpl)
-			return searchByType((CSQLChunkDataImpl)o, srchable, indicator);
+		if(indicator.equalsIgnoreCase("p"))
+			return searchPlain(o, srchable);
+		else if(indicator.equalsIgnoreCase("r"))
+			return searchRE(o, srchable);
+		else if(indicator.equalsIgnoreCase("t"))
+			return searchTag(o, srchable);
 		return false;
 	}
 	
-	/**
-	 * 
-	 * @param o - internal data from select expression
-	 * @param srchable
-	 * @param indicator - p(plain), r(regular expression), t(tag, only valid in html-like file)
-	 * @return
-	 */
-	private static Object searchByType(CSQLChunkDataImpl o, String srchable, String indicator) {
-		if(indicator.equalsIgnoreCase("p")||indicator.equalsIgnoreCase("r")){
-			Object r = o.search(srchable);
+	private static Object searchPlain(Object o, String srchable) {
+		if(CSQLUtils.isString(o)){
+			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) o);
+			return res.size()!=0;
+		}else if(o instanceof CSQLChunkDataImpl){
+			Object r = ((CSQLChunkDataImpl)o).search(srchable);
 			if(CSQLUtils.isBool(r)&&(Boolean)r==false) return false;
 			
-			return (indicator.equalsIgnoreCase("p"))?true:(String[])r;
-		}else if(indicator.equalsIgnoreCase("t")){
-			return o.searchByTag(srchable);
+			return true;
 		}
 		return false;
 	}
 	
-	private static Object searchByType(String contents, String srchable, String indicator) {
-		if(indicator.equalsIgnoreCase("p")){
-			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) contents);
-			return res.size()!=0;
-		}else if(indicator.equalsIgnoreCase("r")){
+	private static Object searchRE(Object o, String srchable) {
+		if(CSQLUtils.isString(o)){
 			Pattern p = Pattern.compile(srchable);
-			Matcher m = p.matcher(contents);
+			Matcher m = p.matcher((String)o);
 			
 			ArrayList<String> rs = new ArrayList<String>();
 			while(m.find()){
 				rs.add(m.group());
 			}
 			return rs;
-		}else if(indicator.equalsIgnoreCase("t")){
+		}else if(o instanceof CSQLChunkDataImpl){
+			Object r = ((CSQLChunkDataImpl)o).search(srchable);
+			if(CSQLUtils.isBool(r)&&(Boolean)r==false) return false;
+			
+			return (String[])r;
+		}
+		return false;
+	}
+	
+	private static Object searchTag(Object o, String srchable) {
+		if(CSQLUtils.isString(o)){
 			try {
-				return HTMLAnalyzer.startAnalyze((String) contents, srchable);
+				return HTMLAnalyzer.startAnalyze((String) o, srchable);
 			} catch (IOException e) {
 				return e;
 			}
+		}else if(o instanceof CSQLChunkDataImpl) {
+			return ((CSQLChunkDataImpl)o).searchByTag(srchable);
 		}
 		return false;
 	}
