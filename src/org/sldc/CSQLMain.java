@@ -14,7 +14,15 @@ import org.sldc.assist.CSQLProtocolFactoryImpl;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.csql.cSQLParser;
 import org.sldc.exception.SLDCException;
-
+/**
+ * 
+ * @author Yunfei Zhang
+ * TODO 1.$ function is going to add a condition parameter to filter result further. e.g. $(a,'tr','t', $item['td']!="")
+ * 		2.Add a Loop function to enable loop operation in one sentence.
+ * 		3.Add a judgment function to judge a condition in one sentence.
+ * 		4.Nested functions support.
+ * 		5.FTP and database support.
+ */
 public final class CSQLMain {
 	
 	public static String getStreamContent(
