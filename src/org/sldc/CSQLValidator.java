@@ -46,11 +46,6 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	}
 	
 	@Override 
-	public void enterStats(@NotNull cSQLParser.StatsContext ctx) {
-		this.currentScope.setInput(ctx);
-	}
-	
-	@Override 
 	public void enterBlock(@NotNull cSQLParser.BlockContext ctx) {
 		try {
 			Scope scope = null;
@@ -59,6 +54,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 				cSQLParser.FundeclContext parent = (FundeclContext) ctx.parent;
 				String funcName = parent.Identifier().getText();
 				scope = this.currentScope.addFunction(funcName);
+				scope.setInput(ctx.stats());
 			}
 			else
 			{

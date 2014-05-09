@@ -3,8 +3,7 @@ package org.sldc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -56,7 +55,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return parser;
 	}
 	
-	public Object execScope() throws IOException, SLDCException
+	public Object run() throws IOException, SLDCException
 	{
 		if(this.currentScope==null) throw new InvalidType(new Throwable());
 		return visit(this.currentScope.getInput());
@@ -153,10 +152,9 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				scope.assignFunValues(params); // assign parameter values to formal parameters.
 				
 				CSQLExecutable runner = new CSQLExecutable(scope);
-				return runner.execScope();
+				result = runner.run();
 			}
-			else
-				return result;
+			return result;
 		}catch(SLDCException e){
 			return e;
 		} catch (IOException e) {
@@ -251,16 +249,16 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Boolean where = true;
 		if(ctx.condition()!=null)
 			where = (Boolean)visit(ctx.condition());
-		Map<String, Object> r = new HashMap<String, Object>();
+		ArrayList<Object> r = new ArrayList<Object>();
 		if(where)
 			if(ctx.contents().getText().equals("*"))
-				r.put("*", visit(ctx.contents()));
+				r.add(visit(ctx.contents()));
 			else {
 				ExprListContext exprs = ctx.contents().exprList();
 				int num = exprs.expr().size();
 				for(int i=0;i<num;i++)
 				{
-					r.put(exprs.expr(i).getText(), visit(exprs.expr(i)));
+					r.add(visit(exprs.expr(i)));
 				}
 			}
 		return r;

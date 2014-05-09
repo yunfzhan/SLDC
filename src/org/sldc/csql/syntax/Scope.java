@@ -57,6 +57,7 @@ public class Scope {
 	public Scope addAnonymous(ParseTree node) {
 		Scope scope = new Scope(this);
 		_anonymousScope.put(node, scope);
+		scope.setInput(node);
 		return scope;
 	}
 	
