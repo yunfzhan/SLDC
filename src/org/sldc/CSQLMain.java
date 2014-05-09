@@ -1,10 +1,8 @@
 package org.sldc;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,26 +15,26 @@ import org.sldc.exception.SLDCException;
 /**
  * 
  * @author Yunfei Zhang
- * TODO 1.$ function is going to add a condition parameter to filter result further. e.g. $(a,'tr','t', $item['td']!="")
+ * TODO 1.$ function is going to add a condition parameter to filter result further. e.g. $(a,'tr','t', $line['td']!="")
  * 		2.Add a Loop function to enable loop operation in one sentence.
  * 		3.Add a judgment function to judge a condition in one sentence.
  * 		4.FTP and database support.
  */
 public final class CSQLMain {
 	
-	public static String getStreamContent(
-			   InputStream is,
-			   String          encoding ) throws IOException
-	{
-		BufferedReader br = new BufferedReader( new InputStreamReader(is, encoding ));
-		StringBuilder sb = new StringBuilder();
-		String line;
-		while(( line = br.readLine()) != null ) {
-			sb.append( line );
-			sb.append( '\n' );
-		}
-		return sb.toString();
-	}
+//	public static String getStreamContent(
+//			   InputStream is,
+//			   String          encoding ) throws IOException
+//	{
+//		BufferedReader br = new BufferedReader( new InputStreamReader(is, encoding ));
+//		StringBuilder sb = new StringBuilder();
+//		String line;
+//		while(( line = br.readLine()) != null ) {
+//			sb.append( line );
+//			sb.append( '\n' );
+//		}
+//		return sb.toString();
+//	}
 	
 	public static void unittest() {
 		String text = "This is a example of an sample tet for SQL-Like core test module tet unit test.";
@@ -57,8 +55,7 @@ public final class CSQLMain {
 		InputStream is = System.in;
 		if(inputfile!=null) is = new FileInputStream(inputfile);
 		
-		String text = getStreamContent(is, "utf8");
-		cSQLParser parser = CSQLExecutable.getWalkTree(text);
+		cSQLParser parser = CSQLExecutable.getWalkTree(is);
 		ParseTree tree = parser.program();
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();

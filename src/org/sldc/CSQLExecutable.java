@@ -39,9 +39,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return new ByteArrayInputStream(content.getBytes());
 	}
 	
-	public static cSQLParser getWalkTree(String content) throws IOException
-	{
-		InputStream is = StringToStream(content);
+	public static cSQLParser getWalkTree(InputStream is) throws IOException {
 		// create a stream that reads from file
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		// create a lexer that feeds off of input
@@ -53,6 +51,12 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		parser.removeErrorListeners();
 		parser.addErrorListener(new CSQLErrorListener());
 		return parser;
+	}
+	
+	public static cSQLParser getWalkTree(String content) throws IOException
+	{
+		InputStream is = StringToStream(content);
+		return getWalkTree(is);
 	}
 	
 	public Object run() throws IOException, SLDCException
