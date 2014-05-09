@@ -11,8 +11,25 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class HTMLAnalyzer {
+	/**
+	 * Jsoup does grammar check. So incomplete tags such as 'td','tbody' will get errors. This function complements incomplete tags.
+	 * @param contents
+	 * @return
+	 */
+	private static String amendBodyDrop(String contents) {
+		String content = contents.trim();
+		if(content.startsWith("<")){
+			String s = content.substring(1).trim();
+			if(s.startsWith("tr")||s.startsWith("td")||s.startsWith("tbody")||s.startsWith("th")||s.startsWith("thead")||s.startsWith("tfoot")){
+				return "<table>"+contents+"</table>";
+			}
+		}
+		return contents;
+	}
+	
 	public static ArrayList<String> startAnalyze(String contents, String tag) throws IOException {
-		Document doc = Jsoup.parse(contents);
+		String fragment = amendBodyDrop(contents);
+		Document doc = Jsoup.parse(fragment);
 		Elements elems = doc.getElementsByTag(tag);
 		ArrayList<String> res = new ArrayList<String>();
 		for(int i=0;i<elems.size();i++)
