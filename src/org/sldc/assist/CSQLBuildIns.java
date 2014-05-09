@@ -120,12 +120,16 @@ public class CSQLBuildIns {
 	}
 	
 	public static Object _InCore(Object contents, String srchable, String indicator) {
+		return _InCore(contents,srchable,indicator,null);
+	}
+	
+	public static Object _InCore(Object contents, String srchable, String indicator, String condition/*Up to now, it's only valid while searchByTag*/) {
 		if(srchable==null||srchable.equals("")) return false;
 		srchable = CSQLUtils.removeStringBounds(srchable);
 		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
-		return BuildInSearchFunction.search(contents, srchable, indicator);
+		return BuildInSearchFunction.search(contents, srchable, indicator, condition);
 	}
 
 	public static Double Pow(Object base, Object pow) throws InvalidType
