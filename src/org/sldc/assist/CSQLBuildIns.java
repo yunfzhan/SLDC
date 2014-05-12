@@ -21,15 +21,15 @@ public class CSQLBuildIns {
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
-		functions.put("isvoid", "isNull");
-		functions.put("print", "print");
-		functions.put("println", "println");
-		functions.put("pow", "Pow");
-		functions.put("len", "getLength");
-		functions.put("str", "convertToString");
-		functions.put("cut", "splitString");
-		functions.put("suck", "extractString");
-		functions.put("find", "findFirst");
+		functions.put("$isvoid", "isNull");
+		functions.put("$print", "print");
+		functions.put("$println", "println");
+		functions.put("$pow", "Pow");
+		functions.put("$len", "getLength");
+		functions.put("$str", "convertToString");
+		functions.put("$cut", "splitString");
+		functions.put("$suck", "extractString");
+		functions.put("$find", "findFirst");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
 		for(int i=0;i<methods.length;i++)
 		{

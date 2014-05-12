@@ -75,7 +75,7 @@ stats		: stat* ;
 selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
 
 address     : protocols (COMMA protocols)* ;
-protocols   : protocol (AS Identifier)? ;
+protocols   : (Identifier|protocol) (AS Identifier)? ;
 protocol	: (http|file|ftp|database) ;
 http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;

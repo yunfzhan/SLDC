@@ -7,11 +7,14 @@ import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sldc.assist.CSQLProtocol;
 import org.sldc.assist.CSQLProtocolFactory;
+import org.sldc.assist.CSQLUtils;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
+import org.sldc.csql.cSQLParser.ProtocolContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.IRuntimeError;
@@ -111,10 +114,18 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void exitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
-		Object key = ctx.Identifier() != null?ctx.Identifier().getText():ctx;
+		Object key = ctx.Identifier(1) != null?ctx.Identifier(1).getText():ctx;
 		
 		try {
-			CSQLProtocol protocol = _pFactory.Create(ctx.protocol().getText());
+			String addr = null;
+			if(ctx.Identifier(0)!=null){
+				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
+				addr = (String)runner.visit(ctx.Identifier(0));
+				addr = CSQLUtils.removeStringBounds(addr);
+			}else{
+				addr = ctx.protocol().getText();
+			}
+			CSQLProtocol protocol = _pFactory.Create(addr);
 			Object r = protocol.Retrieve();
 			this.currentScope.addVariable(key, r);
 		} catch (SLDCException e) {
