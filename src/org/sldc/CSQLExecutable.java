@@ -27,14 +27,26 @@ import org.sldc.exception.SyntaxException;
 
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
+	private static CSQLExecutable _instance = null;
+	
+	public static CSQLExecutable getSingleInstance(Scope scope){
+		if(_instance==null)
+			return new CSQLExecutable(scope);
+		else
+		{
+			_instance.setScope(scope);
+			return _instance;
+		}
+	}
+	
 	private Scope currentScope = null;
 	
 	public CSQLExecutable(Scope scope)
 	{
-		this.currentScope = scope;
+		setScope(scope);
 	}
 	
-	public void setScope(Scope newScope) {
+	void setScope(Scope newScope) {
 		this.currentScope = newScope;
 	}
 	
