@@ -60,7 +60,8 @@ forStat		: FOR varAssign ',' expr ',' expr NL stats END ;
 ifStat		: IF expr THEN NL? stats ;
 elifStat	: ELSEIF expr THEN NL? stats ;
 elseStat	: ELSE NL? stats ;
-varAssign	: Identifier (EQU (expr|selectExpr))? ;
+varAssign	: Identifier (EQU (expr|selectExpr|arrayValues))? ;
+arrayValues	: '[' exprList ']' ;
 
 exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' String ;

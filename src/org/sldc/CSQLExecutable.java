@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -15,6 +16,7 @@ import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.ExprContext;
 import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
@@ -250,6 +252,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		{
 			if(ctx.expr()!=null)
 				value = visit(ctx.expr());
+			else if(ctx.arrayValues()!=null)
+				value = visit(ctx.arrayValues());
 			else if(ctx.selectExpr()!=null)
 				value = this.currentScope.getVarValue(ctx.selectExpr());	// selectExpr was dealt with in Listerner mode in terms of performance 
 			
@@ -290,6 +294,18 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) 
 	{
 		return ctx.expr()==null?null:visit(ctx.expr());
+	}
+	
+	@Override 
+	public Object visitArrayValues(@NotNull cSQLParser.ArrayValuesContext ctx) {
+		List<ExprContext> exprs = ctx.exprList().expr();
+		ArrayList<Object> result = new ArrayList<Object>();
+		for(int i=0;i<exprs.size();i++)
+		{
+			Object v = visit(exprs.get(i));
+			result.add(v);
+		}
+		return result;
 	}
 	
 	@Override 
