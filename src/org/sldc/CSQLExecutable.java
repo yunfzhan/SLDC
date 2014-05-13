@@ -34,6 +34,10 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		this.currentScope = scope;
 	}
 	
+	public void setScope(Scope newScope) {
+		this.currentScope = newScope;
+	}
+	
 	private static InputStream StringToStream(String content)
 	{
 		return new ByteArrayInputStream(content.getBytes());

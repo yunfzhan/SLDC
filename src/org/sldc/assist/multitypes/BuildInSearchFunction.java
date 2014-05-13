@@ -34,23 +34,22 @@ public class BuildInSearchFunction {
 		return false;
 	}
 	
-	private static CSQLExecutable initEval(Object param) {
+	private static Scope initEval(Object param) {
 		Scope scope = new Scope();
 		try {
 			scope.addVariable("$line", param);
 		} catch (DefConflictException e) {
 			e.printStackTrace();
 		}
-		CSQLExecutable runner = new CSQLExecutable(scope);
-		return runner;		
+		return scope;	
 	}
 	
-	private static boolean boolEval(String cond, Object param) {
+	private static boolean boolEval(CSQLExecutable runner, String cond, Object param) {
 		try {
 			cSQLParser parser = CSQLExecutable.getWalkTree(cond);
 			ParseTree node = parser.program();
 			
-			CSQLExecutable runner = initEval(param);
+			runner.setScope(initEval(param));
 			return (Boolean) runner.visit(node);
 		} catch (Exception e) {
 			return false;
@@ -103,12 +102,13 @@ public class BuildInSearchFunction {
 	}
 	
 	private static Object searchTag(Object o, String srchable, String cond) {
+		CSQLExecutable runner = new CSQLExecutable(null);
 		if(CSQLUtils.isString(o)){
 			try {
 				ArrayList<String> res = HTMLAnalyzer.startAnalyze((String) o, srchable);
 				for(int i=res.size()-1;i>=0;i--)
 				{
-					if(!boolEval(cond, res.get(i)))
+					if(!boolEval(runner, cond, res.get(i)))
 						res.remove(i);
 				}
 				return res;
@@ -122,7 +122,7 @@ public class BuildInSearchFunction {
 				ArrayList<?> res = (ArrayList<?>)r;
 				for(int i=res.size()-1;i>=0;i--)
 				{
-					if(!boolEval(cond, res.get(i)))
+					if(!boolEval(runner, cond, res.get(i)))
 						res.remove(i);
 				}
 				r = res;
