@@ -94,6 +94,10 @@ public class CSQLUtils {
 			throw new InvalidType(new Throwable());
 	}
 	
+	public static String addStringBounds(String input) {
+		return "\""+input+"\"";
+	}
+	
 	public static String removeStringBounds(String input) {
 		String ret = input;
 		if(ret.startsWith("\"")||ret.startsWith("'"))

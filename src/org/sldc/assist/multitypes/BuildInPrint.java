@@ -2,6 +2,8 @@ package org.sldc.assist.multitypes;
 
 import java.util.Map;
 
+import org.sldc.assist.CSQLUtils;
+
 public class BuildInPrint {
 	@SuppressWarnings("rawtypes")
 	private static String printMap(Map map) {
@@ -28,8 +30,10 @@ public class BuildInPrint {
 	public static String print(Object obj){
 		if(obj instanceof Map)
 			return printMap((Map)obj);
-		else if(obj.getClass().isArray())
+		else if(CSQLUtils.isArray(obj))
 			return printArray((Object[]) obj);
+		else if(CSQLUtils.isString(obj))
+			return CSQLUtils.removeStringBounds((String)obj);
 		else
 			return obj.toString();
 	}

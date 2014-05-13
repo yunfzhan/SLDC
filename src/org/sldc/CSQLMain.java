@@ -19,6 +19,9 @@ import org.sldc.exception.SLDCException;
  * 		2.Add a Loop function to enable loop operation in one sentence.
  * 		3.Add a judgment function to judge a condition in one sentence.
  * 		4.FTP and database support.
+ * 		5.Array definition support.
+ * 		6.Extension support.
+ * 		7.Save results
  */
 public final class CSQLMain {
 	
