@@ -7,6 +7,7 @@ import org.sldc.assist.CSQLChunkDataIntf;
 import org.sldc.assist.CSQLProtocol;
 import org.sldc.assist.CSQLProtocolFactory;
 import org.sldc.assist.CSQLUtils;
+import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.NotSupportedProtocol;
 import org.sldc.exception.ProtocolException;
 
@@ -35,6 +36,6 @@ public class ProtocolsHelper {
 			}
 			return res;
 		}
-		return null;
+		return Scope.UnDefined;
 	}
 }
