@@ -6,9 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.sldc.CSQLExecutable;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
+import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;

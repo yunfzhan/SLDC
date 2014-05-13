@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.sldc.assist.CSQLProtocolFactoryImpl;
 import org.sldc.assist.CSQLUtils;
+import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLParser;
 import org.sldc.exception.SLDCException;
 /**
@@ -19,9 +20,9 @@ import org.sldc.exception.SLDCException;
  * 		2.Add a Loop function to enable loop operation in one sentence.
  * 		3.Add a judgment function to judge a condition in one sentence.
  * 		4.FTP and database support.
- * 		5.Array definition support.
- * 		6.Extension support.
- * 		7.Save results
+ * 		5.Extension support.
+ * 		6.Save results
+ * 		7.Protocol format check using regular expression.
  */
 public final class CSQLMain {
 	

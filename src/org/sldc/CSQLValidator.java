@@ -2,14 +2,12 @@ package org.sldc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.sldc.assist.CSQLProtocol;
 import org.sldc.assist.CSQLProtocolFactory;
-import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.multitypes.ProtocolsHelper;
+import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
@@ -72,59 +70,21 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		this.currentScope = this.currentScope.getUpperScope();
 	}
 	
-	private boolean formatCheck(String regex, String matchstr){
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(matchstr);
-		if(!matcher.matches())
-		{
-//			this.exceptions.add(new InvalidFormat(matchstr));
-//			return false;
-		}
-		return true;
-	}
-	
-	@Override 
-	public void enterHttp(@NotNull cSQLParser.HttpContext ctx) {
-		String urlchars = "_\\-#$%0-9A-Za-z";
-		String domains = "["+urlchars+"]+";
-		String port = "(:[0-9]+)";
-		String regex = "^http://"+domains+"([.]"+domains+")*"+port+"?";
-		formatCheck(regex, ctx.getText());
-	}
-	
-	@Override 
-	public void enterFtp(@NotNull cSQLParser.FtpContext ctx) {
-		String regex = "";
-		formatCheck(regex, ctx.getText());
-	}
-	
-	@Override 
-	public void enterFile(@NotNull cSQLParser.FileContext ctx) {
-		String regex = "";
-		formatCheck(regex, ctx.getText());
-	}
-	
-	@Override 
-	public void enterDatabase(@NotNull cSQLParser.DatabaseContext ctx) {
-		String regex = "";
-		formatCheck(regex, ctx.getText());
-	}
-	
 	@Override 
 	public void exitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
 		Object key = ctx.Identifier(1) != null?ctx.Identifier(1).getText():ctx;
 		
 		try {
-			String addr = null;
+			Object r = null;
 			if(ctx.Identifier(0)!=null){
 				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
-				addr = (String)runner.visit(ctx.Identifier(0));
-				addr = CSQLUtils.removeStringBounds(addr);
+				Object addr = runner.visit(ctx.Identifier(0));
+				r = ProtocolsHelper.Retrieve(_pFactory, addr);
 			}else{
-				addr = ctx.protocol().getText();
+				String addr = ctx.protocol().getText();
+				r = ProtocolsHelper.Retrieve(_pFactory, addr);
 			}
-			CSQLProtocol protocol = _pFactory.Create(addr);
-			Object r = protocol.Retrieve();
+			
 			this.currentScope.addVariable(key, r);
 		} catch (SLDCException e) {
 			this.exceptions.add(e);
