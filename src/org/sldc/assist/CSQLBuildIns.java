@@ -5,6 +5,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sldc.CSQLExtensions;
+import org.sldc.CSQLSaveInterface;
 import org.sldc.assist.multitypes.BuildInLength;
 import org.sldc.assist.multitypes.BuildInPrint;
 import org.sldc.assist.multitypes.BuildInSearchFunction;
@@ -30,6 +32,7 @@ public class CSQLBuildIns {
 		functions.put("$cut", "splitString");
 		functions.put("$suck", "extractString");
 		functions.put("$find", "findFirst");
+		functions.put("$save", "save");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
 		for(int i=0;i<methods.length;i++)
 		{
@@ -143,5 +146,10 @@ public class CSQLBuildIns {
 	
 	public static void println(Object obj){
 		System.out.println(BuildInPrint.print(obj));
+	}
+	
+	public static void save(Object o) {
+		CSQLSaveInterface ext = CSQLExtensions.getExtSaveClass();
+		ext.save(o);
 	}
 }
