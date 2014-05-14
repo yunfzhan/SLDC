@@ -16,7 +16,7 @@ public class ArrayFetchAssist {
 		try{
 			if(arr instanceof Map<?, ?>){
 				return getMapItem((Map<String, Object>) arr,idx);
-			}else if(arr instanceof Collection) {
+			}else if(CSQLUtils.isCollection(arr)) {
 				return getListItem((Collection) arr,idx);
 			}else if(CSQLUtils.isArray(arr)) {
 				return getArrayItem((Object[]) arr,idx);

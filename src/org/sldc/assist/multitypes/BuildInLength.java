@@ -15,7 +15,7 @@ public class BuildInLength {
 			return ((String)o).length();
 		else if(CSQLUtils.isArray(o))
 			return ((Object[])o).length;
-		else if(o instanceof Collection)
+		else if(CSQLUtils.isCollection(o))
 			return ((Collection)o).size();
 		else if(o instanceof Map)
 			return ((Map)o).size();

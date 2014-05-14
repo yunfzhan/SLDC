@@ -20,9 +20,7 @@ import org.sldc.exception.SLDCException;
  * 		2.Add a Loop function to enable loop operation in one sentence.
  * 		3.Add a judgment function to judge a condition in one sentence.
  * 		4.FTP and database support.
- * 		5.Extension support.
- * 		6.Save results
- * 		7.Protocol format check using regular expression.
+ * 		5.Protocol format check using regular expression.
  */
 public final class CSQLMain {
 	

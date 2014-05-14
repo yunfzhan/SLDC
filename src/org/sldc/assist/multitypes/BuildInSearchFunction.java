@@ -2,6 +2,7 @@ package org.sldc.assist.multitypes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,6 +98,12 @@ public class BuildInSearchFunction {
 			}
 		}else if(o instanceof CSQLChunkDataImpl) {
 			return ((CSQLChunkDataImpl)o).searchByTag(srchable);
+		}else if(CSQLUtils.isCollection(o)){
+			ArrayList<Object> res = new ArrayList<Object>();
+			Collection<?> objs = (Collection<?>)o;
+			for(Object v : objs)
+				res.add(searchTag(v, srchable));
+			return res;
 		}
 		return false;
 	}
@@ -127,6 +134,12 @@ public class BuildInSearchFunction {
 				r = res;
 			}
 			return r;
+		}else if(CSQLUtils.isCollection(o)){
+			ArrayList<Object> res = new ArrayList<Object>();
+			Collection<?> objs = (Collection<?>)o;
+			for(Object v : objs)
+				res.add(searchTag(v, srchable, cond));
+			return res;
 		}
 		return false;
 	}

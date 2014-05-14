@@ -5,6 +5,11 @@ import java.io.FilenameFilter;
 
 import org.sldc.assist.CSQLBuildIns;
 
+/**
+ * @version 0.2
+ * @author Yunfei
+ * Extension loader. Now only save method is supported.
+ */
 public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 	private static final String extensionRoot = "org.sldc.extensions";
 	private static final String extensionSave = extensionRoot+".save.";

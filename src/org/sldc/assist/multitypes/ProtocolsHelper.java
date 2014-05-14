@@ -23,15 +23,15 @@ public class ProtocolsHelper {
 			ArrayList<CSQLChunkDataIntf> res = new ArrayList<CSQLChunkDataIntf>();
 			for(String addr : (String[])addrs)
 			{
-				CSQLProtocol prot = _pFactory.Create(addr);
+				CSQLProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
 				res.add(prot.Retrieve());
 			}
 			return res;
-		}else if(addrs instanceof Collection) {
+		}else if(CSQLUtils.isCollection(addrs)) {
 			ArrayList<CSQLChunkDataIntf> res = new ArrayList<CSQLChunkDataIntf>();
 			for(String addr : (Collection<String>)addrs)
 			{
-				CSQLProtocol prot = _pFactory.Create(addr);
+				CSQLProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
 				res.add(prot.Retrieve());
 			}
 			return res;

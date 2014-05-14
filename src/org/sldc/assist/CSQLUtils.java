@@ -3,6 +3,7 @@ package org.sldc.assist;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.sldc.assist.multitypes.ArrayFetchAssist;
@@ -31,6 +32,10 @@ public class CSQLUtils {
 	
 	public static boolean isArray(Object o) {
 		return o.getClass().isArray();
+	}
+	
+	public static boolean isCollection(Object o) {
+		return (o instanceof Collection);
 	}
 	
 	public static boolean isNumeric(Object obj)
