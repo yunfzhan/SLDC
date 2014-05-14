@@ -19,9 +19,9 @@ public class BuildInPrint {
 	
 	private static String printArray(Object[] objs) {
 		StringBuilder sb = new StringBuilder();
-		for(int i=0;i<objs.length;i++)
+		for(Object o : objs)
 		{
-			sb.append(print(objs[i])+"\n");
+			sb.append(print(o)+"\n");
 		}
 		return sb.toString();
 	}

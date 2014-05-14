@@ -34,10 +34,10 @@ public class CSQLBuildIns {
 		functions.put("$find", "findFirst");
 		functions.put("$save", "save");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
-		for(int i=0;i<methods.length;i++)
+		for(Method method : methods)
 		{
-			String name = methods[i].getName();
-			int modifier = methods[i].getModifiers();
+			String name = method.getName();
+			int modifier = method.getModifiers();
 			if(name.equals("invoke")||!Modifier.isPublic(modifier)) continue;
 			if(_internalFuncs.containsKey(name))
 			{
@@ -51,11 +51,11 @@ public class CSQLBuildIns {
 				}
 				else
 					duplicates = (Map<Class<?>[], Method>) o; // in case of duplicated names.
-				duplicates.put(methods[i].getParameterTypes(), methods[i]);
+				duplicates.put(method.getParameterTypes(), method);
 				_internalFuncs.put(name, duplicates);
 				continue;
 			}
-			_internalFuncs.put(name, methods[i]);
+			_internalFuncs.put(name, method);
 		}
 	}
 	/**

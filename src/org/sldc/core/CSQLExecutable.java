@@ -281,10 +281,9 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				r.add(visit(ctx.contents()));
 			else {
 				ExprListContext exprs = ctx.contents().exprList();
-				int num = exprs.expr().size();
-				for(int i=0;i<num;i++)
+				for(ExprContext expr : exprs.expr())
 				{
-					r.add(visit(exprs.expr(i)));
+					r.add(visit(expr));
 				}
 			}
 		return r;
@@ -298,11 +297,10 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitArrayValues(@NotNull cSQLParser.ArrayValuesContext ctx) {
-		List<ExprContext> exprs = ctx.exprList().expr();
 		ArrayList<Object> result = new ArrayList<Object>();
-		for(int i=0;i<exprs.size();i++)
+		for(ExprContext expr : ctx.exprList().expr())
 		{
-			Object v = visit(exprs.get(i));
+			Object v = visit(expr);
 			result.add(v);
 		}
 		return result;

@@ -68,10 +68,10 @@ public final class CSQLMain {
 		List<SLDCException> exs = validator.getErrors();
 		if(exs.size()!=0)
 		{
-			for(int i=0;i<exs.size();i++)
+			for(SLDCException ex : exs)
 			{
-				System.err.println(exs.get(i).getMessage());
-				exs.get(i).printStackTrace();
+				System.err.println(ex.getMessage());
+				ex.printStackTrace();
 				System.err.println();
 			}
 		}

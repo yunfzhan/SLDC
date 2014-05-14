@@ -25,9 +25,9 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 			/*
 			 * Search the first class that derives from CSQLSaveInterface and initialize it.
 			 */
-			for(int i=0;i<names.length;i++)
+			for(String name : names)
 				try {
-					String name = extensionSave+names[i];
+					name = extensionSave+name;
 					Class<?> clazz = Class.forName(name);
 					csi = clazz.asSubclass(CSQLSaveInterface.class);
 				}catch(ClassCastException ex){

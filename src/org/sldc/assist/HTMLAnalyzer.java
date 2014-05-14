@@ -32,8 +32,8 @@ public class HTMLAnalyzer {
 		Document doc = Jsoup.parse(fragment);
 		Elements elems = doc.getElementsByTag(tag);
 		ArrayList<String> res = new ArrayList<String>();
-		for(int i=0;i<elems.size();i++)
-			res.add(elems.get(i).toString());
+		for(Element elem : elems)
+			res.add(elem.toString());
 		return res;
 	}
 	
@@ -45,11 +45,9 @@ public class HTMLAnalyzer {
 		{
 			Document doc = Jsoup.parse(f,probs[0]);
 			Elements elems = doc.getElementsByTag(tag);
-			int size = elems.size();
-			for(int i=0;i<size;i++)
+			for(Element elem : elems)
 			{
 				//System.out.println(elems.get(i));
-				Element elem = elems.get(i);
 				res.add(elem.toString());
 			}
 		}
