@@ -104,6 +104,12 @@ public class BuildInSearchFunction {
 			for(Object v : objs)
 				res.add(searchTag(v, srchable));
 			return res;
+		}else if(CSQLUtils.isArray(o)){
+			ArrayList<Object> res = new ArrayList<Object>();
+			Object[] objs = (Object[])o;
+			for(Object v : objs)
+				res.add(searchTag(v, srchable));
+			return res;
 		}
 		return false;
 	}
@@ -137,6 +143,12 @@ public class BuildInSearchFunction {
 		}else if(CSQLUtils.isCollection(o)){
 			ArrayList<Object> res = new ArrayList<Object>();
 			Collection<?> objs = (Collection<?>)o;
+			for(Object v : objs)
+				res.add(searchTag(v, srchable, cond));
+			return res;
+		}else if(CSQLUtils.isArray(o)){
+			ArrayList<Object> res = new ArrayList<Object>();
+			Object[] objs = (Object[])o;
 			for(Object v : objs)
 				res.add(searchTag(v, srchable, cond));
 			return res;
