@@ -149,7 +149,7 @@ public class CSQLBuildIns {
 	}
 	
 	public static void save(Object o) {
-		CSQLSaveInterface ext = CSQLExtensions.getExtSaveClass();
+		CSQLSaveInterface ext = new CSQLExtensions();
 		ext.save(o);
 	}
 }
