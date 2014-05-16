@@ -47,7 +47,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		setScope(scope);
 	}
 	
-	void setScope(Scope newScope) {
+	protected void setScope(Scope newScope) {
 		this.currentScope = newScope;
 	}
 	
