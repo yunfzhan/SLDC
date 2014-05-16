@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.sldc.assist.CSQLChunkDataIntf;
+import org.sldc.assist.IChunkDataIntf;
 import org.sldc.assist.CSQLProtocol;
 import org.sldc.exception.ProtocolException;
 
@@ -17,7 +17,7 @@ public class CSQLHTTPProtocol implements CSQLProtocol {
 	}
 	
 	@Override
-	public CSQLChunkDataIntf Retrieve() throws ProtocolException {
+	public IChunkDataIntf Retrieve() throws ProtocolException {
 		try {
 			URL url = new URL(this.address);
 			CSQLHttpChunkImpl impl = new CSQLHttpChunkImpl();

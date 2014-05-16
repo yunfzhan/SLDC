@@ -14,10 +14,10 @@ import org.sldc.assist.CSQLBuildIns;
  * @author Yunfei
  * Extension loader. Now only save method is supported.
  */
-public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
+public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	private static final String extensionRoot = "org.sldc.extensions";
 	
-	private static CSQLSaveInterface _instance = null;
+	private static ISaveInterface _instance = null;
 	private static URLClassLoader cl = (URLClassLoader)CSQLExtensions.class.getClassLoader();
 	
 	private static Method addURL = initAddMethod();
@@ -61,19 +61,19 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 		return clazz;
 	}
 	
-	public static CSQLSaveInterface createExtSaveClass() {
+	public static ISaveInterface createExtSaveClass() {
 		final String extensionSave = extensionRoot+".save.";
 		if(_instance==null)
 		{
 			try{
-				Class<? extends CSQLSaveInterface> csi = null;
+				Class<? extends ISaveInterface> csi = null;
 				/*
-				 * Search the first class that derives from CSQLSaveInterface and initialize it.
+				 * Search the first class that derives from ISaveInterface and initialize it.
 				 */
 				ArrayList<Class<?>> classes = extLoadAssist(extensionSave);
 				for(Class<?> clazz : classes)
 					try {
-						csi = clazz.asSubclass(CSQLSaveInterface.class);
+						csi = clazz.asSubclass(ISaveInterface.class);
 						break;
 					}catch(ClassCastException ex){
 						continue;

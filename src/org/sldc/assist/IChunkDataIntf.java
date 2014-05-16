@@ -1,5 +1,5 @@
 package org.sldc.assist;
 
-public interface CSQLChunkDataIntf {
+public interface IChunkDataIntf {
 	public Object getItem(Object idx);
 }

@@ -2,7 +2,7 @@ package org.sldc.assist;
 
 import org.sldc.exception.NotSupportedProtocol;
 
-public class CSQLProtocolFactoryImpl implements CSQLProtocolFactory {
+public class CSQLProtocolFactoryImpl implements IProtocolFactory {
 
 	@Override
 	public CSQLProtocol Create(String protocol) throws NotSupportedProtocol {

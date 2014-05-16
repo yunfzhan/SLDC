@@ -3,9 +3,9 @@ package org.sldc.protocols;
 import java.io.File;
 import java.io.IOException;
 
-import org.sldc.assist.CSQLChunkDataIntf;
+import org.sldc.assist.IChunkDataIntf;
 
-public abstract class CSQLChunkDataImpl implements CSQLChunkDataIntf {
+public abstract class CSQLChunkDataImpl implements IChunkDataIntf {
 	protected File createTempFile() throws IOException {
 		return File.createTempFile("sldc", "dmp");
 	}

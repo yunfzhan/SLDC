@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.sldc.assist.CSQLProtocolFactory;
+import org.sldc.assist.IProtocolFactory;
 import org.sldc.assist.multitypes.ProtocolsHelper;
 import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLBaseListener;
@@ -19,8 +19,8 @@ import org.sldc.exception.SLDCException;
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
-	private CSQLProtocolFactory _pFactory = null;
-	public CSQLValidator(ParseTree tree, CSQLProtocolFactory factory)
+	private IProtocolFactory _pFactory = null;
+	public CSQLValidator(ParseTree tree, IProtocolFactory factory)
 	{
 		this._pFactory = factory;
 		this.currentScope.setInput(tree);

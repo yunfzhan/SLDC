@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.sldc.assist.CSQLChunkDataIntf;
+import org.sldc.assist.IChunkDataIntf;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.exception.InvalidType;
 
@@ -22,8 +22,8 @@ public class ArrayFetchAssist {
 				return getArrayItem((Object[]) arr,idx);
 			}else if(CSQLUtils.isString(arr)) {
 				return getStringItem((String) arr, idx);
-			}else if(arr instanceof CSQLChunkDataIntf) {
-				return ((CSQLChunkDataIntf)arr).getItem(idx);
+			}else if(arr instanceof IChunkDataIntf) {
+				return ((IChunkDataIntf)arr).getItem(idx);
 			}
 			return arr;
 		}catch(Exception e) {

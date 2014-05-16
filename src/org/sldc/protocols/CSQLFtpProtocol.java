@@ -1,13 +1,13 @@
 package org.sldc.protocols;
 
-import org.sldc.assist.CSQLChunkDataIntf;
+import org.sldc.assist.IChunkDataIntf;
 import org.sldc.assist.CSQLProtocol;
 import org.sldc.exception.ProtocolException;
 
 public class CSQLFtpProtocol implements CSQLProtocol {
 
 	@Override
-	public CSQLChunkDataIntf Retrieve() throws ProtocolException {
+	public IChunkDataIntf Retrieve() throws ProtocolException {
 		// TODO Auto-generated method stub
 		return null;
 	}
