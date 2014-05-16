@@ -3,11 +3,11 @@ package org.sldc.protocols;
 import java.io.File;
 
 import org.sldc.assist.IChunkDataIntf;
-import org.sldc.assist.CSQLProtocol;
+import org.sldc.assist.IProtocol;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.ProtocolException;
 
-public class CSQLFilesProtocol implements CSQLProtocol {
+public class CSQLFilesProtocol implements IProtocol {
 
 	private String filepath = null;
 	

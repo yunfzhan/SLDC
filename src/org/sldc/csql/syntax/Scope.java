@@ -11,6 +11,11 @@ import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.SyntaxException;
 
+/**
+ * @version 1.0
+ * @author Yunfei
+ * Include variables and functions defined in current visibility. It stands for a scope of visibility.
+ */
 public class Scope {
 //	private String _name;
 	private ParseTree _node;

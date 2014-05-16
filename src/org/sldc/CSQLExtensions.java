@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import org.sldc.assist.CSQLBuildIns;
 
 /**
- * @version 0.2
+ * @version 0.3
  * @author Yunfei
- * Extension loader. Now only save method is supported.
+ * Extension loader.
  */
 public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	private static final String extensionRoot = "org.sldc.extensions";

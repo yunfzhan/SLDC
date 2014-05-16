@@ -25,7 +25,11 @@ import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
 import org.sldc.exception.SyntaxException;
 
-
+/**
+ * @version 0.5
+ * @author Yunfei
+ * Syntax parser and executer
+ */
 public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	private static CSQLExecutable _instance = null;

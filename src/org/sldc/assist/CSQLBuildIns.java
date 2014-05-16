@@ -17,6 +17,12 @@ import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
 
+/**
+ * @version 0.3
+ * @author Yunfei
+ * Buildin functions executed module
+ */
+
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
 	private static Map<String, Map<Integer, Method>> _internalFuncs = new HashMap<String, Map<Integer, Method>>();

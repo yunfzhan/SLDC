@@ -5,10 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.sldc.assist.IChunkDataIntf;
-import org.sldc.assist.CSQLProtocol;
+import org.sldc.assist.IProtocol;
 import org.sldc.exception.ProtocolException;
 
-public class CSQLHTTPProtocol implements CSQLProtocol {
+public class CSQLHTTPProtocol implements IProtocol {
 
 	private String address = null;
 	

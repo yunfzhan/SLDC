@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.sldc.assist.IChunkDataIntf;
-import org.sldc.assist.CSQLProtocol;
+import org.sldc.assist.IProtocol;
 import org.sldc.assist.IProtocolFactory;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.csql.syntax.Scope;
@@ -17,13 +17,13 @@ public class ProtocolsHelper {
 		if(CSQLUtils.isString(addrs))
 		{
 			addrs = CSQLUtils.removeStringBounds((String) addrs);
-			CSQLProtocol protocol = _pFactory.Create((String) addrs);
+			IProtocol protocol = _pFactory.Create((String) addrs);
 			return protocol.Retrieve();
 		}else if(CSQLUtils.isArray(addrs)) {
 			ArrayList<IChunkDataIntf> res = new ArrayList<IChunkDataIntf>();
 			for(String addr : (String[])addrs)
 			{
-				CSQLProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
+				IProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
 				res.add(prot.Retrieve());
 			}
 			return res;
@@ -31,7 +31,7 @@ public class ProtocolsHelper {
 			ArrayList<IChunkDataIntf> res = new ArrayList<IChunkDataIntf>();
 			for(String addr : (Collection<String>)addrs)
 			{
-				CSQLProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
+				IProtocol prot = _pFactory.Create(CSQLUtils.removeStringBounds(addr));
 				res.add(prot.Retrieve());
 			}
 			return res;
