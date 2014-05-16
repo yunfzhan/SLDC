@@ -5,6 +5,7 @@ import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 
 import org.sldc.assist.CSQLBuildIns;
 
@@ -15,7 +16,6 @@ import org.sldc.assist.CSQLBuildIns;
  */
 public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 	private static final String extensionRoot = "org.sldc.extensions";
-	private static final String extensionSave = extensionRoot+".save.";
 	
 	private static CSQLSaveInterface _instance = null;
 	private static URLClassLoader cl = (URLClassLoader)CSQLExtensions.class.getClassLoader();
@@ -40,27 +40,39 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
         }
     }
 	
+	private static ArrayList<Class<?>> extLoadAssist(String relativePath) throws ClassNotFoundException {
+		// Get the class path, to test if it works in jar.
+		String root = new File("").getAbsolutePath()+File.separator;//CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
+		// add class search path
+		addURL(new File(root));
+		String path = root+relativePath.replace(".", File.separator); // directory where extensions are lying.
+		File f = new File(path.substring(path.indexOf(':')+1));
+		String[] names = f.list(new CSQLExtensions());
+		ArrayList<Class<?>> clazz = null;
+		if(names!=null) {
+			clazz = new ArrayList<Class<?>>();
+			for(String name : names)
+			{
+				// full class name
+				name = relativePath+name.substring(0,name.indexOf(".class"));
+				clazz.add(cl.loadClass(name));
+			}
+		}
+		return clazz;
+	}
+	
 	public static CSQLSaveInterface createExtSaveClass() {
+		final String extensionSave = extensionRoot+".save.";
 		if(_instance==null)
 		{
-			// Get the class path, to test if it works in jar.
-			String root = new File("").getAbsolutePath()+File.separator;//CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
-			// add class search path
-			addURL(new File(root));
-			String path = root+extensionSave.replace(".", File.separator); // directory where extensions are lying.
-			File f = new File(path.substring(path.indexOf(':')+1));
-			String[] names = f.list(new CSQLExtensions());
 			try{
 				Class<? extends CSQLSaveInterface> csi = null;
 				/*
 				 * Search the first class that derives from CSQLSaveInterface and initialize it.
 				 */
-				for(String name : names)
+				ArrayList<Class<?>> classes = extLoadAssist(extensionSave);
+				for(Class<?> clazz : classes)
 					try {
-						// full class name
-						name = extensionSave+name.substring(0,name.indexOf(".class"));
-						
-						Class<?> clazz = cl.loadClass(name);
 						csi = clazz.asSubclass(CSQLSaveInterface.class);
 						break;
 					}catch(ClassCastException ex){
