@@ -114,6 +114,18 @@ public class BuildInSearchFunction {
 		return false;
 	}
 	
+	private static boolean isEntityEmpty(Object o) {
+		if(CSQLUtils.isString(o))
+			return o==null||((String)o).equals("");
+		else if(o instanceof CSQLChunkDataImpl)
+			return o==null||((CSQLChunkDataImpl)o).size()==0;
+		else if(CSQLUtils.isArray(o))
+			return ((Object[])o).length==0;
+		else if(CSQLUtils.isCollection(o))
+			return ((Collection<?>)o).size()==0;
+		return false;
+	}
+	
 	private static Object searchTag(Object o, String srchable, String cond) {
 		cond = CSQLUtils.removeStringBounds(cond);
 		if(CSQLUtils.isString(o)){
@@ -145,13 +157,21 @@ public class BuildInSearchFunction {
 			ArrayList<Object> res = new ArrayList<Object>();
 			Collection<?> objs = (Collection<?>)o;
 			for(Object v : objs)
-				res.add(searchTag(v, srchable, cond));
+			{
+				Object obj = searchTag(v, srchable, cond);
+				if(!isEntityEmpty(obj))
+					res.add(obj);
+			}
 			return res;
 		}else if(CSQLUtils.isArray(o)){
 			ArrayList<Object> res = new ArrayList<Object>();
 			Object[] objs = (Object[])o;
 			for(Object v : objs)
-				res.add(searchTag(v, srchable, cond));
+			{
+				Object obj = searchTag(v, srchable, cond);
+				if(!isEntityEmpty(obj))
+					res.add(obj);
+			}
 			return res;
 		}
 		return false;

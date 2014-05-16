@@ -1,5 +1,6 @@
 package org.sldc.assist;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -97,6 +98,14 @@ public class CSQLUtils {
 			return Double.valueOf((String)obj);
 		else
 			throw new InvalidType(new Throwable());
+	}
+	
+	public static String convertToString(Object o, String charset) {
+			try {
+				if(isString(o))
+					return new String(((String)o).getBytes(charset),charset);
+			} catch (UnsupportedEncodingException e) {}
+			return null;
 	}
 	
 	public static String addStringBounds(String input) {
