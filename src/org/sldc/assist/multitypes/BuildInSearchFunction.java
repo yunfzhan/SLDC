@@ -48,7 +48,7 @@ public class BuildInSearchFunction {
 	private static boolean boolEval(String cond, Object param) {
 		try {
 			cSQLParser parser = CSQLExecutable.getWalkTree(cond);
-			ParseTree node = parser.program();
+			ParseTree node = parser.expr();
 			
 			CSQLExecutable runner = CSQLExecutable.getSingleInstance(initEval(param));
 			return (Boolean) runner.visit(node);
@@ -115,6 +115,7 @@ public class BuildInSearchFunction {
 	}
 	
 	private static Object searchTag(Object o, String srchable, String cond) {
+		cond = CSQLUtils.removeStringBounds(cond);
 		if(CSQLUtils.isString(o)){
 			try {
 				ArrayList<String> res = HTMLAnalyzer.startAnalyze((String) o, srchable);

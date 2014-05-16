@@ -43,7 +43,8 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	
 	private static ArrayList<Class<?>> extLoadAssist(String relativePath) throws ClassNotFoundException {
 		// Get the class path, to test if it works in jar.
-		String root = new File("").getAbsolutePath()+File.separator;//CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
+		String root = new File("").getAbsolutePath()+File.separator;
+		//String root = CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
 		// add class search path
 		addURL(new File(root));
 		String path = root+relativePath.replace(".", File.separator); // directory where extensions are lying.
