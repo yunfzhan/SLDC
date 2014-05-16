@@ -2,6 +2,7 @@ package org.sldc;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -86,6 +87,32 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 		return _instance;
 	}
 
+	public static Object execExtFunction(String name, Object[] params) throws NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+		try {
+			ArrayList<Class<?>> classes = extLoadAssist(extensionRoot+".function.");
+			Class<? extends IFunctionInterface> cfi = null;
+			for(Class<?> clazz : classes)
+				try{
+					cfi = clazz.asSubclass(IFunctionInterface.class);
+					IFunctionInterface instance = cfi.newInstance();
+					Method m = instance.getMethodByNameParam(name, params);
+					if(m!=null)
+					{
+						return m.invoke(instance, params);
+					}
+				}catch(ClassCastException ex){
+					continue;
+				} catch (InstantiationException e) {
+					continue;
+				} catch (IllegalAccessException e) {
+					continue;
+				} catch (NoSuchMethodException e) {
+					continue;
+				}
+		} catch (ClassNotFoundException e) {}
+		throw new NoSuchMethodException();
+	}
+	
 	@Override
 	public boolean accept(File dir, String name) {
 		if(new File(dir,name).isFile()) {

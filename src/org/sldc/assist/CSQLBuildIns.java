@@ -1,5 +1,6 @@
 package org.sldc.assist;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -69,6 +70,15 @@ public class CSQLBuildIns {
 				if(method!=null)
 					result = method.invoke(CSQLUtils.class, params);				
 			} catch (Exception e) {
+				result = e;
+			}
+		}else{ // support 3rd party extended functions
+			try {
+				result = CSQLExtensions.execExtFunction(funcName, params);
+			} catch (NoSuchMethodException e) {
+			} catch (IllegalArgumentException e) {
+				result = e;
+			} catch (InvocationTargetException e) {
 				result = e;
 			}
 		}
