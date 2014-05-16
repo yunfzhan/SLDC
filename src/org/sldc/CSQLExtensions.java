@@ -40,7 +40,7 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
         }
     }
 	
-	private static void createExtSaveClass() {
+	public static CSQLSaveInterface createExtSaveClass() {
 		if(_instance==null)
 		{
 			// Get the class path, to test if it works in jar.
@@ -71,6 +71,7 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 				_instance = new CSQLExtensions();
 			}
 		}
+		return _instance;
 	}
 
 	@Override
@@ -86,10 +87,6 @@ public class CSQLExtensions implements FilenameFilter, CSQLSaveInterface {
 	 */
 	@Override
 	public void save(Object o) {
-		createExtSaveClass();
-		if(_instance==null)
-			CSQLBuildIns.println(o);
-		else
-			_instance.save(o);
+		CSQLBuildIns.println(o);
 	}
 }

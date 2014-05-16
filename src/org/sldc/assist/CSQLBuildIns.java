@@ -16,10 +16,9 @@ import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
 import org.sldc.exception.SLDCException;
 
-@SuppressWarnings("unchecked")
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
-	private static Map<String, Object> _internalFuncs = new HashMap<String, Object>();
+	private static Map<String, Map<Integer, Method>> _internalFuncs = new HashMap<String, Map<Integer, Method>>();
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
@@ -39,23 +38,17 @@ public class CSQLBuildIns {
 			String name = method.getName();
 			int modifier = method.getModifiers();
 			if(name.equals("invoke")||!Modifier.isPublic(modifier)) continue;
-			if(_internalFuncs.containsKey(name))
-			{
-				Object o = _internalFuncs.get(name);
-				Map<Class<?>[], Method> duplicates = null;
-				if(o instanceof Method)
-				{
-					duplicates = new HashMap<Class<?>[], Method>();
-					Method m = (Method)o;
-					duplicates.put(m.getParameterTypes(), m);
-				}
-				else
-					duplicates = (Map<Class<?>[], Method>) o; // in case of duplicated names.
-				duplicates.put(method.getParameterTypes(), method);
-				_internalFuncs.put(name, duplicates);
-				continue;
+			
+			int numOfParams = method.getParameterTypes().length;
+			Map<Integer, Method> item = null;
+			if(_internalFuncs.containsKey(name)){
+				item = _internalFuncs.get(name);
+			}else{
+				item = new HashMap<Integer, Method>();
+				_internalFuncs.put(name, item);
 			}
-			_internalFuncs.put(name, method);
+			
+			item.put(numOfParams, method);
 		}
 	}
 	/**
@@ -69,22 +62,12 @@ public class CSQLBuildIns {
 		Object result = new NotBuildInFunction(funcName, new Throwable());
 		if(functions.containsKey(funcName))
 		{
-			Object o = _internalFuncs.get(functions.get(funcName));
+			Map<Integer, Method> map = _internalFuncs.get(functions.get(funcName));
 			
 			try {
-				if(o instanceof Method)
-				{
-					Method method = (Method)o;
-					result = method.invoke(CSQLUtils.class, params);
-				}else{
-					Map<Class<?>[], Method> m = (Map<Class<?>[], Method>)o;
-					for(Class<?>[] ptypes : m.keySet())
-						if(ptypes.length==params.length)
-						{
-							result = m.get(ptypes).invoke(CSQLUtils.class, params);
-							break;
-						}
-				}				
+				Method method = map.get(params.length);
+				if(method!=null)
+					result = method.invoke(CSQLUtils.class, params);				
 			} catch (Exception e) {
 				result = e;
 			}
@@ -149,7 +132,7 @@ public class CSQLBuildIns {
 	}
 	
 	public static void save(Object o) {
-		CSQLSaveInterface ext = new CSQLExtensions();
+		CSQLSaveInterface ext = CSQLExtensions.createExtSaveClass();
 		ext.save(o);
 	}
 }
