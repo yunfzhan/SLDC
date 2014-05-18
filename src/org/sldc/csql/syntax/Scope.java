@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.sldc.assist.CSQLUtils;
 import org.sldc.csql.cSQLParser;
-import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
 import org.sldc.exception.SyntaxException;
@@ -152,16 +152,8 @@ public class Scope {
 			throw new DefNotDeclException("Anonymous var "+node.getText(), new Throwable());
 	}
 	
-	private cSQLParser.FundeclContext getFuncDeclaration(ParseTree node) {
-		while(node!=null&&!(node instanceof cSQLParser.FundeclContext))
-		{
-			node = node.getParent();
-		}
-		return  (node==null)?null:(FundeclContext)node;
-	}
-	
 	public void assignFunValues(Object[] params) throws SyntaxException, DefNotDeclException, DefConflictException {
-		cSQLParser.FundeclContext node = getFuncDeclaration(getInput());
+		cSQLParser.FundeclContext node = CSQLUtils.getFuncDeclaration(getInput());
 		if(node==null) throw new SyntaxException(new Throwable());
 		//add support of default parameter if the number of formal parameters are not equal to the one of real parameters later.
 		int fpsize = node.funcParms().Identifier().size();

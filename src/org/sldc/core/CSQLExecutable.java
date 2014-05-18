@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.multitypes.EqualCompareAssist;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
@@ -349,26 +350,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		if(CSQLUtils.isString(expr1))
-		{
-			String e1 = CSQLUtils.removeStringBounds((String) expr1);
-			if(CSQLUtils.isString(expr2))
-			{
-				String e2 = CSQLUtils.removeStringBounds((String) expr2);
-				return e1.equals(e2);
-			}
-			else
-				return e1.equals(expr2);
-		}
-		else{
-			if(CSQLUtils.isString(expr2))
-			{
-				String e2 = CSQLUtils.removeStringBounds((String) expr2);
-				return expr1.equals(e2);
-			}
-			else
-				return expr1.equals(expr2);
-		}
+		return EqualCompareAssist.isEqual(expr1, expr2);
 	}
 	
 	@Override 
@@ -387,26 +369,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		if(CSQLUtils.isString(expr1))
-		{
-			String e1 = CSQLUtils.removeStringBounds((String) expr1);
-			if(CSQLUtils.isString(expr2))
-			{
-				String e2 = CSQLUtils.removeStringBounds((String) expr2);
-				return !e1.equals(e2);
-			}
-			else
-				return !e1.equals(expr2);
-		}
-		else{
-			if(CSQLUtils.isString(expr2))
-			{
-				String e2 = CSQLUtils.removeStringBounds((String) expr2);
-				return !expr1.equals(e2);
-			}
-			else
-				return !expr1.equals(expr2);
-		}
+		return !EqualCompareAssist.isEqual(expr1, expr2);
 	}
 	
 	@Override 

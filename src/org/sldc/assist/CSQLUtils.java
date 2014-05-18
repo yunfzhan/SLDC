@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.multitypes.ArrayFetchAssist;
+import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.exception.InvalidType;
 
 public class CSQLUtils {
@@ -26,6 +29,14 @@ public class CSQLUtils {
         }
         return result;
     }
+	
+	public static cSQLParser.FundeclContext getFuncDeclaration(ParseTree node) {
+		while(node!=null&&!(node instanceof cSQLParser.FundeclContext))
+		{
+			node = node.getParent();
+		}
+		return  (node==null)?null:(FundeclContext)node;
+	}
 	
 	public static boolean isBool(Object o) {
 		return (o instanceof Boolean||o.getClass().equals(boolean.class));

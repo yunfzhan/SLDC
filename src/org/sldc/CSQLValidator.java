@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.IProtocolFactory;
 import org.sldc.assist.multitypes.ProtocolsHelper;
 import org.sldc.core.CSQLExecutable;
@@ -38,6 +39,9 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void exitVarAssign(@NotNull cSQLParser.VarAssignContext ctx) {
+		cSQLParser.FundeclContext node = CSQLUtils.getFuncDeclaration(ctx);
+		//check if the assignment is in a function body or not. If so, we skip it.
+		if(node!=null) return;
 		CSQLExecutable runner = new CSQLExecutable(this.currentScope);
 		Object r = runner.visit(ctx);
 		if(r instanceof SLDCException)
