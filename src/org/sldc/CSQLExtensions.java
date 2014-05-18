@@ -23,6 +23,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	private static final String extJarLibrary = "extensions.jar";
 	
 	private static ISaveInterface _instance = null;
+	private static ArrayList<Class<?>> classes = null;
 	private static URLClassLoader cl = (URLClassLoader)CSQLExtensions.class.getClassLoader();
 	
 	private static Method addURL = initAddMethod();
@@ -120,7 +121,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 
 	public static Object execExtFunction(String name, Object[] params) throws NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 		try {
-			ArrayList<Class<?>> classes = extLoadAssist(extensionRoot+".function.");
+			if(classes==null) classes = extLoadAssist(extensionRoot+".function.");
 			Class<? extends IFunctionInterface> cfi = null;
 			for(Class<?> clazz : classes)
 				try{
