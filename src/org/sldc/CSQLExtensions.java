@@ -141,7 +141,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 				} catch (NoSuchMethodException e) {
 					continue;
 				}
-		} catch (ClassNotFoundException e) {}
+		} catch (Exception e) {}
 		throw new NoSuchMethodException();
 	}
 	

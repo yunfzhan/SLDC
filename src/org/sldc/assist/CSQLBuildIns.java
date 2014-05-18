@@ -26,6 +26,7 @@ import org.sldc.exception.SLDCException;
 public class CSQLBuildIns {
 	private static Map<String, String> functions = new HashMap<String, String>();
 	private static Map<String, Map<Integer, Method>> _internalFuncs = new HashMap<String, Map<Integer, Method>>();
+	private static Scope currentScope = null;
 	
 	static{
 		functions.put("$", "_InCore");	// '$'
@@ -62,9 +63,10 @@ public class CSQLBuildIns {
 	 * 
 	 * @param funcName: function name to be called
 	 * @param params: parameters passed to the function
+	 * @param scope: containing variables and functions defined. But it's not safe in multi-thread environment since it is stored in a static variable.
 	 * @return execution result
 	 */
-	public static Object invoke(String funcName, Object[] params)
+	public static Object invoke(String funcName, Object[] params, Scope scope)
 	{
 		Object result = new NotBuildInFunction(funcName, new Throwable());
 		if(functions.containsKey(funcName))
@@ -74,7 +76,10 @@ public class CSQLBuildIns {
 			try {
 				Method method = map.get(params.length);
 				if(method!=null)
-					result = method.invoke(CSQLUtils.class, params);				
+				{
+					currentScope = scope;
+					result = method.invoke(CSQLUtils.class, params);
+				}
 			} catch (Exception e) {
 				result = e;
 			}
@@ -131,7 +136,7 @@ public class CSQLBuildIns {
 		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
-		return BuildInSearchFunction.search(contents, srchable, indicator, condition);
+		return BuildInSearchFunction.search(contents, srchable, indicator, condition, currentScope);
 	}
 
 	public static Double Pow(Object base, Object pow) throws InvalidType

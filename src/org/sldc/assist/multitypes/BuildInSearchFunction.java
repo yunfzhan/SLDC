@@ -25,18 +25,18 @@ public class BuildInSearchFunction {
 	 * @param cond
 	 * @return
 	 */
-	public static Object search(Object o, String srchable, String indicator, String cond) {
+	public static Object search(Object o, String srchable, String indicator, String cond, Scope scope) {
 		if(indicator.equalsIgnoreCase("p"))
 			return searchPlain(o, srchable);
 		else if(indicator.equalsIgnoreCase("r"))
 			return searchRE(o, srchable);
 		else if(indicator.equalsIgnoreCase("t"))
-			return cond==null?searchTag(o, srchable):searchTag(o, srchable, cond);
+			return cond==null?searchTag(o, srchable):searchTag(o, srchable, cond, scope);
 		return false;
 	}
 	
-	private static Scope initEval(Object param) {
-		Scope scope = new Scope();
+	private static Scope initEval(Object param, Scope parentScope) {
+		Scope scope = new Scope(parentScope);
 		try {
 			scope.addVariable("$line", param);
 		} catch (DefConflictException e) {
@@ -45,12 +45,12 @@ public class BuildInSearchFunction {
 		return scope;	
 	}
 	
-	private static boolean boolEval(String cond, Object param) {
+	private static boolean boolEval(String cond, Object param, Scope scope) {
 		try {
 			cSQLParser parser = CSQLExecutable.getWalkTree(cond);
 			ParseTree node = parser.expr();
 			
-			CSQLExecutable runner = CSQLExecutable.getSingleInstance(initEval(param));
+			CSQLExecutable runner = CSQLExecutable.getSingleInstance(initEval(param, scope));
 			return (Boolean) runner.visit(node);
 		} catch (Exception e) {
 			return false;
@@ -126,14 +126,14 @@ public class BuildInSearchFunction {
 		return false;
 	}
 	
-	private static Object searchTag(Object o, String srchable, String cond) {
+	private static Object searchTag(Object o, String srchable, String cond, Scope scope) {
 		cond = CSQLUtils.removeStringBounds(cond);
 		if(CSQLUtils.isString(o)){
 			try {
 				ArrayList<String> res = HTMLAnalyzer.startAnalyze((String) o, srchable);
 				for(int i=res.size()-1;i>=0;i--)
 				{
-					if(!boolEval(cond, res.get(i)))
+					if(!boolEval(cond, res.get(i), scope))
 						res.remove(i);
 				}
 				return res;
@@ -147,7 +147,7 @@ public class BuildInSearchFunction {
 				ArrayList<?> res = (ArrayList<?>)r;
 				for(int i=res.size()-1;i>=0;i--)
 				{
-					if(!boolEval(cond, res.get(i)))
+					if(!boolEval(cond, res.get(i), scope))
 						res.remove(i);
 				}
 				r = res;
@@ -158,7 +158,7 @@ public class BuildInSearchFunction {
 			Collection<?> objs = (Collection<?>)o;
 			for(Object v : objs)
 			{
-				Object obj = searchTag(v, srchable, cond);
+				Object obj = searchTag(v, srchable, cond, scope);
 				if(!isEntityEmpty(obj))
 					res.add(obj);
 			}
@@ -168,7 +168,7 @@ public class BuildInSearchFunction {
 			Object[] objs = (Object[])o;
 			for(Object v : objs)
 			{
-				Object obj = searchTag(v, srchable, cond);
+				Object obj = searchTag(v, srchable, cond, scope);
 				if(!isEntityEmpty(obj))
 					res.add(obj);
 			}

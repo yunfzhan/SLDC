@@ -171,7 +171,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				params[i] = visit(ctx.exprList().expr(i));
 			}
 			
-			Object result = CSQLBuildIns.invoke(funcName, params);
+			Object result = CSQLBuildIns.invoke(funcName, params, this.currentScope);
 			
 			if(result instanceof NotBuildInFunction)
 			{
