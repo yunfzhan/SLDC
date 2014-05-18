@@ -2,11 +2,16 @@ package org.sldc;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.sldc.assist.CSQLBuildIns;
 
@@ -17,6 +22,7 @@ import org.sldc.assist.CSQLBuildIns;
  */
 public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	private static final String extensionRoot = "org.sldc.extensions";
+	private static final String extJarLibrary = "extensions.jar";
 	
 	private static ISaveInterface _instance = null;
 	private static URLClassLoader cl = (URLClassLoader)CSQLExtensions.class.getClassLoader();
@@ -45,20 +51,45 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 		// Get the class path, to test if it works in jar.
 		String root = new File("").getAbsolutePath()+File.separator;
 		//String root = CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
-		// add class search path
-		addURL(new File(root));
-		String path = root+relativePath.replace(".", File.separator); // directory where extensions are lying.
-		File f = new File(path.substring(path.indexOf(':')+1));
-		String[] names = f.list(new CSQLExtensions());
 		ArrayList<Class<?>> clazz = null;
-		if(names!=null) {
-			clazz = new ArrayList<Class<?>>();
-			for(String name : names)
-			{
-				// full class name
-				name = relativePath+name.substring(0,name.indexOf(".class"));
-				clazz.add(cl.loadClass(name));
+		// add class search path
+		File extLibrary = new File(root+extJarLibrary);
+		if(extLibrary.exists()){
+			//addURL(new File("file:"+extLibrary));
+			try {
+				ZipFile jar = new ZipFile(extLibrary);
+				String path = relativePath.replace('.', '/');
+				Enumeration<? extends ZipEntry> entries = jar.entries();
+				if(entries==null) throw new Exception();
+				URLClassLoader jarcl = new URLClassLoader(new URL[] { new URL("file:"+extLibrary) }, cl);
+				while(entries.hasMoreElements())
+				{
+					ZipEntry entry = entries.nextElement();
+					String name = entry.getName();
+					if(name.startsWith(path)&&name.endsWith(".class")) {
+		                name = name.replace('/', '.').substring(0,name.indexOf(".class"));
+		                if(clazz==null) clazz = new ArrayList<Class<?>>();
+						clazz.add(jarcl.loadClass(name));
+					}
+				}
+			} catch (Exception e) {
+				throw new ClassNotFoundException();
 			}
+		}else{
+			addURL(new File(root));
+			String path = root+relativePath.replace(".", File.separator); // directory where extensions are lying.
+			File f = new File(path.substring(path.indexOf(':')+1));
+			String[] names = f.list(new CSQLExtensions());
+			
+			if(names!=null) {
+				clazz = new ArrayList<Class<?>>();
+				for(String name : names)
+				{
+					// full class name
+					name = relativePath+name.substring(0,name.indexOf(".class"));
+					clazz.add(cl.loadClass(name));
+				}
+			}	
 		}
 		return clazz;
 	}

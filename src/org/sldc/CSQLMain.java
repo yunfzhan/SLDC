@@ -21,6 +21,11 @@ import org.sldc.exception.SLDCException;
  * 		3.Add a judgment function to judge a condition in one sentence.
  * 		4.FTP and database support.
  * 		5.Protocol format check using regular expression.
+ * 		6.Unicode support for extensions
+ * 		7.Cope with 'where' clause
+ *		8.Multi-threads support
+ *		9.'with' clause support
+ *		10.'order' and 'group' clauses support in select
  */
 public final class CSQLMain {
 	
