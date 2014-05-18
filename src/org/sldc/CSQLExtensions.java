@@ -2,7 +2,6 @@ package org.sldc;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -10,7 +9,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.sldc.assist.CSQLBuildIns;
@@ -52,13 +50,13 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 		String root = new File("").getAbsolutePath()+File.separator;
 		//String root = CSQLExtensions.class.getProtectionDomain().getCodeSource().getLocation().getPath();// package root
 		ArrayList<Class<?>> clazz = null;
-		// add class search path
+		
 		File extLibrary = new File(root+extJarLibrary);
 		if(extLibrary.exists()){
-			//addURL(new File("file:"+extLibrary));
+			//Load jar library. It has a fixed name 'extensions.jar'
 			try {
+				String path = relativePath.replace(".",File.separator);
 				ZipFile jar = new ZipFile(extLibrary);
-				String path = relativePath.replace('.', '/');
 				Enumeration<? extends ZipEntry> entries = jar.entries();
 				if(entries==null) throw new Exception();
 				URLClassLoader jarcl = new URLClassLoader(new URL[] { new URL("file:"+extLibrary) }, cl);
@@ -67,7 +65,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 					ZipEntry entry = entries.nextElement();
 					String name = entry.getName();
 					if(name.startsWith(path)&&name.endsWith(".class")) {
-		                name = name.replace('/', '.').substring(0,name.indexOf(".class"));
+		                name = name.replace(File.separator, ".").substring(0,name.indexOf(".class"));
 		                if(clazz==null) clazz = new ArrayList<Class<?>>();
 						clazz.add(jarcl.loadClass(name));
 					}
@@ -76,6 +74,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 				throw new ClassNotFoundException();
 			}
 		}else{
+			// add class search path
 			addURL(new File(root));
 			String path = root+relativePath.replace(".", File.separator); // directory where extensions are lying.
 			File f = new File(path.substring(path.indexOf(':')+1));
