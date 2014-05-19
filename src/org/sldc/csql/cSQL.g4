@@ -67,7 +67,7 @@ exprList	: expr (COMMA expr)* ;
 prop		: Identifier '=' String ;
 
 // functions definition
-fundecl		: FUNC Identifier '(' funcParms ')' NL? block ;
+fundecl		: FUNC Identifier '(' funcParms? ')' NL? block ;
 funcParms	: Identifier (COMMA Identifier)* ;
 
 block		: BEGIN NL? stats END NL ;

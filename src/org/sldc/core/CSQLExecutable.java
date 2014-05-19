@@ -165,7 +165,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object visitFunc(@NotNull cSQLParser.FuncContext ctx) {
 		String funcName = ctx.Identifier().getText();
 		try{
-			int size = ctx.exprList().expr().size();
+			int size = ctx.exprList()==null?0:ctx.exprList().expr().size();
 			Object[] params = new Object[size];
 			for(int i=0;i<size;i++)
 			{

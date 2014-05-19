@@ -156,7 +156,7 @@ public class Scope {
 		cSQLParser.FundeclContext node = CSQLUtils.getFuncDeclaration(getInput());
 		if(node==null) throw new SyntaxException(new Throwable());
 		//add support of default parameter if the number of formal parameters are not equal to the one of real parameters later.
-		int fpsize = node.funcParms().Identifier().size();
+		int fpsize = node.funcParms()==null?0:node.funcParms().Identifier().size();
 		int rpsize = params.length;
 		if(rpsize>=fpsize)
 		{
