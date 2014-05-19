@@ -90,7 +90,7 @@ public class CSQLUtils {
 		return (o instanceof Character)||o.getClass().equals(char.class);
 	}
 	
-	public static Long convertToInt(Object o) throws InvalidType {
+	public static Long ToInt(Object o) throws InvalidType {
 		if(isInt(o))
 			return Long.valueOf(o.toString());
 		else if(isString(o))
@@ -99,7 +99,7 @@ public class CSQLUtils {
 			throw new InvalidType(new Throwable());
 	}
 	
-	public static Double convertToDbl(Object obj) throws InvalidType
+	public static Double ToDbl(Object obj) throws InvalidType
 	{
 		if(isInt(obj))
 			return (Long)obj*1.0;
@@ -111,7 +111,7 @@ public class CSQLUtils {
 			throw new InvalidType(new Throwable());
 	}
 	
-	public static String convertToString(Object o, String charset) {
+	public static String ToString(Object o, String charset) {
 			try {
 				if(isString(o))
 					return new String(((String)o).getBytes(charset),charset);

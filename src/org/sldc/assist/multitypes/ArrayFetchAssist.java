@@ -39,7 +39,7 @@ public class ArrayFetchAssist {
 				if(index--==0)
 					return arr.get(key);
 			}
-			return new ArrayIndexOutOfBoundsException(CSQLUtils.convertToInt(idx).intValue());
+			return new ArrayIndexOutOfBoundsException(CSQLUtils.ToInt(idx).intValue());
 		}else if(CSQLUtils.isString(idx)) {
 			idx = CSQLUtils.removeStringBounds((String) idx);
 			return arr.get(idx);
@@ -57,7 +57,7 @@ public class ArrayFetchAssist {
 			if(index--==0)
 				return item;
 		}
-		return new ArrayIndexOutOfBoundsException(CSQLUtils.convertToInt(idx).intValue());
+		return new ArrayIndexOutOfBoundsException(CSQLUtils.ToInt(idx).intValue());
 	}
 	
 	private static Object getArrayItem(Object[] arr, Object idx) throws ArrayIndexOutOfBoundsException, InvalidType {
@@ -90,7 +90,7 @@ public class ArrayFetchAssist {
 	private static Long checkIntegerIndex(Object idx){
 		try{
 			if(CSQLUtils.isInt(idx))
-				return CSQLUtils.convertToInt(idx);
+				return CSQLUtils.ToInt(idx);
 		}catch (InvalidType e) {}
 		return null;
 	}

@@ -37,7 +37,6 @@ public class CSQLBuildIns {
 		functions.put("$len", "getLength");
 		functions.put("$str", "convertToString");
 		functions.put("$cut", "splitString");
-		functions.put("$suck", "extractString");
 		functions.put("$find", "findFirst");
 		functions.put("$save", "save");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
@@ -113,10 +112,6 @@ public class CSQLBuildIns {
 		return o.split(deli);
 	}
 	
-	public static String extractString(String o, int beg, int end) {
-		return o.substring(beg, end);
-	}
-	
 	public static int findString(String o, String sub) {
 		sub = CSQLUtils.removeStringBounds(sub);
 		return o.indexOf(sub);
@@ -141,7 +136,7 @@ public class CSQLBuildIns {
 
 	public static Double Pow(Object base, Object pow) throws InvalidType
 	{
-		return Math.pow(CSQLUtils.convertToDbl(base), CSQLUtils.convertToDbl(pow));
+		return Math.pow(CSQLUtils.ToDbl(base), CSQLUtils.ToDbl(pow));
 	}
 	
 	public static void print(Object obj){

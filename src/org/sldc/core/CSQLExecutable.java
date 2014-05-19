@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.multitypes.EqualCompareAssist;
+import org.sldc.assist.multitypes.SubItemsAssist;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
@@ -106,8 +107,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			
 			if(CSQLUtils.isInt(left)&&CSQLUtils.isInt(right))
 			{
-				Long l = CSQLUtils.convertToInt(left);
-				Long r = CSQLUtils.convertToInt(right);
+				Long l = CSQLUtils.ToInt(left);
+				Long r = CSQLUtils.ToInt(right);
 				
 				return (ctx.op.getText().equals("*"))?l*r:l/r;
 			}
@@ -115,8 +116,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
 			
-			Double l = CSQLUtils.convertToDbl(left);
-			Double r = CSQLUtils.convertToDbl(right);
+			Double l = CSQLUtils.ToDbl(left);
+			Double r = CSQLUtils.ToDbl(right);
 			
 			return (ctx.op.getText().equals("*"))?l*r:l/r;
 		}catch(InvalidType e)
@@ -142,8 +143,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				return String.valueOf(left)+String.valueOf(right);
 			}else if(CSQLUtils.isInt(left)&&CSQLUtils.isInt(right))
 			{
-				Long l = CSQLUtils.convertToInt(left);
-				Long r = CSQLUtils.convertToInt(right);
+				Long l = CSQLUtils.ToInt(left);
+				Long r = CSQLUtils.ToInt(right);
 				
 				return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
 			}
@@ -151,8 +152,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			if(!CSQLUtils.isNumeric(left)||!CSQLUtils.isNumeric(right))
 				return new InvalidType(new Throwable());
 	
-			Double l = CSQLUtils.convertToDbl(left);
-			Double r = CSQLUtils.convertToDbl(right);
+			Double l = CSQLUtils.ToDbl(left);
+			Double r = CSQLUtils.ToDbl(right);
 			
 			return (ctx.ADDSUB().getText().equals("+"))?l+r:l-r;
 		}catch(InvalidType e)
@@ -171,21 +172,34 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			{
 				params[i] = visit(ctx.exprList().expr(i));
 			}
-			
+			// First, see if it is a build-in function
 			Object result = CSQLBuildIns.invoke(funcName, params, this.currentScope);
 			
 			if(result instanceof NotBuildInFunction)
 			{
-				Scope scope = this.currentScope.getFuncValue(funcName);
-				scope.assignFunValues(params); // assign parameter values to formal parameters.
-				
-				CSQLExecutable runner = new CSQLExecutable(scope);
-				result = runner.run();
+				try{
+					// try if it is a user-defined function
+					Scope scope = this.currentScope.getFuncValue(funcName);
+					scope.assignFunValues(params); // assign parameter values to formal parameters.
+					
+					CSQLExecutable runner = new CSQLExecutable(scope);
+					result = runner.run();
+				}catch(SLDCException e){
+					//To test if the function name is ideal a variable.
+					Object var = this.currentScope.getVarValue(funcName);
+					//If not, we throw out the not declared exception
+					if(var instanceof SLDCException) throw (SLDCException)var;
+					//If it is a variable, I consider you want to extract sub items from the variable.
+					//So if it's not a supported type or parameters is not one or two parameters, return previous exception
+					if(params.length==0||params.length>2||!SubItemsAssist.isSupportType(var)||!SubItemsAssist.isParamLegal(params))
+						return e;
+					result = SubItemsAssist.subItems(var, params);
+				}
 			}
 			return result;
-		}catch(SLDCException e){
+		} catch(SLDCException e){
 			return e;
-		} catch (IOException e) {
+		}catch (IOException e) {
 			return e;
 		}
 	}
@@ -388,13 +402,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		try {
 			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
 			{
-				Long d0 = CSQLUtils.convertToInt(r0);
-				Long d1 = CSQLUtils.convertToInt(r1);
+				Long d0 = CSQLUtils.ToInt(r0);
+				Long d1 = CSQLUtils.ToInt(r1);
 				return d0>=d1;
 			}
 			
-			Double d0 = CSQLUtils.convertToDbl(r0);
-			Double d1 = CSQLUtils.convertToDbl(r1);
+			Double d0 = CSQLUtils.ToDbl(r0);
+			Double d1 = CSQLUtils.ToDbl(r1);
 			return d0>=d1;
 		} catch (InvalidType e) {
 			return new InvalidType(new Throwable());
@@ -409,13 +423,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		try {
 			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
 			{
-				Long d0 = CSQLUtils.convertToInt(r0);
-				Long d1 = CSQLUtils.convertToInt(r1);
+				Long d0 = CSQLUtils.ToInt(r0);
+				Long d1 = CSQLUtils.ToInt(r1);
 				return d0>d1;
 			}
 			
-			Double d0 = CSQLUtils.convertToDbl(r0);
-			Double d1 = CSQLUtils.convertToDbl(r1);
+			Double d0 = CSQLUtils.ToDbl(r0);
+			Double d1 = CSQLUtils.ToDbl(r1);
 			return d0>d1;
 		} catch (InvalidType e) {
 			return new InvalidType(new Throwable());
@@ -430,13 +444,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		try {
 			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
 			{
-				Long d0 = CSQLUtils.convertToInt(r0);
-				Long d1 = CSQLUtils.convertToInt(r1);
+				Long d0 = CSQLUtils.ToInt(r0);
+				Long d1 = CSQLUtils.ToInt(r1);
 				return d0<d1;
 			}
 			
-			Double d0 = CSQLUtils.convertToDbl(r0);
-			Double d1 = CSQLUtils.convertToDbl(r1);
+			Double d0 = CSQLUtils.ToDbl(r0);
+			Double d1 = CSQLUtils.ToDbl(r1);
 			return d0<d1;
 		} catch (InvalidType e) {
 			return new InvalidType(new Throwable());
@@ -451,13 +465,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		try {
 			if(CSQLUtils.isInt(r0)&&CSQLUtils.isInt(r1))
 			{
-				Long d0 = CSQLUtils.convertToInt(r0);
-				Long d1 = CSQLUtils.convertToInt(r1);
+				Long d0 = CSQLUtils.ToInt(r0);
+				Long d1 = CSQLUtils.ToInt(r1);
 				return d0<=d1;
 			}
 			
-			Double d0 = CSQLUtils.convertToDbl(r0);
-			Double d1 = CSQLUtils.convertToDbl(r1);
+			Double d0 = CSQLUtils.ToDbl(r0);
+			Double d1 = CSQLUtils.ToDbl(r1);
 			return d0<=d1;
 		} catch (InvalidType e) {
 			return new InvalidType(new Throwable());

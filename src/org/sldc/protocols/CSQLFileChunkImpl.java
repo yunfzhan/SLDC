@@ -30,7 +30,7 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 			BufferedReader reader = new BufferedReader(new FileReader(this.file));
 			try{
 				if(CSQLUtils.isInt(idx)){
-					long index = CSQLUtils.convertToInt(idx);
+					long index = CSQLUtils.ToInt(idx);
 					reader.skip(index-1);
 					char[] result = new char[1];
 					reader.read(result);

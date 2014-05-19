@@ -26,16 +26,16 @@ public class EqualCompareAssist {
 		else{
 			if(CSQLUtils.isInt(o1)&&CSQLUtils.isInt(o2)){
 				try{
-					Long v1 = CSQLUtils.convertToInt(o1);
-					Long v2 = CSQLUtils.convertToInt(o2);
+					Long v1 = CSQLUtils.ToInt(o1);
+					Long v2 = CSQLUtils.ToInt(o2);
 					return v1==v2;
 				}catch(InvalidType e){
 					return false;
 				}
 			}else if(CSQLUtils.isNumeric(o1)&&CSQLUtils.isNumeric(o2)){
 				try{
-					Double d1 = CSQLUtils.convertToDbl(o1);
-					Double d2 = CSQLUtils.convertToDbl(o2);
+					Double d1 = CSQLUtils.ToDbl(o1);
+					Double d2 = CSQLUtils.ToDbl(o2);
 					return d1==d2;
 				}catch(InvalidType e){
 					return false;
