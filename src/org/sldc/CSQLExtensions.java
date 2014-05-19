@@ -158,6 +158,6 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	 */
 	@Override
 	public void save(Object o) {
-		CSQLBuildIns.println(o);
+		CSQLBuildIns.print(o, "\n");
 	}
 }

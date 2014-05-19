@@ -32,9 +32,8 @@ public class CSQLBuildIns {
 		functions.put("$", "_InCore");	// '$'
 		functions.put("$isvoid", "isNull");
 		functions.put("$print", "print");
-		functions.put("$println", "println");
 		functions.put("$pow", "Pow");
-		functions.put("$len", "getLength");
+		functions.put("$count", "getLength");
 		functions.put("$str", "convertToString");
 		functions.put("$cut", "splitString");
 		functions.put("$find", "findFirst");
@@ -143,7 +142,7 @@ public class CSQLBuildIns {
 		System.out.print(BuildInPrint.print(obj));
 	}
 	
-	public static void println(Object obj){
+	public static void print(Object obj, String flag){
 		System.out.println(BuildInPrint.print(obj));
 	}
 	
