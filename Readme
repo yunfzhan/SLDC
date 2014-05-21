@@ -1,0 +1,35 @@
+1. Overview
+	SLDC (SQL-like Language Driven Crawl) is designed to collect contents from multi data sources simultaneously. It is supposed to get data from a local file, a web page, ftp file and database. I'd like to improve it step by step. 
+	What's SQL-like driven? As we are visiting a database, we normally write SQL like this:
+	select a.id, a.name from student a where a.id=1
+
+	It's just a simple sentence to complete a job.
+	What if we use such sentence to get contents from web and file?
+	select $(a,'a','t'), $(b, '[0-9]+', 'r') from https://www.yahoo.com as a, /home/testfile as b
+
+	Above line fetches all links in the Yahoo website and digits in a file. Seems easy?
+
+2. Dependency
+	SLDC is using antlr-4.2 as its language parsing engine. And Jsoup 1.7 as html parsing tool. 
+
+3. Build
+	1. Make sure antlr-4.2 is installed in the path where javac can find.
+	2. Import Jsoup into the lib directory under your working path.
+	3. enter src/org/sldc/csql/ and run 'generate' to create parsing classes in the same directory.
+	4. Then everything becomes easier. :)
+
+4. Starting
+	Under sample directory, I put a compiled jar and a sample script in it.
+	Simply run 'run.sh' in unix/linux or 'run.bat' in windows. There will be a 'dump.txt' generated.
+	Refer to the outputs. 
+
+5. Extension
+	SLDC supports extensions for saving and build-in functions. Please refer to source codes in sample/extensions.jar.
+	Extension must be named as extensions.jar or the same classes path it shows.
+
+6. Future support
+	I am an international student in US. And looking for jobs. SLDC is just a tool I'm writing to ease life.
+	So I'm afraid not to have enough time to update it. But I will add more features into it such as FTP, DATABASE,
+	POST body and authentication webpage etc. 
+	In addition, if you have any job referal, I will be very happy. And welcome to contact me on SLDC or job position :)
+	My email is yfzhang9614@gmail.com

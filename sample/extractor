@@ -1,0 +1,17 @@
+fun re(line)
+begin
+	a = $(line,'San Jose','r')
+	retr $count(a)!=0
+end
+
+addr='http://www.yelp.com/san-jose'
+r = select $(a,'a','t','re($line)') from addr as a
+ss=r[0]
+count=$count(ss)
+//$print(count)
+for i=0,i<count,i=i+1
+	$print(i+"===============")
+	$save(i+"===============")
+	$print(ss[i]['href'][0])
+	$save(ss[i]['href'][0])
+end
