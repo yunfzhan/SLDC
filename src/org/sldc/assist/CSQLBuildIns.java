@@ -139,11 +139,11 @@ public class CSQLBuildIns {
 	}
 	
 	public static void print(Object obj){
-		System.out.print(BuildInPrint.print(obj));
+		System.out.println(BuildInPrint.print(obj));
 	}
 	
-	public static void print(Object obj, String flag){
-		System.out.println(BuildInPrint.print(obj));
+	public static void print(Object obj, Object flag){
+		System.out.print(BuildInPrint.print(obj));
 	}
 	
 	public static void save(Object o) {
