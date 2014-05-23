@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -17,8 +19,9 @@ import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
 import org.sldc.csql.cSQLLexer;
 import org.sldc.csql.cSQLParser;
+import org.sldc.csql.cSQLParser.ContentContext;
+import org.sldc.csql.cSQLParser.ContentListContext;
 import org.sldc.csql.cSQLParser.ExprContext;
-import org.sldc.csql.cSQLParser.ExprListContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
@@ -288,23 +291,52 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return value;
 	}
 	
+	private boolean isContentMarked(ContentListContext cl) {
+		boolean result = false;
+		for(ContentContext c : cl.content()) {
+			if(c.String()!=null)
+			{
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	@Override 
 	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
 		Boolean where = true;
 		if(ctx.condition()!=null)
 			where = (Boolean)visit(ctx.condition());
-		ArrayList<Object> r = new ArrayList<Object>();
+		
 		if(where)
 			if(ctx.contents().getText().equals("*"))
+			{
+				ArrayList<Object> r = new ArrayList<Object>();
 				r.add(visit(ctx.contents()));
+				return r;
+			}
 			else {
-				ExprListContext exprs = ctx.contents().exprList();
-				for(ExprContext expr : exprs.expr())
+				ContentListContext cl = ctx.contents().contentList();
+				if(isContentMarked(cl))
 				{
-					r.add(visit(expr));
+					Map<String, Object> r = new HashMap<String, Object>();
+					int idx = 0;
+					for(ContentContext c : cl.content()){
+						String index = (c.String()==null)?"@i"+String.valueOf(idx++):CSQLUtils.removeStringBounds(c.String().getText());
+						r.put(index, visit(c.expr()));
+					}
+					return r;
+				}else{
+					ArrayList<Object> r = new ArrayList<Object>();
+					for(ContentContext c : cl.content())
+					{
+						r.add(visit(c.expr()));
+					}
+					return r;
 				}
 			}
-		return r;
+		return new Object[0];
 	}
 	
 	@Override 

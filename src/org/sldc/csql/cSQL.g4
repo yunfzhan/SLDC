@@ -99,7 +99,9 @@ remote		: FtpPath ('/' FtpPath?)* ;
 
 condition	: expr ;
 params		: prop (COMMA prop)* ;
-contents	: '*'|exprList ;
+contents	: '*'|contentList ;
+contentList	: content (COMMA content)* ;
+content		: expr (AS String)? ;
 
 
 // Keywords
