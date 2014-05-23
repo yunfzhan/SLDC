@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.sldc.assist.CSQLProtocolFactoryImpl;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLParser;
 import org.sldc.exception.SLDCException;
+import org.sldc.protocols.CSQLProtocolFactoryImpl;
 /**
  * 
  * @author Yunfei Zhang

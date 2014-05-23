@@ -1,4 +1,4 @@
-package org.sldc.protocols;
+package org.sldc.protocols.files;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotSupportOperation;
+import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 

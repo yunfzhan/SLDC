@@ -1,4 +1,4 @@
-package org.sldc.protocols;
+package org.sldc.protocols.http;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

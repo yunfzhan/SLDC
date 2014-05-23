@@ -1,4 +1,5 @@
-package org.sldc.protocols;
+package org.sldc.protocols.http;
+
 
 public class CSQLHTTPSProtocol extends CSQLHTTPProtocol {
 

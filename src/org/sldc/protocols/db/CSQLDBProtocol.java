@@ -1,4 +1,4 @@
-package org.sldc.protocols;
+package org.sldc.protocols.db;
 
 import org.sldc.assist.IChunkDataIntf;
 import org.sldc.assist.IProtocol;

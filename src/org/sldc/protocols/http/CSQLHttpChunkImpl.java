@@ -1,4 +1,4 @@
-package org.sldc.protocols;
+package org.sldc.protocols.http;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
 import org.sldc.exception.InvalidType;
+import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
