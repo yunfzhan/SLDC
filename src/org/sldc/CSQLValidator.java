@@ -1,7 +1,9 @@
 package org.sldc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -12,6 +14,7 @@ import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
+import org.sldc.csql.cSQLParser.SelectExprContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.IRuntimeError;
@@ -74,19 +77,36 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		this.currentScope = this.currentScope.getUpperScope();
 	}
 	
+	private Map<String, String> getWithClauseParameters(cSQLParser.ParamsContext ctx) {
+		if(ctx==null) return null;
+		Map<String, String> r = new HashMap<String, String>();
+		for(cSQLParser.PropContext prop : ctx.prop())
+		{
+			r.put(prop.Identifier().getText(), CSQLUtils.removeStringBounds(prop.String().getText()));
+		}
+		return r;
+	}
+	
+	private cSQLParser.SelectExprContext getSelectExpr(cSQLParser.ProtocolsContext ctx) {
+		return (SelectExprContext) ctx.parent.parent;
+	}
+	
 	@Override 
 	public void exitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
 		Object key = ctx.Identifier(1) != null?ctx.Identifier(1).getText():ctx;
 		
 		try {
+			cSQLParser.SelectExprContext selectExpr = getSelectExpr(ctx);
+			Map<String, String> assistParams = getWithClauseParameters(selectExpr.params());
+			
 			Object r = null;
 			if(ctx.Identifier(0)!=null){
 				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
 				Object addr = runner.visit(ctx.Identifier(0));
-				r = ProtocolsHelper.Retrieve(_pFactory, addr);
+				r = ProtocolsHelper.Retrieve(_pFactory, addr, assistParams);
 			}else{
 				String addr = ctx.protocol().getText();
-				r = ProtocolsHelper.Retrieve(_pFactory, addr);
+				r = ProtocolsHelper.Retrieve(_pFactory, addr, assistParams);
 			}
 			
 			this.currentScope.addVariable(key, r);

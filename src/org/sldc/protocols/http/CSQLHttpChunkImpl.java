@@ -11,6 +11,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,12 +24,39 @@ import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
+	private final String METHOD = "method";
+	private final String PROPERTYFILE = "propfile";
+	
 	private File internalPath = null;
+	
+	Map<String, String> assistParams = null;
+	
+	CSQLHttpChunkImpl(Map<String, String> assistParams) {
+		this.assistParams = assistParams;
+	}
 	
 	public void save(String address) throws IOException {
 		this.internalPath = createTempFile();
 		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath);
-		helper.doGet(address);
+		String method = (assistParams!=null&&assistParams.containsKey(METHOD))?assistParams.get(METHOD):"GET";
+		if(method.equalsIgnoreCase("GET"))
+			helper.doGet(address);
+		else if(method.equalsIgnoreCase("POST")){
+			Map<String, String> post = new HashMap<String, String>();
+			if(assistParams.containsKey(PROPERTYFILE)) {
+				File f = new File(assistParams.get(PROPERTYFILE));
+				if(f.exists()){
+					Properties props = new Properties();
+					props.load(new FileInputStream(f));
+					for(Object key : props.keySet())
+					{
+						Object value = props.get(key);
+						post.put(key.toString(), value.toString());
+					}
+				}
+			}
+			helper.doPost(address, post);
+		}
 	}
 	
 	public void save(InputStream is) throws IOException {

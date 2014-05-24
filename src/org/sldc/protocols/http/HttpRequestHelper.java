@@ -206,13 +206,36 @@ public class HttpRequestHelper {
     	return doPost(reqUrl,parameters,getRequestEncoding());
     }
     
-    public String doPost(String reqUrl, Map<String, String> parameters,String recvEncoding) throws IOException
+    public String doPost(String reqUrl, String params) throws IOException {
+    	return doPost(reqUrl, params, getRequestEncoding());
+    }
+    
+    public String doPost(String reqUrl, String params, String recvEncoding) throws MalformedURLException, IOException {
+    	HttpURLConnection url_con = null;
+        String responseContent = null;
+        try
+        {
+            url_con = initConnection(reqUrl, "POST");
+            writeOutputStream(url_con, params);
+            responseContent = recvResponse(url_con, recvEncoding);
+        }
+        finally
+        {
+            if (url_con != null)
+            {
+                url_con.disconnect();
+            }
+        }
+        return responseContent;
+    }
+    
+    public String doPost(String reqUrl, Map<String, String> parameters, String recvEncoding) throws IOException
     {
         HttpURLConnection url_con = null;
         String responseContent = null;
         try
         {
-            url_con = initConnection(reqUrl, "POST");            
+            url_con = initConnection(reqUrl, "POST");
             writeOutputStream(url_con, parameters);
             responseContent = recvResponse(url_con, recvEncoding);
         }
