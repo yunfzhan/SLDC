@@ -23,6 +23,12 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
 	private File internalPath = null;
 	
+	public void save(String address) throws IOException {
+		this.internalPath = createTempFile();
+		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath);
+		helper.doGet(address);
+	}
+	
 	public void save(InputStream is) throws IOException {
 		BufferedReader br=new BufferedReader(new InputStreamReader(is));
 		this.internalPath = createTempFile();
