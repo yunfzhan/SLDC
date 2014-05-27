@@ -61,10 +61,11 @@ ifStat		: IF expr THEN NL? stats ;
 elifStat	: ELSEIF expr THEN NL? stats ;
 elseStat	: ELSE NL? stats ;
 varAssign	: Identifier (EQU (expr|selectExpr|arrayValues))? ;
+assignList	: varAssign (COMMA varAssign)* ;
 arrayValues	: '[' exprList ']' ;
 
 exprList	: expr (COMMA expr)* ;
-prop		: Identifier '=' String ;
+prop		: Identifier EQU (String|Identifier) ;
 
 // functions definition
 fundecl		: FUNC Identifier '(' funcParms? ')' NL? block ;
@@ -73,7 +74,7 @@ funcParms	: Identifier (COMMA Identifier)* ;
 block		: BEGIN NL? stats END NL ;
 stats		: stat* ;
 
-selectExpr  : SELECT contents FROM address (WHERE condition)? (WITH params)? ;
+selectExpr  : SELECT contents FROM address (WHERE condition)? ;
 
 address     : protocols (COMMA protocols)* ;
 protocols   : (Identifier|protocol) (AS Identifier)? ;
@@ -97,8 +98,7 @@ remote		: FtpPath ('/' FtpPath?)* ;
 // For database
 
 
-condition	: expr ;
-params		: prop (COMMA prop)* ;
+condition	: assignList ;
 contents	: '*'|contentList ;
 contentList	: content (COMMA content)* ;
 content		: expr (AS String)? ;
@@ -116,7 +116,6 @@ RET			: [Rr][Ee][Tt][Rr] ;
 SELECT		: [Ss][Ee][Ll][Ee][Cc][Tt] ;
 FROM		: [Ff][Rr][Oo][Mm] ;
 WHERE		: [Ww][Hh][Ee][Rr][Ee] {clearSign();} ;
-WITH		: [Ww][Ii][Tt][Hh] ;
 SET			: [Ss][Ee][Tt] ;
 WHILE		: [Ww][Hh][Ii][Ll][Ee] ;
 FOR			: [Ff][Oo][Rr] ;

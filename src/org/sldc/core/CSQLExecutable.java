@@ -49,7 +49,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		}
 	}
 	
-	private Scope currentScope = null;
+	protected Scope currentScope = null;
 	
 	public CSQLExecutable(Scope scope)
 	{
@@ -305,38 +305,32 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Boolean where = true;
-		if(ctx.condition()!=null)
-			where = (Boolean)visit(ctx.condition());
-		
-		if(where)
-			if(ctx.contents().getText().equals("*"))
+		if(ctx.contents().getText().equals("*"))
+		{
+			ArrayList<Object> r = new ArrayList<Object>();
+			r.add(visit(ctx.contents()));
+			return r;
+		}
+		else {
+			ContentListContext cl = ctx.contents().contentList();
+			if(isContentMarked(cl))
 			{
+				Map<String, Object> r = new HashMap<String, Object>();
+				int idx = 0;
+				for(ContentContext c : cl.content()){
+					String index = (c.String()==null)?"@i"+String.valueOf(idx++):CSQLUtils.removeStringBounds(c.String().getText());
+					r.put(index, visit(c.expr()));
+				}
+				return r;
+			}else{
 				ArrayList<Object> r = new ArrayList<Object>();
-				r.add(visit(ctx.contents()));
+				for(ContentContext c : cl.content())
+				{
+					r.add(visit(c.expr()));
+				}
 				return r;
 			}
-			else {
-				ContentListContext cl = ctx.contents().contentList();
-				if(isContentMarked(cl))
-				{
-					Map<String, Object> r = new HashMap<String, Object>();
-					int idx = 0;
-					for(ContentContext c : cl.content()){
-						String index = (c.String()==null)?"@i"+String.valueOf(idx++):CSQLUtils.removeStringBounds(c.String().getText());
-						r.put(index, visit(c.expr()));
-					}
-					return r;
-				}else{
-					ArrayList<Object> r = new ArrayList<Object>();
-					for(ContentContext c : cl.content())
-					{
-						r.add(visit(c.expr()));
-					}
-					return r;
-				}
-			}
-		return new Object[0];
+		}
 	}
 	
 	@Override 

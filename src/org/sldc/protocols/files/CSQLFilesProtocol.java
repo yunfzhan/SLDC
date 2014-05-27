@@ -1,10 +1,10 @@
 package org.sldc.protocols.files;
 
 import java.io.File;
-import java.util.Map;
 
 import org.sldc.assist.IChunkDataIntf;
 import org.sldc.assist.IProtocol;
+import org.sldc.core.CSQLWhereExecution;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.ProtocolException;
 
@@ -17,7 +17,7 @@ public class CSQLFilesProtocol implements IProtocol {
 	}
 	
 	@Override
-	public IChunkDataIntf Retrieve(Map<String, String> assistParams) throws ProtocolException {
+	public IChunkDataIntf Retrieve(CSQLWhereExecution runner) throws ProtocolException {
 		File f = new File(this.filepath);
 		try {
 			if(!f.isFile()||!f.canRead()) throw new InvalidType(new Throwable());

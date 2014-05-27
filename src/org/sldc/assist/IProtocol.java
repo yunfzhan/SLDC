@@ -1,7 +1,6 @@
 package org.sldc.assist;
 
-import java.util.Map;
-
+import org.sldc.core.CSQLWhereExecution;
 import org.sldc.exception.ProtocolException;
 
 /**
@@ -10,5 +9,5 @@ import org.sldc.exception.ProtocolException;
  * Whatever protocol is implemented, it returns its own IChunkData for later access by SLDC
  */
 public interface IProtocol {
-	public IChunkDataIntf Retrieve(Map<String, String> assistParams) throws ProtocolException;
+	public IChunkDataIntf Retrieve(CSQLWhereExecution runner) throws ProtocolException;
 }

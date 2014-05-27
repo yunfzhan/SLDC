@@ -1,9 +1,7 @@
 package org.sldc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -11,6 +9,7 @@ import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.IProtocolFactory;
 import org.sldc.assist.multitypes.ProtocolsHelper;
 import org.sldc.core.CSQLExecutable;
+import org.sldc.core.CSQLWhereExecution;
 import org.sldc.csql.cSQLBaseListener;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
@@ -77,16 +76,6 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		this.currentScope = this.currentScope.getUpperScope();
 	}
 	
-	private Map<String, String> getWithClauseParameters(cSQLParser.ParamsContext ctx) {
-		if(ctx==null) return null;
-		Map<String, String> r = new HashMap<String, String>();
-		for(cSQLParser.PropContext prop : ctx.prop())
-		{
-			r.put(prop.Identifier().getText(), CSQLUtils.removeStringBounds(prop.String().getText()));
-		}
-		return r;
-	}
-	
 	private cSQLParser.SelectExprContext getSelectExpr(cSQLParser.ProtocolsContext ctx) {
 		return (SelectExprContext) ctx.parent.parent;
 	}
@@ -97,16 +86,17 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 		
 		try {
 			cSQLParser.SelectExprContext selectExpr = getSelectExpr(ctx);
-			Map<String, String> assistParams = getWithClauseParameters(selectExpr.params());
+			Scope scope = new Scope(this.currentScope);
+			scope.setInput(selectExpr.condition());
+			CSQLWhereExecution runner = new CSQLWhereExecution(scope);
 			
 			Object r = null;
 			if(ctx.Identifier(0)!=null){
-				CSQLExecutable runner = new CSQLExecutable(this.currentScope);
 				Object addr = runner.visit(ctx.Identifier(0));
-				r = ProtocolsHelper.Retrieve(_pFactory, addr, assistParams);
+				r = ProtocolsHelper.Retrieve(_pFactory, addr, runner);
 			}else{
 				String addr = ctx.protocol().getText();
-				r = ProtocolsHelper.Retrieve(_pFactory, addr, assistParams);
+				r = ProtocolsHelper.Retrieve(_pFactory, addr, runner);
 			}
 			
 			this.currentScope.addVariable(key, r);

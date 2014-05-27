@@ -13,47 +13,38 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
+import org.sldc.core.CSQLWhereExecution;
 import org.sldc.exception.InvalidType;
+import org.sldc.exception.SLDCException;
 import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
-	private final String METHOD = "method";
-	private final String PROPERTYFILE = "propfile";
-	
 	private File internalPath = null;
+	private CSQLWhereExecution runner = null;
 	
-	Map<String, String> assistParams = null;
-	
-	CSQLHttpChunkImpl(Map<String, String> assistParams) {
-		this.assistParams = assistParams;
+	CSQLHttpChunkImpl(CSQLWhereExecution runner) {
+		this.runner = runner;
 	}
 	
-	public void save(String address) throws IOException {
+	public void save(String address) throws IOException, SLDCException {
+		runner.run();
 		this.internalPath = createTempFile();
 		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath);
-		String method = (assistParams!=null&&assistParams.containsKey(METHOD))?assistParams.get(METHOD):"GET";
-		if(method.equalsIgnoreCase("GET"))
+		String body = (String) runner.getValue(CSQLWhereExecution._in_Post);
+		if(body==null)
 			helper.doGet(address);
-		else if(method.equalsIgnoreCase("POST")){
+		else{
 			Map<String, String> post = new HashMap<String, String>();
-			if(assistParams.containsKey(PROPERTYFILE)) {
-				File f = new File(assistParams.get(PROPERTYFILE));
-				if(f.exists()){
-					Properties props = new Properties();
-					props.load(new FileInputStream(f));
-					for(Object key : props.keySet())
-					{
-						Object value = props.get(key);
-						post.put(key.toString(), value.toString());
-					}
-				}
+			String[] params = CSQLUtils.removeStringBounds(body).split(",");
+			for(String param : params) {
+				String[] kv = param.split("=");
+				post.put(kv[0], kv.length>1?kv[1]:"");
 			}
 			helper.doPost(address, post);
 		}
