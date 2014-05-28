@@ -148,6 +148,6 @@ public class CSQLBuildIns {
 	
 	public static void save(Object o) {
 		ISaveInterface ext = CSQLExtensions.createExtSaveClass();
-		ext.save(o);
+		ext.save(o.toString());
 	}
 }
