@@ -393,10 +393,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitEqual(@NotNull cSQLParser.EqualContext ctx) {
+		// Check if the expression is a plain string or not. It's not a good solution.
+		boolean isPlainStr1 = CSQLUtils.isSurroundedByStrSignal(ctx.expr(0).getText());
+		boolean isPlainStr2 = CSQLUtils.isSurroundedByStrSignal(ctx.expr(1).getText());
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		return EqualCompareAssist.isEqual(expr1, expr2);
+		return EqualCompareAssist.isEqual(expr1, expr2, isPlainStr1, isPlainStr2);
 	}
 	
 	@Override 
@@ -412,10 +415,12 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitUnequal(@NotNull cSQLParser.UnequalContext ctx) {
+		boolean isPlainStr1 = CSQLUtils.isSurroundedByStrSignal(ctx.expr(0).getText());
+		boolean isPlainStr2 = CSQLUtils.isSurroundedByStrSignal(ctx.expr(1).getText());
 		Object expr1 = visit(ctx.expr(0));
 		Object expr2 = visit(ctx.expr(1));
 		
-		return !EqualCompareAssist.isEqual(expr1, expr2);
+		return !EqualCompareAssist.isEqual(expr1, expr2, isPlainStr1, isPlainStr2);
 	}
 	
 	@Override 

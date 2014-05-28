@@ -99,6 +99,11 @@ public class CSQLUtils {
 			throw new InvalidType(new Throwable());
 	}
 	
+	public static boolean isSurroundedByStrSignal(String str) {
+		String s = str.trim();
+		return (s.startsWith("'")||s.startsWith("\""))&&(s.endsWith("'")||s.endsWith("\""));			
+	}
+	
 	public static Double ToDbl(Object obj) throws InvalidType
 	{
 		if(isInt(obj))
