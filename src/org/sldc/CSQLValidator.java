@@ -63,7 +63,7 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 			}
 			else
 			{
-				scope = this.currentScope.addAnonymous(ctx);
+				scope = this.currentScope.addAnonymous(ctx.stats());
 			}
 			this.currentScope = scope;
 		} catch (DefConflictException e) {
