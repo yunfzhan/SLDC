@@ -72,14 +72,15 @@ public class ArrayFetchAssist {
 			return arr.charAt(index.intValue());
 		else if(CSQLUtils.isString(idx))
 		{
-			String re = (String)idx;
+			String prefix = CSQLUtils.removeStringBounds((String)idx);
 			// re='...' or re="..." or re=...<WS>
-			re = CSQLUtils.removeStringBounds(re)+"=(\".*?\"|\'.*?\'|.*?\\s)";
+			String re = prefix+"=(\".*?\"|\'.*?\'|.*?\\s)";
 			Pattern p = Pattern.compile(re);
 			Matcher m = p.matcher(arr);
 			ArrayList<String> res = new ArrayList<String>();
 			while(m.find()){
-				res.add(m.group());
+				String value = m.group().substring(prefix.length()+1);
+				res.add(value);
 			}
 			return res;
 		}
