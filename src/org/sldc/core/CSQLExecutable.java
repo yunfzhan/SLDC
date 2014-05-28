@@ -22,6 +22,7 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.ContentContext;
 import org.sldc.csql.cSQLParser.ContentListContext;
 import org.sldc.csql.cSQLParser.ExprContext;
+import org.sldc.csql.cSQLParser.ProtocolsContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
@@ -88,7 +89,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object run() throws IOException, SLDCException
 	{
 		if(this.currentScope==null) throw new InvalidType(new Throwable());
-		return visit(this.currentScope.getInput());
+		return this.currentScope.getInput()==null?null:visit(this.currentScope.getInput());
 	}
 	
 	public Object visit(@NotNull ParseTree tree) {
@@ -308,12 +309,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		if(ctx.contents().getText().equals("*"))
 		{
 			ArrayList<Object> r = new ArrayList<Object>();
-			r.add(visit(ctx.contents()));
+			for(ProtocolsContext p : ctx.address().protocols())
+				r.add(this.currentScope.getVarValue(p));
 			return r;
 		}
 		else {
 			ContentListContext cl = ctx.contents().contentList();
-			if(isContentMarked(cl))
+			if(isContentMarked(cl))	// Judge if any field is renamed.
 			{
 				Map<String, Object> r = new HashMap<String, Object>();
 				int idx = 0;

@@ -36,12 +36,12 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		runner.run();
 		this.internalPath = createTempFile();
 		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath);
-		String body = (String) runner.getValue(CSQLWhereExecution._in_Post);
-		if(body==null)
+		Object body = runner.getValue(CSQLWhereExecution._in_Post);
+		if(body==null||body instanceof SLDCException)
 			helper.doGet(address);
 		else{
 			Map<String, String> post = new HashMap<String, String>();
-			String[] params = CSQLUtils.removeStringBounds(body).split(",");
+			String[] params = CSQLUtils.removeStringBounds((String) body).split(",");
 			for(String param : params) {
 				String[] kv = param.split("=");
 				post.put(kv[0], kv.length>1?kv[1]:"");
