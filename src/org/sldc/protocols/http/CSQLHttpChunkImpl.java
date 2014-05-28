@@ -24,6 +24,8 @@ import org.sldc.exception.SLDCException;
 import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
+	
+	private static final String BODY_DELI = ";";
 
 	private File internalPath = null;
 	private CSQLWhereExecution runner = null;
@@ -32,16 +34,31 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		this.runner = runner;
 	}
 	
+	/**
+	 * Parse HTTP headers and assign them into a map
+	 * @return the header map
+	 */
+	private Map<String, String> assignHeader() {
+		Map<String, String> ret = new HashMap<String, String>();
+		Object v = runner.getValue(CSQLWhereExecution._in_ContentType);
+		if(!(v instanceof SLDCException))
+			ret.put("Content-Type", CSQLUtils.removeStringBounds((String) v));
+		return ret;
+	}
+	
 	public void save(String address) throws IOException, SLDCException {
 		runner.run();
 		this.internalPath = createTempFile();
-		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath);
+		// HTTP headers
+		Map<String, String> header = assignHeader();
+		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath, header);
+		// check POST parameters
 		Object body = runner.getValue(CSQLWhereExecution._in_Post);
 		if(body==null||body instanceof SLDCException)
 			helper.doGet(address);
 		else{
 			Map<String, String> post = new HashMap<String, String>();
-			String[] params = CSQLUtils.removeStringBounds((String) body).split(",");
+			String[] params = CSQLUtils.removeStringBounds((String) body).split(BODY_DELI);
 			for(String param : params) {
 				String[] kv = param.split("=");
 				post.put(kv[0], kv.length>1?kv[1]:"");

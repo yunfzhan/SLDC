@@ -31,9 +31,11 @@ public class HttpRequestHelper {
     private String requestEncoding = "utf8";
     
     private File responseTo = null;
+    private Map<String, String> header = null;
     
-    HttpRequestHelper(File f) {
+    HttpRequestHelper(File f, Map<String, String> header) {
     	responseTo = f;
+    	this.header = header;
     }
     
     public int getConnectTimeOut()
@@ -118,6 +120,8 @@ public class HttpRequestHelper {
 
     private HttpURLConnection initConnection(String reqUrl, String method) throws MalformedURLException, IOException {
     	HttpURLConnection conn = (HttpURLConnection) (new URL(reqUrl)).openConnection();
+    	for(String key : header.keySet())
+    		conn.setRequestProperty(key, header.get(key));
         conn.setRequestMethod(method);
 		conn.setConnectTimeout(getConnectTimeOut());
 		conn.setReadTimeout(getReadTimeOut());

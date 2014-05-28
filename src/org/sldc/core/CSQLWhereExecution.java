@@ -15,6 +15,7 @@ public class CSQLWhereExecution extends CSQLExecutable {
 	//public static final String _in_Method = "$$METHOD";
 	public static final String _in_Cookie = "$$COOKIE";
 	public static final String _in_Post = "$$BODY";
+	public static final String _in_ContentType = "$$CONTENTTYPE";
 	
 	private Map<String, Object> configs = new HashMap<String, Object>();
 	
@@ -28,6 +29,7 @@ public class CSQLWhereExecution extends CSQLExecutable {
 		//configs.put(_in_Method, null);
 		configs.put(_in_Cookie, null);
 		configs.put(_in_Post, null);
+		configs.put(_in_ContentType, null);
 	}
 
 	@Override 
