@@ -3,6 +3,7 @@ package org.sldc.assist.multitypes;
 import java.util.Map;
 
 import org.sldc.assist.CSQLUtils;
+import org.sldc.exception.SLDCException;
 
 public class BuildInPrint {
 	@SuppressWarnings("rawtypes")
@@ -34,6 +35,8 @@ public class BuildInPrint {
 			return printArray((Object[]) obj);
 		else if(CSQLUtils.isString(obj))
 			return CSQLUtils.removeStringBounds((String)obj);
+		else if(obj instanceof SLDCException)
+			return "";
 		else
 			return obj.toString();
 	}
