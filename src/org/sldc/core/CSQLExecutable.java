@@ -366,8 +366,12 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitNum(@NotNull cSQLParser.NumContext ctx) 
-	{ 
-		return Double.valueOf(ctx.Number().getText());
+	{
+		String num = ctx.Number().getText();
+		if(CSQLUtils.isInt(num))
+			return Long.valueOf(num);
+		else
+			return Double.valueOf(num);
 	}
 	
 	@Override 

@@ -129,7 +129,7 @@ OR			: [Oo][Rr] ;
 AS			: [Aa][Ss] {clearSign();} ;
 
 // Tokens
-INT			: DIGIT+ ;
+INT			: MINUS? DIGIT+ ;
 
 Number		: MINUS? ( DIGIT+ (DOT DIGIT*)? ) {!isHttp&&!isFtp}? ;
 // Common identifiers
