@@ -12,6 +12,7 @@ import org.sldc.assist.multitypes.ArrayFetchAssist;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.FundeclContext;
 import org.sldc.exception.InvalidType;
+import org.sldc.protocols.CSQLProtocolFactoryImpl;
 
 public class CSQLUtils {
 	
@@ -29,6 +30,13 @@ public class CSQLUtils {
         }
         return result;
     }
+	
+	private static IProtocolFactory _pFactory = null;
+	public static IProtocolFactory getProtocolFactory() {
+		if(_pFactory==null)
+			_pFactory = new CSQLProtocolFactoryImpl();
+		return _pFactory;
+	}
 	
 	public static cSQLParser.FundeclContext getFuncDeclaration(ParseTree node) {
 		while(node!=null&&!(node instanceof cSQLParser.FundeclContext))

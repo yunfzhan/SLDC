@@ -14,7 +14,8 @@ import org.sldc.exception.ProtocolException;
 
 public class ProtocolsHelper {
 	@SuppressWarnings("unchecked")
-	public static Object Retrieve(IProtocolFactory _pFactory, Object addrs, CSQLWhereExecution runner) throws ProtocolException, NotSupportedProtocol {
+	public static Object Retrieve(Object addrs, CSQLWhereExecution runner) throws ProtocolException, NotSupportedProtocol {
+		IProtocolFactory _pFactory = CSQLUtils.getProtocolFactory();
 		if(CSQLUtils.isString(addrs))
 		{
 			addrs = CSQLUtils.removeStringBounds((String) addrs);

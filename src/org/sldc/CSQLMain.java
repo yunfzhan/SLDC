@@ -12,7 +12,6 @@ import org.sldc.assist.CSQLUtils;
 import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLParser;
 import org.sldc.exception.SLDCException;
-import org.sldc.protocols.CSQLProtocolFactoryImpl;
 /**
  * 
  * @author Yunfei Zhang
@@ -67,7 +66,7 @@ public final class CSQLMain {
 		// create a generic parse tree walker that can trigger callbacks
 		ParseTreeWalker walker = new ParseTreeWalker();
 		// walk the tree created during the parse, trigger callbacks
-		CSQLValidator validator = new CSQLValidator(tree, new CSQLProtocolFactoryImpl());
+		CSQLValidator validator = new CSQLValidator(tree);
 		walker.walk(validator, tree);
 		
 		List<SLDCException> exs = validator.getErrors();
