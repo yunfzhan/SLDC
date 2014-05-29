@@ -331,15 +331,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 			cSQLParser.SelectExprContext selectExpr = getSelectExpr(ctx);
 			Scope scope = new Scope(this.currentScope);
 			scope.setInput(selectExpr.condition());
-			CSQLWhereExecution runner = new CSQLWhereExecution(scope);
 			
 			v = null;
 			if(ctx.Identifier(0)!=null){
-				Object addr = runner.visit(ctx.Identifier(0));
-				v = ProtocolsHelper.Retrieve(addr, runner);
+				Object addr = visit(ctx.Identifier(0));
+				v = ProtocolsHelper.Retrieve(addr, scope);
 			}else{
 				String addr = ctx.protocol().getText();
-				v = ProtocolsHelper.Retrieve(addr, runner);
+				v = ProtocolsHelper.Retrieve(addr, scope);
 			}
 			
 			this.currentScope.addVariable(key, v);
@@ -353,7 +352,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	public Object visitAddress(@NotNull cSQLParser.AddressContext ctx) {
 		ArrayList<Object> r = new ArrayList<Object>();
 		for(ProtocolsContext proto : ctx.protocols())
-			r.add(visit(proto));
+			r.add(visitProtocols(proto));
 		return r;
 	}
 	

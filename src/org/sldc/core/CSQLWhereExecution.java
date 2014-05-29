@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.sldc.assist.CSQLUtils;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
@@ -46,6 +47,9 @@ public class CSQLWhereExecution extends CSQLExecutable {
 			value = visit(ctx.arrayValues());
 		else
 			return value;
+		
+		if(CSQLUtils.isString(value))
+			value = CSQLUtils.removeStringBounds((String) value);
 		
 		try{
 			this.currentScope.setVarValue(ctx.Identifier().getText(), value);
