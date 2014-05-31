@@ -1,5 +1,6 @@
 package org.sldc.csql.syntax;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class Scope {
 	private ParseTree _node;
 	private ParseTreeProperty<Scope> _anonymousScope = new ParseTreeProperty<Scope>();
 	private Map<String, Scope> _functions = new HashMap<String, Scope>();
-	private Map<String, Object> _namedVars = new HashMap<String, Object>();
+	private Map<String, Object> _namedVars = Collections.synchronizedMap(new HashMap<String, Object>());
 	private ParseTreeProperty<Object> _anonymousVars = new ParseTreeProperty<Object>();
 	private Scope upper = null;
 	

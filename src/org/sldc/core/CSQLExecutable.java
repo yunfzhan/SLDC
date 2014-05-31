@@ -5,7 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -14,7 +20,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.multitypes.EqualCompareAssist;
-import org.sldc.assist.multitypes.ProtocolsHelper;
 import org.sldc.assist.multitypes.SubItemsAssist;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
@@ -24,7 +29,6 @@ import org.sldc.csql.cSQLParser.ContentContext;
 import org.sldc.csql.cSQLParser.ContentListContext;
 import org.sldc.csql.cSQLParser.ExprContext;
 import org.sldc.csql.cSQLParser.ProtocolsContext;
-import org.sldc.csql.cSQLParser.SelectExprContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
 import org.sldc.exception.DefNotDeclException;
@@ -52,11 +56,15 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		}
 	}
 	
-	protected Scope currentScope = null;
+	private Scope currentScope = null;
 	
 	public CSQLExecutable(Scope scope)
 	{
 		setScope(scope);
+	}
+	
+	Scope getScope() {
+		return currentScope;
 	}
 	
 	protected void setScope(Scope newScope) {
@@ -317,48 +325,38 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return result;
 	}
 	
-	private cSQLParser.SelectExprContext getSelectExpr(cSQLParser.ProtocolsContext ctx) {
-		return (SelectExprContext) ctx.parent.parent;
-	}
-	
-	@Override 
-	public Object visitProtocols(@NotNull cSQLParser.ProtocolsContext ctx) {
-		Object key = ctx.Identifier(1) != null?ctx.Identifier(1).getText():ctx;
-		Object v = CSQLUtils.isString(key)?this.currentScope.getVarValue((String) key):this.currentScope.getVarValue((ParseTree)key);
-		if(!(v instanceof SLDCException)) return v;
-		
-		try {
-			cSQLParser.SelectExprContext selectExpr = getSelectExpr(ctx);
-			Scope scope = new Scope(this.currentScope);
-			scope.setInput(selectExpr.condition());
-			
-			v = null;
-			if(ctx.Identifier(0)!=null){
-				Object addr = visit(ctx.Identifier(0));
-				v = ProtocolsHelper.Retrieve(addr, scope);
-			}else{
-				String addr = ctx.protocol().getText();
-				v = ProtocolsHelper.Retrieve(addr, scope);
-			}
-			
-			this.currentScope.addVariable(key, v);
-			return v;
-		} catch (SLDCException e) {
-			return e;
-		}
-	}
-	
 	@Override 
 	public Object visitAddress(@NotNull cSQLParser.AddressContext ctx) {
 		ArrayList<Object> r = new ArrayList<Object>();
+		ExecutorService cachedPool = Executors.newCachedThreadPool();
+		
+		Set<Future<Object[]>> threads = new HashSet<Future<Object[]>>();
 		for(ProtocolsContext proto : ctx.protocols())
-			r.add(visitProtocols(proto));
+		{
+			Future<Object[]> o = cachedPool.submit(new ProtocolThread(this, proto));
+			threads.add(o);
+		}
+		
+		for(Future<Object[]> future : threads) {
+			try {
+				Object[] o = future.get();
+				this.currentScope.addVariable(o[0], o[1]);
+				r.add(o[1]);
+			} catch (InterruptedException e) {
+				r.add(e);
+			} catch (ExecutionException e) {
+				r.add(e);
+			} catch (SLDCException e) {
+				r.add(e);
+			}
+		}
+		cachedPool.shutdown();
 		return r;
 	}
 	
 	@Override 
 	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Object r = visitChildren(ctx);
+		Object r = visitAddress(ctx.address());
 		
 		if(ctx.contents().getText().equals("*"))
 			return r;

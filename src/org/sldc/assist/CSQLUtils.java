@@ -31,10 +31,8 @@ public class CSQLUtils {
         return result;
     }
 	
-	private static IProtocolFactory _pFactory = null;
+	private static IProtocolFactory _pFactory = new CSQLProtocolFactoryImpl();
 	public static IProtocolFactory getProtocolFactory() {
-		if(_pFactory==null)
-			_pFactory = new CSQLProtocolFactoryImpl();
 		return _pFactory;
 	}
 	

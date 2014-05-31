@@ -21,7 +21,7 @@ public class CSQLWhereExecution extends CSQLExecutable {
 	private Map<String, Object> configs = new HashMap<String, Object>();
 	
 	public Object getValue(String key) {
-		return this.currentScope.getVarValue(key);
+		return this.getScope().getVarValue(key);
 	}
 	
 	public CSQLWhereExecution(Scope scope) {
@@ -52,10 +52,10 @@ public class CSQLWhereExecution extends CSQLExecutable {
 			value = CSQLUtils.removeStringBounds((String) value);
 		
 		try{
-			this.currentScope.setVarValue(ctx.Identifier().getText(), value);
+			this.getScope().setVarValue(ctx.Identifier().getText(), value);
 		} catch (DefNotDeclException e) {
 			try {
-				this.currentScope.addVariable(ctx.Identifier().getText(), value);
+				this.getScope().addVariable(ctx.Identifier().getText(), value);
 			} catch (DefConflictException e1) {
 				value = e1;
 			}
