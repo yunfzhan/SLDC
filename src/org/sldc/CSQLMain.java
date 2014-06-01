@@ -23,8 +23,7 @@ import org.sldc.exception.SLDCException;
  * 		6.Unicode support for extensions
  * 		7.Cope with 'where' clause
  *		8.Multi-threads support
- *		9.'with' clause support
- *		10.'order' and 'group' clauses support in select
+ *		9.'order' and 'group' clauses support in select
  */
 public final class CSQLMain {
 	

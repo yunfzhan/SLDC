@@ -16,7 +16,7 @@ public class ProtocolException extends SLDCException {
 	}
 	
 	public String getMessage() {
-		return "Protocol Error!";
+		return "Protocol Error with "+this.e.toString();
 	}
 	
 	public Exception getNestedException(){
