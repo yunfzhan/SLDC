@@ -47,6 +47,18 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		return ret;
 	}
 	
+	private String[] mySplit(String str, String deli) {
+		int pos = str.indexOf(deli);
+		if(pos==-1)
+			return new String[] {str};
+		else if(pos==str.length()-1)
+			return new String[] {str.substring(0,pos)};
+		String[] res = new String[2];
+		res[0] = str.substring(0,pos);
+		res[1] = str.substring(pos+1);
+		return res;
+	}
+	
 	public void save(String address) throws IOException, SLDCException {
 		runner.run();
 		this.internalPath = createTempFile();
@@ -64,9 +76,9 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 			Map<String, String> post = new HashMap<String, String>();
 			String[] params = CSQLUtils.removeStringBounds((String) body).split(BODY_DELI);
 			Object oBodydeli = runner.getValue(CSQLWhereExecution._in_Body_delimeter);
-			String deli = oBodydeli==null?"=":CSQLUtils.removeStringBounds((String)oBodydeli);
+			String deli = (oBodydeli instanceof SLDCException)?"=":CSQLUtils.removeStringBounds((String)oBodydeli);
 			for(String param : params) {
-				String[] kv = param.split(deli);
+				String[] kv = mySplit(param,deli);
 				post.put(kv[0], kv.length>1?kv[1]:"");
 			}
 			helper.doPost(address, post);
