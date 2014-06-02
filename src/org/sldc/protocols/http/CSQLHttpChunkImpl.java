@@ -63,8 +63,10 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		else{
 			Map<String, String> post = new HashMap<String, String>();
 			String[] params = CSQLUtils.removeStringBounds((String) body).split(BODY_DELI);
+			Object oBodydeli = runner.getValue(CSQLWhereExecution._in_Body_delimeter);
+			String deli = oBodydeli==null?"=":CSQLUtils.removeStringBounds((String)oBodydeli);
 			for(String param : params) {
-				String[] kv = param.split("=");
+				String[] kv = param.split(deli);
 				post.put(kv[0], kv.length>1?kv[1]:"");
 			}
 			helper.doPost(address, post);

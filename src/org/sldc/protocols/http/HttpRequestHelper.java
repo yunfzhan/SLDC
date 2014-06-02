@@ -119,12 +119,15 @@ public class HttpRequestHelper {
     }
 
     private HttpURLConnection initConnection(String reqUrl, String method) throws MalformedURLException, IOException {
+//    	Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8080));
+//    	HttpURLConnection conn = (HttpURLConnection) (new URL(reqUrl)).openConnection(proxy);
     	HttpURLConnection conn = (HttpURLConnection) (new URL(reqUrl)).openConnection();
     	for(String key : header.keySet())
     		conn.setRequestProperty(key, header.get(key));
         conn.setRequestMethod(method);
 		conn.setConnectTimeout(getConnectTimeOut());
 		conn.setReadTimeout(getReadTimeOut());
+		conn.setUseCaches(false);
 		conn.setDoOutput(true);
 		return conn;
     }
@@ -133,6 +136,7 @@ public class HttpRequestHelper {
     	if(params.endsWith("&")) params = params.substring(0,params.length()-1);
     	
     	byte[] bytes = params.getBytes();
+    	conn.setRequestProperty("Content-Length", String.valueOf(bytes.length));
         conn.getOutputStream().write(bytes, 0, bytes.length);
 		conn.getOutputStream().flush();
 		conn.getOutputStream().close();
