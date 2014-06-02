@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
@@ -119,9 +121,14 @@ public class HttpRequestHelper {
     }
 
     private HttpURLConnection initConnection(String reqUrl, String method) throws MalformedURLException, IOException {
-//    	Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8080));
-//    	HttpURLConnection conn = (HttpURLConnection) (new URL(reqUrl)).openConnection(proxy);
-    	HttpURLConnection conn = (HttpURLConnection) (new URL(reqUrl)).openConnection();
+    	String proxyHost = System.getProperty("http.proxyHost");
+    	String proxyPort = System.getProperty("http.proxyPort");
+    	HttpURLConnection conn = null;
+    	if(proxyHost!=null) {
+	    	Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort==null?80:Integer.valueOf(proxyPort)));
+	    	conn = (HttpURLConnection) (new URL(reqUrl)).openConnection(proxy);
+    	}else
+    		conn = (HttpURLConnection) (new URL(reqUrl)).openConnection();
     	for(String key : header.keySet())
     		conn.setRequestProperty(key, header.get(key));
         conn.setRequestMethod(method);
