@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +30,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 
 	private File internalPath = null;
 	private CSQLWhereExecution runner = null;
+	private Map<String, List<String>> respMap = null;
 	
 	CSQLHttpChunkImpl(CSQLWhereExecution runner) {
 		this.runner = runner;
@@ -58,6 +60,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		return res;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void save(String address) throws IOException, SLDCException {
 		runner.run();
 		this.internalPath = createTempFile();
@@ -67,7 +70,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		// check POST parameters
 		Object body = runner.getValue(CSQLWhereExecution._in_Post);
 		if(body==null||body instanceof SLDCException) {
-			helper.doGet(address);
+			respMap = (Map<String, List<String>>) helper.doGet(address);
 //			URL url = new URL(address);
 //			save(url.openStream());
 		}
@@ -80,7 +83,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 				String[] kv = mySplit(param,deli);
 				post.put(kv[0], kv.length>1?kv[1]:"");
 			}
-			helper.doPost(address, post);
+			respMap = (Map<String, List<String>>) helper.doPost(address, post);
 		}
 	}
 	
@@ -96,6 +99,17 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 			os.close();
 			is.close();
 		}
+	}
+	
+	public Object[] getHeaderKeys() {
+		return respMap.keySet().toArray();
+	}
+	
+	public Object getHeaderItem(Object key) {
+		if(CSQLUtils.isString(key)) {
+			return respMap.get(key);
+		}
+		return null;
 	}
 	
 	@Override

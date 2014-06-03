@@ -13,6 +13,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -74,14 +75,14 @@ public class HttpRequestHelper {
     	return this.responseTo!=null;
     }
     
-    public String doGet(String reqUrl) throws MalformedURLException, IOException {
+    public Object doGet(String reqUrl) throws MalformedURLException, IOException {
     	return doGet(reqUrl, getRequestEncoding());
     }
 
-    public String doGet(String reqUrl, String recvEncoding) throws MalformedURLException, IOException
+    public Object doGet(String reqUrl, String recvEncoding) throws MalformedURLException, IOException
     {
         HttpURLConnection url_con = null;
-        String responseContent = null;
+        Object responseContent = null;
         try
         {
             url_con = initConnection(reqUrl,"GET");
@@ -139,7 +140,8 @@ public class HttpRequestHelper {
         writeOutputStream(conn, params.toString());        
     }
     
-    private String recvResponse(HttpURLConnection conn, String recvEncoding) throws IOException {
+    private Object recvResponse(HttpURLConnection conn, String recvEncoding) throws IOException {
+    	Map<String, List<String>> map = conn.getHeaderFields();
     	InputStream in = conn.getInputStream();
     	// TODO cope with encoding
 		BufferedReader br = new BufferedReader(new InputStreamReader(in,recvEncoding));
@@ -163,7 +165,7 @@ public class HttpRequestHelper {
 		            fw.write(crlf);
 		        }
 				fw.close();
-				return null;
+				return map;
 			}
 		}finally{
 	        br.close();
@@ -171,14 +173,14 @@ public class HttpRequestHelper {
 		}
     }
     
-    public String doGet(String reqUrl, Map<String, String> parameters) throws MalformedURLException, IOException {
+    public Object doGet(String reqUrl, Map<String, String> parameters) throws MalformedURLException, IOException {
     	return doGet(reqUrl, parameters, getRequestEncoding());
     }
     
-    public String doGet(String reqUrl, Map<String, String> parameters,String recvEncoding) throws MalformedURLException, IOException
+    public Object doGet(String reqUrl, Map<String, String> parameters,String recvEncoding) throws MalformedURLException, IOException
     {
         HttpURLConnection url_con = null;
-        String responseContent = null;
+        Object responseContent = null;
         try
         {
             url_con = initConnection(reqUrl, "GET");
@@ -196,17 +198,17 @@ public class HttpRequestHelper {
         return responseContent;
     }
     
-    public String doPost(String reqUrl, Map<String, String> parameters) throws IOException {
+    public Object doPost(String reqUrl, Map<String, String> parameters) throws IOException {
     	return doPost(reqUrl,parameters,getRequestEncoding());
     }
     
-    public String doPost(String reqUrl, String params) throws IOException {
+    public Object doPost(String reqUrl, String params) throws IOException {
     	return doPost(reqUrl, params, getRequestEncoding());
     }
     
-    public String doPost(String reqUrl, String params, String recvEncoding) throws MalformedURLException, IOException {
+    public Object doPost(String reqUrl, String params, String recvEncoding) throws MalformedURLException, IOException {
     	HttpURLConnection url_con = null;
-        String responseContent = null;
+        Object responseContent = null;
         try
         {
             url_con = initConnection(reqUrl, "POST");
@@ -223,10 +225,10 @@ public class HttpRequestHelper {
         return responseContent;
     }
     
-    public String doPost(String reqUrl, Map<String, String> parameters, String recvEncoding) throws IOException
+    public Object doPost(String reqUrl, Map<String, String> parameters, String recvEncoding) throws IOException
     {
         HttpURLConnection url_con = null;
-        String responseContent = null;
+        Object responseContent = null;
         try
         {
             url_con = initConnection(reqUrl, "POST");

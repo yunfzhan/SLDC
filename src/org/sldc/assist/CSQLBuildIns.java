@@ -12,6 +12,7 @@ import org.sldc.assist.multitypes.BuildInLength;
 import org.sldc.assist.multitypes.BuildInPrint;
 import org.sldc.assist.multitypes.BuildInSearchFunction;
 import org.sldc.assist.multitypes.BuildInStrConv;
+import org.sldc.assist.multitypes.HttpHeaderAssist;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.InvalidType;
 import org.sldc.exception.NotBuildInFunction;
@@ -38,6 +39,9 @@ public class CSQLBuildIns {
 		functions.put("$cut", "splitString");
 		functions.put("$find", "findFirst");
 		functions.put("$save", "save");
+		// For CSQLHttpChunkImpl only
+		functions.put("$keys", "getKeys");
+		functions.put("$header", "getHeaderItem");
 		Method[] methods = CSQLBuildIns.class.getDeclaredMethods();
 		for(Method method : methods)
 		{
@@ -149,5 +153,15 @@ public class CSQLBuildIns {
 	public static void save(Object o) {
 		ISaveInterface ext = CSQLExtensions.createExtSaveClass();
 		ext.save(o.toString());
+	}
+	
+	// Designed for CSQLHttpChunkImpl since it's not a common utility that I don't like.
+	// TODO change
+	public static Object[] getKeys(Object o) {
+		return HttpHeaderAssist.getKeys(o);
+	}
+	
+	public static Object getHeaderItem(Object o, Object key) {
+		return HttpHeaderAssist.getHeaderItem(o, key);
 	}
 }
