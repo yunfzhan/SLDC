@@ -2,6 +2,7 @@ package org.sldc.assist.multitypes;
 
 import java.util.Map;
 
+import org.sldc.exception.InvalidType;
 import org.sldc.protocols.http.CSQLHttpChunkImpl;
 
 public class HttpHeaderAssist {
@@ -13,7 +14,7 @@ public class HttpHeaderAssist {
 		}else if(o instanceof CSQLHttpChunkImpl) {
 			return ((CSQLHttpChunkImpl)o).getHeaderKeys();
 		}
-		return null;
+		return new Object[]{new InvalidType(new Throwable())};
 	}
 	
 	public static Object getHeaderItem(Object o, Object key) {
@@ -22,6 +23,6 @@ public class HttpHeaderAssist {
 		}else if(o instanceof CSQLHttpChunkImpl) {
 			return ((CSQLHttpChunkImpl)o).getHeaderItem(key);
 		}
-		return null;
+		return new InvalidType(new Throwable());
 	}
 }
