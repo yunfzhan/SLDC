@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,9 +67,9 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		// check POST parameters
 		Object body = runner.getValue(CSQLWhereExecution._in_Post);
 		if(body==null||body instanceof SLDCException) {
-			//helper.doGet(address);
-			URL url = new URL(address);
-			save(url.openStream());
+			helper.doGet(address);
+//			URL url = new URL(address);
+//			save(url.openStream());
 		}
 		else{
 			Map<String, String> post = new HashMap<String, String>();

@@ -84,29 +84,7 @@ public class HttpRequestHelper {
         String responseContent = null;
         try
         {
-            StringBuilder params = new StringBuilder();
-            String queryUrl = reqUrl;
-            
-            int paramIndex = reqUrl.indexOf("?");
-            if (paramIndex > 0)
-            {
-                queryUrl = reqUrl.substring(0, paramIndex);
-                String parameters = reqUrl.substring(paramIndex + 1, reqUrl.length());
-                String[] paramArray = parameters.split("&");
-                for (String string : paramArray)
-                {
-                    int index = string.indexOf("=");
-                    if (index > 0)
-                    {
-                        String parameter = string.substring(0, index);
-                        String value = string.substring(index + 1, string.length());
-                        params.append(parameter).append("=").append(URLEncoder.encode(value,getRequestEncoding())).append("&");
-                    }
-                }
-            }
-
-            url_con = initConnection(queryUrl,"GET");
-            writeOutputStream(url_con, params.toString());
+            url_con = initConnection(reqUrl,"GET");
             responseContent = recvResponse(url_con, recvEncoding);
         }
         finally
@@ -135,7 +113,8 @@ public class HttpRequestHelper {
 		conn.setConnectTimeout(getConnectTimeOut());
 		conn.setReadTimeout(getReadTimeOut());
 		conn.setUseCaches(false);
-		conn.setDoOutput(true);
+		if(method.equalsIgnoreCase("POST"))
+			conn.setDoOutput(true);
 		return conn;
     }
     
