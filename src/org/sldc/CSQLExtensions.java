@@ -157,7 +157,7 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 	 * Default implementation for save
 	 */
 	@Override
-	public void save(Object o) {
+	public void save(SaveObject o) {
 		CSQLBuildIns.print(o);
 	}
 }

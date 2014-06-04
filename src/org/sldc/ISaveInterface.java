@@ -1,5 +1,5 @@
 package org.sldc;
 
 public interface ISaveInterface {
-	public void save(Object o);
+	public void save(SaveObject o);
 }

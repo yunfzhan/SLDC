@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.sldc.CSQLExtensions;
 import org.sldc.ISaveInterface;
+import org.sldc.SaveObject;
 import org.sldc.assist.multitypes.BuildInLength;
 import org.sldc.assist.multitypes.BuildInPrint;
 import org.sldc.assist.multitypes.BuildInSearchFunction;
@@ -152,7 +153,7 @@ public class CSQLBuildIns {
 	
 	public static void save(Object o) {
 		ISaveInterface ext = CSQLExtensions.createExtSaveClass();
-		ext.save(o.toString());
+		ext.save(new SaveObject(o));
 	}
 	
 	// Designed for CSQLHttpChunkImpl since it's not a common utility that I don't like.
