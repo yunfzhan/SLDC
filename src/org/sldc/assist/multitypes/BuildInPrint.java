@@ -8,9 +8,8 @@ import org.sldc.exception.SLDCException;
 public class BuildInPrint {
 	@SuppressWarnings("rawtypes")
 	private static String printMap(Map map) {
-		Object[] keys=map.keySet().toArray();
 		StringBuilder sb = new StringBuilder();
-		for(Object key : keys)
+		for(Object key : map.keySet())
 		{
 			sb.append("|\t"+key+"\n | ");
 			sb.append(print(map.get(key))+"\n");
