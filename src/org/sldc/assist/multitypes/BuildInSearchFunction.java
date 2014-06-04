@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
+import org.sldc.assist.ItemIterator;
 import org.sldc.core.CSQLExecutable;
 import org.sldc.csql.cSQLParser;
 import org.sldc.csql.syntax.Scope;
@@ -98,15 +99,9 @@ public class BuildInSearchFunction {
 			}
 		}else if(o instanceof CSQLChunkDataImpl) {
 			return ((CSQLChunkDataImpl)o).searchByTag(srchable);
-		}else if(CSQLUtils.isCollection(o)){
+		}else if(CSQLUtils.isCollection(o)||CSQLUtils.isArray(o)){
 			ArrayList<Object> res = new ArrayList<Object>();
-			Collection<?> objs = (Collection<?>)o;
-			for(Object v : objs)
-				res.add(searchTag(v, srchable));
-			return res;
-		}else if(CSQLUtils.isArray(o)){
-			ArrayList<Object> res = new ArrayList<Object>();
-			Object[] objs = (Object[])o;
+			ItemIterator objs = new ItemIterator(o);
 			for(Object v : objs)
 				res.add(searchTag(v, srchable));
 			return res;
@@ -153,19 +148,9 @@ public class BuildInSearchFunction {
 				r = res;
 			}
 			return r;
-		}else if(CSQLUtils.isCollection(o)){
+		}else if(CSQLUtils.isCollection(o)||CSQLUtils.isArray(o)){
 			ArrayList<Object> res = new ArrayList<Object>();
-			Collection<?> objs = (Collection<?>)o;
-			for(Object v : objs)
-			{
-				Object obj = searchTag(v, srchable, cond, scope);
-				if(!isEntityEmpty(obj))
-					res.add(obj);
-			}
-			return res;
-		}else if(CSQLUtils.isArray(o)){
-			ArrayList<Object> res = new ArrayList<Object>();
-			Object[] objs = (Object[])o;
+			ItemIterator objs = new ItemIterator(o);
 			for(Object v : objs)
 			{
 				Object obj = searchTag(v, srchable, cond, scope);
