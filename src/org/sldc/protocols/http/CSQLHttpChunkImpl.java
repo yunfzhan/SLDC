@@ -42,9 +42,12 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 	 */
 	private Map<String, String> assignHeader() {
 		Map<String, String> ret = new HashMap<String, String>();
-		Object v = runner.getValue(CSQLWhereExecution._in_ContentType);
-		if(!(v instanceof SLDCException))
-			ret.put("Content-Type", CSQLUtils.removeStringBounds((String) v));
+		ArrayList<String> vars = runner.getVars();
+		for(String var: vars) {
+			Object v = runner.getValue(var);
+			if(!(v instanceof SLDCException))
+				ret.put(var.substring(2/*length of '$$'*/), CSQLUtils.removeStringBounds((String) v));
+		}
 		return ret;
 	}
 	
