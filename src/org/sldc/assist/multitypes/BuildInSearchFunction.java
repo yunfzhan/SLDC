@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
 import org.sldc.assist.ItemIterator;
@@ -52,11 +53,7 @@ public class BuildInSearchFunction {
 			ParseTree node = parser.expr();
 			
 			CSQLExecutable runner = CSQLExecutable.getSingleInstance(initEval(param, scope));
-			Object r = runner.visit(node);
-			if(CSQLUtils.isInt(r))
-				return !r.toString().equals("0");
-			else
-				return Boolean.parseBoolean(CSQLUtils.removeStringBounds(r.toString()));
+			return CSQLBuildIns.toBoolean(runner.visit(node));
 		} catch (Exception e) {
 			return false;
 		}		

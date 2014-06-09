@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.sldc.CSQLExtensions;
 import org.sldc.ISaveInterface;
@@ -36,6 +38,8 @@ public class CSQLBuildIns {
 		functions.put("$print", "print");
 		functions.put("$pow", "Pow");
 		functions.put("$count", "getLength");
+		functions.put("$bool", "toBoolean");
+		functions.put("$match", "matchRegex");
 		functions.put("$str", "convertToString");
 		functions.put("$cut", "splitString");
 		functions.put("$find", "findFirst");
@@ -107,6 +111,13 @@ public class CSQLBuildIns {
 		return BuildInLength.length(o);
 	}
 	
+	public static boolean toBoolean(Object o) {
+		if(CSQLUtils.isInt(o))
+			return !o.toString().equals("0");
+		else
+			return (o==null||o.equals(Scope.UnDefined))?false:Boolean.parseBoolean(CSQLUtils.removeStringBounds(o.toString()));
+	}
+	
 	public static String convertToString(Object o) {
 		return BuildInStrConv.toString(o);
 	}
@@ -119,6 +130,15 @@ public class CSQLBuildIns {
 	public static int findString(String o, String sub) {
 		sub = CSQLUtils.removeStringBounds(sub);
 		return o.indexOf(sub);
+	}
+	
+	public static boolean matchRegex(Object o, String regex) {
+		if(!CSQLUtils.isString(o)) return false;
+		String src = o.toString();
+		regex = CSQLUtils.removeStringBounds(regex);
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(src);
+		return m.find();
 	}
 	
 	public static Object _InCore(Object contents, String plain){
