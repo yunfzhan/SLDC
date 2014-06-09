@@ -52,7 +52,11 @@ public class BuildInSearchFunction {
 			ParseTree node = parser.expr();
 			
 			CSQLExecutable runner = CSQLExecutable.getSingleInstance(initEval(param, scope));
-			return (Boolean) runner.visit(node);
+			Object r = runner.visit(node);
+			if(CSQLUtils.isInt(r))
+				return !r.toString().equals("0");
+			else
+				return Boolean.parseBoolean(CSQLUtils.removeStringBounds(r.toString()));
 		} catch (Exception e) {
 			return false;
 		}		
