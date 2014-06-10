@@ -172,8 +172,12 @@ public class CSQLBuildIns {
 	}
 	
 	public static void save(Object o) {
+		save(o,null);
+	}
+	
+	public static void save(Object o, Object attach) {
 		ISaveInterface ext = CSQLExtensions.createExtSaveClass();
-		ext.save(new SaveObject(o));
+		ext.save(new SaveObject(o, attach));
 	}
 	
 	// Designed for CSQLHttpChunkImpl since it's not a common utility that I don't like.

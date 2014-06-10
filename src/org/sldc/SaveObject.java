@@ -13,29 +13,51 @@ import org.sldc.protocols.CSQLChunkDataImpl;
 public class SaveObject implements Iterable<Object> {
 
 	private Object internalObject = null;
+	private Object attachment = null;
 	
-	public SaveObject(Object o) {
+	public SaveObject(Object o, Object attach) {
 		this.internalObject = o;
+		this.attachment = attach;
 	}
 
 	public String toString() {
 		return internalObject.toString();		
 	}
 	
+	public Object getAttachment() {
+		return this.attachment;
+	}
+	
 	public boolean isMap() {
-		return internalObject instanceof Map;
+		return isMap(this.internalObject);
+	}
+	
+	public boolean isMap(Object o) {
+		return o instanceof Map;
 	}
 	
 	public boolean isCollection() {
-		return CSQLUtils.isArray(internalObject)||CSQLUtils.isCollection(internalObject);
+		return isCollection(this.internalObject);
+	}
+	
+	public boolean isCollection(Object o) {
+		return CSQLUtils.isArray(o)||CSQLUtils.isCollection(o);
 	}
 	
 	public boolean isDataObject() {
-		return internalObject instanceof CSQLChunkDataImpl;
+		return isDataObject(this.internalObject);
+	}
+	
+	public boolean isDataObject(Object o) {
+		return o instanceof CSQLChunkDataImpl;
 	}
 	
 	public boolean isString() {
-		return CSQLUtils.isString(internalObject);
+		return isString(this.internalObject);
+	}
+	
+	public boolean isString(Object o) {
+		return CSQLUtils.isString(o);
 	}
 	
 	@SuppressWarnings("rawtypes")
