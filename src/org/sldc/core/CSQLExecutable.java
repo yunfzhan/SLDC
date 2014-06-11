@@ -292,8 +292,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		{
 			if(ctx.expr()!=null)
 				value = visit(ctx.expr());
-			else if(ctx.arrayValues()!=null)
-				value = visit(ctx.arrayValues());
+//			else if(ctx.arrayValues()!=null)
+//				value = visit(ctx.arrayValues());
 			else if(ctx.selectExpr()!=null)
 				value = visit(ctx.selectExpr());
 			

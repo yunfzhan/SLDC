@@ -48,8 +48,8 @@ public class CSQLWhereExecution extends CSQLExecutable {
 		Object value = null;
 		if(ctx.expr()!=null)
 			value = visit(ctx.expr());
-		else if(ctx.arrayValues()!=null)
-			value = visit(ctx.arrayValues());
+//		else if(ctx.arrayValues()!=null)
+//			value = visit(ctx.arrayValues());
 		else
 			return value;
 		

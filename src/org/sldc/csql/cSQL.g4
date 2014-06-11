@@ -37,6 +37,7 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| expr AND expr					#And
 			| expr OR expr					#Or
 			| Identifier					#Var	// variables reference
+			| arrayValues					#ArrayConst
 			| varAssign						#Assign			
 			| INT							#Int
 			| Number						#Num
@@ -60,7 +61,7 @@ forStat		: FOR varAssign ',' expr ',' expr NL stats END ;
 ifStat		: IF expr THEN NL? stats ;
 elifStat	: ELSEIF expr THEN NL? stats ;
 elseStat	: ELSE NL? stats ;
-varAssign	: Identifier (EQU (expr|selectExpr|arrayValues))? ;
+varAssign	: Identifier (EQU (expr|selectExpr))? ;
 assignList	: varAssign (COMMA varAssign)* ;
 arrayValues	: '[' exprList ']' ;
 

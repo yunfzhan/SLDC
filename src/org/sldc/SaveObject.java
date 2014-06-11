@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.ItemIterator;
 import org.sldc.exception.InvalidType;
@@ -58,6 +59,14 @@ public class SaveObject implements Iterable<Object> {
 	
 	public boolean isString(Object o) {
 		return CSQLUtils.isString(o);
+	}
+	
+	public boolean isVoid() {
+		return isVoid(this.internalObject);
+	}
+	
+	public boolean isVoid(Object o) {
+		return CSQLBuildIns.isNull(o);
 	}
 	
 	@SuppressWarnings("rawtypes")
