@@ -134,7 +134,7 @@ INT			: MINUS? DIGIT+ ;
 
 Number		: MINUS? ( DIGIT+ (DOT DIGIT*)? ) {!isHttp&&!isFtp}? ;
 // Common identifiers
-Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
+Identifier	: {isAllFalse()}? (DOLLAR|UNDERLINE|LETTER) (NUMSIGN|MINUS|DOLLAR|UNDERLINE|LETTER|DIGIT)* ;
 
 // HTTP only
 URLChars	: ('\\'|NUMSIGN|PERCSIGN|DOLLAR|UNDERLINE|MINUS|LETTER|DIGIT)+ {isHttp||isFtp}? ;
