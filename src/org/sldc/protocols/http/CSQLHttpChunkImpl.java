@@ -46,7 +46,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		for(String var: vars) {
 			Object v = runner.getValue(var);
 			if(!(v instanceof SLDCException))
-				ret.put(var.substring(2/*length of '$$'*/), CSQLUtils.removeStringBounds((String) v));
+				ret.put(var, CSQLUtils.removeStringBounds((String) v));
 		}
 		return ret;
 	}

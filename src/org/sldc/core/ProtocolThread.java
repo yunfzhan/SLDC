@@ -43,7 +43,7 @@ public class ProtocolThread implements Callable<Object[]> {
 			scope.setInput(selectExpr.condition());
 			
 			Object addr=(currentNode.protocol()==null)?runner.visit(currentNode.Identifier(0)):currentNode.protocol().getText();
-			value = ProtocolsHelper.Retrieve(addr, scope);
+			value = ProtocolsHelper.Retrieve(addr, scope, CSQLUtils.isString(key)?key.toString():null);
 		} catch (SLDCException e) {
 			value = e;
 		}

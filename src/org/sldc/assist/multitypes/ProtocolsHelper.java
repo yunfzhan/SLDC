@@ -13,9 +13,9 @@ import org.sldc.exception.NotSupportedProtocol;
 import org.sldc.exception.ProtocolException;
 
 public class ProtocolsHelper {
-	public static Object Retrieve(Object addrs, Scope scope) throws ProtocolException, NotSupportedProtocol {
+	public static Object Retrieve(Object addrs, Scope scope, String key/*Defined variable that represents address*/) throws ProtocolException, NotSupportedProtocol {
 		IProtocolFactory _pFactory = CSQLUtils.getProtocolFactory();
-		CSQLWhereExecution runner = new CSQLWhereExecution(scope);
+		CSQLWhereExecution runner = new CSQLWhereExecution(scope, key);
 		if(CSQLUtils.isString(addrs))
 		{
 			addrs = CSQLUtils.removeStringBounds((String) addrs);
