@@ -18,6 +18,7 @@ public class CSQLWhereExecution extends CSQLExecutable {
 	//public static final String _in_Method = "$$METHOD";
 	public static final String _in_Post = "$$BODY";
 	public static final String _in_Body_delimeter = "$$BODY_DELI";
+	public static final String _in_Req_Encoding = "$$REQ_ENCODING";
 	
 	private ArrayList<String> variables = new ArrayList<String>();
 	private String varOfAddr = null;
@@ -39,7 +40,7 @@ public class CSQLWhereExecution extends CSQLExecutable {
 	}
 
 	private boolean isPreDefined(String var) {
-		return var.equals(_in_Post)||var.equals(_in_Body_delimeter);
+		return var.equals(_in_Post)||var.equals(_in_Body_delimeter)||var.equals(_in_Req_Encoding);
 	}
 	
 	private boolean isSpecificScopeVariable(String id) {

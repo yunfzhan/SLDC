@@ -70,6 +70,9 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		// HTTP headers
 		Map<String, String> header = assignHeader();
 		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath, header);
+		Object reqenc = runner.getValue(CSQLWhereExecution._in_Req_Encoding);
+		if(reqenc!=null)
+			helper.setRequestEncoding(reqenc.toString());
 		// check POST parameters
 		Object body = runner.getValue(CSQLWhereExecution._in_Post);
 		if(body==null||body instanceof SLDCException) {
