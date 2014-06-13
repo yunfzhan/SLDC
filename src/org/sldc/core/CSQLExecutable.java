@@ -424,7 +424,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	@Override 
 	public Object visitString(@NotNull cSQLParser.StringContext ctx) 
 	{ 
-		return ctx.String().getText();
+		return CSQLUtils.removeStringBounds(ctx.String().getText());
 	}
 	
 	@Override 
