@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
 import org.sldc.core.CSQLWhereExecution;
@@ -71,7 +72,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 		Map<String, String> header = assignHeader();
 		HttpRequestHelper helper = new HttpRequestHelper(this.internalPath, header);
 		Object reqenc = runner.getValue(CSQLWhereExecution._in_Req_Encoding);
-		if(reqenc!=null)
+		if(!CSQLBuildIns.isNull(reqenc))
 			helper.setRequestEncoding(reqenc.toString());
 		// check POST parameters
 		Object body = runner.getValue(CSQLWhereExecution._in_Post);
