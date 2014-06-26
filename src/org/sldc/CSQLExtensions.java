@@ -59,17 +59,23 @@ public class CSQLExtensions implements FilenameFilter, ISaveInterface {
 				String path = relativePath.replace(".",File.separator);
 				ZipFile jar = new ZipFile(extLibrary);
 				Enumeration<? extends ZipEntry> entries = jar.entries();
-				if(entries==null) throw new Exception();
+				
 				URLClassLoader jarcl = new URLClassLoader(new URL[] { new URL("file:"+extLibrary) }, cl);
-				while(entries.hasMoreElements())
-				{
-					ZipEntry entry = entries.nextElement();
-					String name = entry.getName();
-					if(name.startsWith(path)&&name.endsWith(".class")) {
-		                name = name.replace(File.separator, ".").substring(0,name.indexOf(".class"));
-		                if(clazz==null) clazz = new ArrayList<Class<?>>();
-						clazz.add(jarcl.loadClass(name));
+				try{
+					if(entries==null) throw new Exception();
+					while(entries.hasMoreElements())
+					{
+						ZipEntry entry = entries.nextElement();
+						String name = entry.getName();
+						if(name.startsWith(path)&&name.endsWith(".class")) {
+			                name = name.replace(File.separator, ".").substring(0,name.indexOf(".class"));
+			                if(clazz==null) clazz = new ArrayList<Class<?>>();
+							clazz.add(jarcl.loadClass(name));
+						}
 					}
+				}finally{
+					jarcl.close();
+					jar.close();
 				}
 			} catch (Exception e) {
 				throw new ClassNotFoundException();
