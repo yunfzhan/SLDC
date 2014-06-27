@@ -264,7 +264,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		if(!CSQLUtils.isBool(cond)) return new SyntaxException(new Throwable());
 		while((Boolean)cond)
 		{
-			r=visit(ctx.stats());
+			r=visit(ctx.stat());
 			visit(ctx.expr(1));
 			cond = visit(ctx.expr(0));
 		}
@@ -278,7 +278,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Boolean cond = (Boolean)r;
 		while(cond)
 		{
-			r=visit(ctx.stats());
+			r=visit(ctx.stat());
 			cond = (Boolean)visit(ctx.expr());
 		}
 		return r;

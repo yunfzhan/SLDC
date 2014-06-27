@@ -60,8 +60,8 @@ block		: BEGIN NL? stats END NL? ;
 loopStat	: whileStat						#WhileLoop
 			| forStat						#ForLoop
 			;
-whileStat	: WHILE expr NL stats ;
-forStat		: FOR varAssign ',' expr ',' expr NL stats ;
+whileStat	: WHILE expr NL stat ;
+forStat		: FOR varAssign ',' expr ',' expr NL stat ;
 // Judgement
 ifStat		: IF expr THEN NL? stat ;
 elifStat	: ELSEIF expr THEN NL? stat ;
