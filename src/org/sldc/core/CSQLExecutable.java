@@ -232,7 +232,7 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		//the condition expression is not a boolean. Then return exception
 		if(!CSQLUtils.isBool(r)) return new SyntaxException(new Throwable());
 		// go into if block
-		if((Boolean)r) return visit(ctx.ifStat().stats());
+		if((Boolean)r) return visit(ctx.ifStat().stat());
 		
 		//Check if there are 'else if' statements
 		if(ctx.elifStat()!=null)
@@ -244,13 +244,13 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 				//the condition expression is not a boolean. Then return exception
 				if(!CSQLUtils.isBool(r)) return new SyntaxException(new Throwable());
 				// go into if block
-				if((Boolean)r) return visit(ctx.elifStat(i).stats());
+				if((Boolean)r) return visit(ctx.elifStat(i).stat());
 			}
 		}
 		
 		if(ctx.elseStat()!=null)
 		{
-			return visit(ctx.elseStat().stats());
+			return visit(ctx.elseStat().stat());
 		}
 		
 		return null;

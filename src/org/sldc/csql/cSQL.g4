@@ -17,10 +17,9 @@ grammar cSQL ;
 }
 // main entry rule
 program		: row+ ;
-row			: stat
-			| NL
-			;
-			
+// each line contains
+row			: stat ;
+// expression syntax
 expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
 			| '(' expr ')'					#Bracket
 			| expr '[' expr ']'				#Array	// match array index
@@ -43,38 +42,41 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			| Number						#Num
 			| String						#String
 			;
-			
+exprList	: expr (COMMA expr)* ;
+// syntax for a whole row or rows		
 stat		: fundecl NL										#StatFuncDecl
 			| selectExpr NL?									#StatSelect
 			| block												#StatBlock
-			| ifStat elifStat* NL? elseStat? END NL?			#StatIf
+			| ifStat elifStat* NL? elseStat?					#StatIf
 			| loopStat NL										#StatLoop
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
 			| varAssign (COMMA varAssign)* 						#StatVar
+			| NL												#StatWS
 			;
+stats		: stat* ;
+block		: BEGIN NL? stats END NL? ;
+// Loop
 loopStat	: whileStat						#WhileLoop
 			| forStat						#ForLoop
 			;
-whileStat	: WHILE expr NL stats END ;
-forStat		: FOR varAssign ',' expr ',' expr NL stats END ;
-ifStat		: IF expr THEN NL? stats ;
-elifStat	: ELSEIF expr THEN NL? stats ;
-elseStat	: ELSE NL? stats ;
+whileStat	: WHILE expr NL stats ;
+forStat		: FOR varAssign ',' expr ',' expr NL stats ;
+// Judgement
+ifStat		: IF expr THEN NL? stat ;
+elifStat	: ELSEIF expr THEN NL? stat ;
+elseStat	: ELSE NL? stat ;
+// grammar
 varAssign	: Identifier (EQU (expr|selectExpr))? ;
 assignList	: varAssign (COMMA varAssign)* ;
 arrayValues	: '[' exprList ']' ;
-
-exprList	: expr (COMMA expr)* ;
-prop		: Identifier EQU (String|Identifier) ;
 
 // functions definition
 fundecl		: FUNC Identifier '(' funcParms? ')' NL? block ;
 funcParms	: Identifier (COMMA Identifier)* ;
 
-block		: BEGIN NL? stats END NL ;
-stats		: stat* ;
-
+prop		: Identifier EQU (String|Identifier) ;
+// select grammar definition
 selectExpr  : SELECT contents FROM address (WHERE condition)? ;
 
 address     : protocols (COMMA protocols)* ;
