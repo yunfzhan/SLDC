@@ -20,11 +20,12 @@ import org.sldc.protocols.CSQLChunkDataImpl;
 public class BuildInSearchFunction {
 	
 	/**
-	 * Regarding performance, I separate search functions into one without judgment and one with it.
-	 * @param o
-	 * @param srchable
-	 * @param indicator
-	 * @param cond
+	 * Regarding performance, I separate search functions into one without condition and the other with it.
+	 * @param o - entity to be performed search on
+	 * @param srchable - string to search for
+	 * @param indicator - a flag to determine which search function will be performed
+	 * @param cond - additional string condition that is run while searching
+	 * @param scope - Scope object that relates to current scope
 	 * @return
 	 */
 	public static Object search(Object o, String srchable, String indicator, String cond, Scope scope) {

@@ -33,17 +33,23 @@ public class CSQLBuildIns {
 	private static Scope currentScope = null;
 	
 	static{
-		functions.put("$", "_InCore");	// '$'
+		functions.put("$", "_InCore");	// '$' major core function
+		// output functions
+		functions.put("$echo", "print");
+		functions.put("$print", "println");
+		// assistant
 		functions.put("$isvoid", "isNull");
-		functions.put("$print", "print");
 		functions.put("$pow", "Pow");
 		functions.put("$count", "getLength");
+		// conversions
 		functions.put("$bool", "toBoolean");
-		functions.put("$match", "matchRegex");
 		functions.put("$str", "convertToString");
-		functions.put("$cut", "splitString");
-		functions.put("$find", "findFirst");
+		// Save function that can be extended by 3rd code
 		functions.put("$save", "save");
+		// String utilities
+		functions.put("$cut", "splitString");
+		functions.put("$indexOf", "indexString");
+		functions.put("$match", "matchRegex");
 		// For CSQLHttpChunkImpl only
 		functions.put("$keys", "getKeys");
 		functions.put("$header", "getHeaderItem");
@@ -127,7 +133,7 @@ public class CSQLBuildIns {
 		return o.split(deli);
 	}
 	
-	public static int findString(String o, String sub) {
+	public static int indexString(String o, String sub) {
 		sub = CSQLUtils.removeStringBounds(sub);
 		return o.indexOf(sub);
 	}
@@ -163,11 +169,11 @@ public class CSQLBuildIns {
 		return Math.pow(CSQLUtils.ToDbl(base), CSQLUtils.ToDbl(pow));
 	}
 	
-	public static void print(Object obj){
+	public static void println(Object obj){
 		System.out.println(BuildInPrint.print(obj));
 	}
 	
-	public static void print(Object obj, Object flag){
+	public static void print(Object obj){
 		System.out.print(BuildInPrint.print(obj));
 	}
 	
