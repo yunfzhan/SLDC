@@ -14,7 +14,7 @@ import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
-	private Scope currentScope = new Scope();
+	private Scope currentScope = Scope.push(null);
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	
 	public CSQLValidator(ParseTree tree)
@@ -55,17 +55,16 @@ public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
 	
 	@Override 
 	public void exitBlock(@NotNull cSQLParser.BlockContext ctx) { 
-		this.currentScope = this.currentScope.getUpperScope();
+		this.currentScope = this.currentScope.pop();
 	}
 	
 	@Override 
 	public void enterSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Scope scope = this.currentScope.addAnonymous(ctx);
-		this.currentScope = scope;
+		this.currentScope = this.currentScope.addAnonymous(ctx);
 	}
 	
 	@Override 
 	public void exitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {	
-		this.currentScope = this.currentScope.getUpperScope();
+		this.currentScope = this.currentScope.pop();
 	}
 }

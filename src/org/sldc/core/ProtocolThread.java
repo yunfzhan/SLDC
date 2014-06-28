@@ -13,10 +13,6 @@ import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.SLDCException;
 
 public class ProtocolThread implements Callable<Object[]> {
-
-	private Object key = null;
-	private Object value = null;
-	
 	private CSQLExecutable runner = null;
 	private cSQLParser.ProtocolsContext currentNode;
 	
@@ -32,14 +28,14 @@ public class ProtocolThread implements Callable<Object[]> {
 	@Override
 	public Object[] call() throws Exception {
 		TerminalNode node = currentNode.Identifier();
-		key = (node!= null)?node.getText():currentNode;
-		value = CSQLUtils.isString(key)?runner.getScope().getVarValue((String) key):runner.getScope().getVarValue((ParseTree)key);
+		Object key = (node!= null)?node.getText():currentNode;
+		Object value = CSQLUtils.isString(key)?runner.getScope().getVarValue((String) key):runner.getScope().getVarValue((ParseTree)key);
 		if(!(value instanceof SLDCException))
 			return new Object[]{key, value};
 		
 		try {
 			cSQLParser.SelectExprContext selectExpr = getSelectExpr(currentNode);
-			Scope scope = new Scope(runner.getScope());
+			Scope scope = Scope.push(runner.getScope());
 			scope.setInput(selectExpr.condition());
 			
 			Object addr=(currentNode.protocol()==null)?runner.visit(currentNode.expr()):currentNode.protocol().getText();

@@ -28,24 +28,21 @@ public class Scope {
 	
 	public static final Object UnDefined = new Object();
 	
-	public Scope(){
-		this(null);
+	public static final Scope push(Scope upper) {
+		return new Scope(upper);
 	}
 	
-	public Scope(Scope upper){
+	private Scope(Scope upper){
 		this.upper = upper;
 	}
-	
-//	public String getName()
-//	{
-//		return this._name;
-//	}
-//	
-//	public void setName(String name)
-//	{
-//		this._name = name;
-//	}
-//	
+
+	public Scope pop() {
+		this._namedVars.clear();
+		this._anonymousVars = null;
+		this._anonymousVars = new ParseTreeProperty<Object>();
+		return this.getUpperScope();
+	}
+
 	public ParseTree getInput()
 	{
 		return this._node;
@@ -56,12 +53,12 @@ public class Scope {
 		this._node = node;
 	}
 	
-	public Scope getUpperScope(){
+	private Scope getUpperScope(){
 		return this.upper;
 	}
 	
 	public Scope addAnonymous(ParseTree node) {
-		Scope scope = new Scope(this);
+		Scope scope = Scope.push(this);
 		_anonymousScope.put(node, scope);
 		scope.setInput(node);
 		return scope;
@@ -73,7 +70,7 @@ public class Scope {
 	
 	public Scope addFunction(String name) throws DefConflictException {
 		if(_functions.containsKey(name)||_namedVars.containsKey(name)) throw new DefConflictException(name, new Throwable());
-		Scope scope = new Scope(this);
+		Scope scope = Scope.push(this);
 		_functions.put(name, scope);
 		return scope;
 	}
