@@ -39,7 +39,7 @@ public class BuildInSearchFunction {
 	}
 	
 	private static Scope initEval(Object param, Scope parentScope) {
-		Scope scope = Scope.push(parentScope);
+		Scope scope = parentScope.push();
 		try {
 			scope.addVariable("$line", param);
 		} catch (DefConflictException e) {

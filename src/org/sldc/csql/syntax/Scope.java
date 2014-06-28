@@ -28,14 +28,18 @@ public class Scope {
 	
 	public static final Object UnDefined = new Object();
 	
-	public static final Scope push(Scope upper) {
-		return new Scope(upper);
+	public Scope() {
+		this(null);
 	}
 	
 	private Scope(Scope upper){
 		this.upper = upper;
 	}
 
+	public Scope push() {
+		return new Scope(this);
+	}
+	
 	public Scope pop() {
 		this._namedVars.clear();
 		this._anonymousVars = null;
@@ -58,7 +62,7 @@ public class Scope {
 	}
 	
 	public Scope addAnonymous(ParseTree node) {
-		Scope scope = Scope.push(this);
+		Scope scope = this.push();
 		_anonymousScope.put(node, scope);
 		scope.setInput(node);
 		return scope;
@@ -70,7 +74,7 @@ public class Scope {
 	
 	public Scope addFunction(String name) throws DefConflictException {
 		if(_functions.containsKey(name)||_namedVars.containsKey(name)) throw new DefConflictException(name, new Throwable());
-		Scope scope = Scope.push(this);
+		Scope scope = this.push();
 		_functions.put(name, scope);
 		return scope;
 	}

@@ -14,7 +14,7 @@ import org.sldc.exception.IRuntimeError;
 import org.sldc.exception.SLDCException;
 
 public class CSQLValidator extends cSQLBaseListener implements IRuntimeError {
-	private Scope currentScope = Scope.push(null);
+	private Scope currentScope = new Scope();
 	private List<SLDCException> exceptions = new ArrayList<SLDCException>();
 	
 	public CSQLValidator(ParseTree tree)

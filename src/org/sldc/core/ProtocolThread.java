@@ -35,7 +35,7 @@ public class ProtocolThread implements Callable<Object[]> {
 		
 		try {
 			cSQLParser.SelectExprContext selectExpr = getSelectExpr(currentNode);
-			Scope scope = Scope.push(runner.getScope());
+			Scope scope = runner.getScope().push();
 			scope.setInput(selectExpr.condition());
 			
 			Object addr=(currentNode.protocol()==null)?runner.visit(currentNode.expr()):currentNode.protocol().getText();

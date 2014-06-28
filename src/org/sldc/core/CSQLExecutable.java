@@ -186,6 +186,14 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	}
 	
 	@Override 
+	public Object visitBlock(@NotNull cSQLParser.BlockContext ctx) { 
+		this.currentScope = this.currentScope.getAnonymous(ctx.stats());
+		Object r = visitChildren(ctx);
+		this.currentScope = this.currentScope.pop();
+		return r;
+	}
+	
+	@Override 
 	public Object visitFunc(@NotNull cSQLParser.FuncContext ctx) {
 		String funcName = ctx.Identifier().getText();
 		try{
