@@ -21,8 +21,9 @@ program		: row+ ;
 row			: stat ;
 // expression syntax
 expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
-			| '(' expr ')'					#Bracket
 			| expr '[' expr ']'				#Array	// match array index
+			| expr '(' exprList ')'			#ExprFunc
+			| '(' exprList ')'				#Bracket
 			| '-' expr						#Minus
 			| NOT expr						#Not
 			| expr op=('*'|'/') expr		#MulDiv

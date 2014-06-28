@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.multitypes.EqualCompareAssist;
+import org.sldc.assist.multitypes.ExprFuncAssist;
 import org.sldc.assist.multitypes.SubItemsAssist;
 import org.sldc.csql.CSQLErrorListener;
 import org.sldc.csql.cSQLBaseVisitor;
@@ -224,6 +225,18 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		}catch (IOException e) {
 			return e;
 		}
+	}
+	
+	@Override 
+	public Object visitExprFunc(@NotNull cSQLParser.ExprFuncContext ctx) { 
+		Object obj = visit(ctx.expr());
+		int size = ctx.exprList()==null?0:ctx.exprList().expr().size();
+		Object[] params = new Object[size];
+		for(int i=0;i<size;i++)
+		{
+			params[i] = visit(ctx.exprList().expr(i));
+		}
+		return ExprFuncAssist.getByExprList(obj, params);
 	}
 
 	@Override 
