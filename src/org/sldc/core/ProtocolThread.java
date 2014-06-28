@@ -31,7 +31,7 @@ public class ProtocolThread implements Callable<Object[]> {
 	
 	@Override
 	public Object[] call() throws Exception {
-		TerminalNode node = (currentNode.protocol()==null)?currentNode.Identifier(1):currentNode.Identifier(0);
+		TerminalNode node = currentNode.Identifier();
 		key = (node!= null)?node.getText():currentNode;
 		value = CSQLUtils.isString(key)?runner.getScope().getVarValue((String) key):runner.getScope().getVarValue((ParseTree)key);
 		if(!(value instanceof SLDCException))
@@ -42,7 +42,7 @@ public class ProtocolThread implements Callable<Object[]> {
 			Scope scope = new Scope(runner.getScope());
 			scope.setInput(selectExpr.condition());
 			
-			Object addr=(currentNode.protocol()==null)?runner.visit(currentNode.Identifier(0)):currentNode.protocol().getText();
+			Object addr=(currentNode.protocol()==null)?runner.visit(currentNode.expr()):currentNode.protocol().getText();
 			value = ProtocolsHelper.Retrieve(addr, scope, CSQLUtils.isString(key)?key.toString():null);
 		} catch (SLDCException e) {
 			value = e;

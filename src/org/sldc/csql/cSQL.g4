@@ -81,7 +81,7 @@ prop		: Identifier EQU (String|Identifier) ;
 selectExpr  : SELECT contents FROM address (WHERE condition)? ;
 
 address     : protocols (COMMA protocols)* ;
-protocols   : (Identifier|protocol) (AS Identifier)? ;
+protocols   : (expr|protocol) (AS Identifier)? ;
 protocol	: (http|file|ftp|database) ;
 http        : HTTP '://' domains (':' INT)? ('/' domains)* '/'? ('?' httpparam ('&' httpparam)* )? ;
 file        : FILE '://' (windows|unix)+ ;
