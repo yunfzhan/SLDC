@@ -38,7 +38,7 @@ public class CSQLBuildIns {
 		functions.put("$echo", "print");
 		functions.put("$print", "println");
 		// assistant
-		functions.put("$isvoid", "isNull");
+		functions.put("$isvoid", "isInvalid");
 		functions.put("$pow", "Pow");
 		functions.put("$count", "getLength");
 		// conversions
@@ -48,7 +48,6 @@ public class CSQLBuildIns {
 		functions.put("$save", "save");
 		// String utilities
 		functions.put("$cut", "splitString");
-		functions.put("$indexOf", "indexString");
 		functions.put("$match", "matchRegex");
 		// For CSQLHttpChunkImpl only
 		functions.put("$keys", "getKeys");
@@ -109,7 +108,7 @@ public class CSQLBuildIns {
 		return result;
 	}
 	
-	public static boolean isNull(Object obj) {
+	public static boolean isInvalid(Object obj) {
 		return obj==null||obj.equals(Scope.UnDefined)||(obj instanceof SLDCException);
 	}
 	
@@ -131,11 +130,6 @@ public class CSQLBuildIns {
 	public static String[] splitString(String o, String deli) {
 		deli = CSQLUtils.removeStringBounds(deli);
 		return o.split(deli);
-	}
-	
-	public static int indexString(String o, String sub) {
-		sub = CSQLUtils.removeStringBounds(sub);
-		return o.indexOf(sub);
 	}
 	
 	public static boolean matchRegex(Object o, String regex) {

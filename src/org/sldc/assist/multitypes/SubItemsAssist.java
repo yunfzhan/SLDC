@@ -19,10 +19,18 @@ public class SubItemsAssist {
 			Long end = (params.length==2)?CSQLUtils.ToInt(params[1]):-1;
 			if(CSQLUtils.isString(o)){
 				String s = CSQLUtils.removeStringBounds((String) o);
-				return end==-1?s.substring(beg.intValue()):s.substring(beg.intValue(),(int) (beg+end));
+				if(end>=0) {
+					return s.substring(beg.intValue(),(int) (beg+end));
+				}
+				else {
+					return s.substring(beg.intValue(), s.length()+1+end.intValue());
+				}
 			}else if(CSQLUtils.isArray(o)){
 				Object[] src = (Object[])o;
-				int len = (int) (end==-1?(src.length-beg):end);
+				int len = end.intValue();
+				if(end<0) {
+					len = src.length-beg.intValue()+end.intValue()+1;
+				}
 				Object[] dst = new Object[len];
 				System.arraycopy(src, beg.intValue(), dst, 0, len);
 				return dst;

@@ -66,7 +66,7 @@ public class SaveObject implements Iterable<Object> {
 	}
 	
 	public boolean isVoid(Object o) {
-		return CSQLBuildIns.isNull(o);
+		return CSQLBuildIns.isInvalid(o);
 	}
 	
 	@SuppressWarnings("rawtypes")
