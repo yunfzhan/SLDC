@@ -377,29 +377,34 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 	
 	@Override 
 	public Object visitSelectExpr(@NotNull cSQLParser.SelectExprContext ctx) {
-		Object r = visitAddress(ctx.address());
-		
-		if(ctx.contents().getText().equals("*"))
-			return r;
-		else {
-			ContentListContext cl = ctx.contents().contentList();
-			if(isContentMarked(cl))	// Judge if any field is renamed.
-			{
-				Map<String, Object> rt = new HashMap<String, Object>();
-				int idx = 0;
-				for(ContentContext c : cl.content()){
-					String index = (c.String()==null)?"@i"+String.valueOf(idx++):CSQLUtils.removeStringBounds(c.String().getText());
-					rt.put(index, visit(c.expr()));
-				}
-				return rt;
-			}else{
-				ArrayList<Object> rt = new ArrayList<Object>();
-				for(ContentContext c : cl.content())
+		this.currentScope = this.currentScope.getAnonymous(ctx);
+		try{
+			Object r = visitAddress(ctx.address());
+			
+			if(ctx.contents().getText().equals("*"))
+				return r;
+			else {
+				ContentListContext cl = ctx.contents().contentList();
+				if(isContentMarked(cl))	// Judge if any field is renamed.
 				{
-					rt.add(visit(c.expr()));
+					Map<String, Object> rt = new HashMap<String, Object>();
+					int idx = 0;
+					for(ContentContext c : cl.content()){
+						String index = (c.String()==null)?"@i"+String.valueOf(idx++):CSQLUtils.removeStringBounds(c.String().getText());
+						rt.put(index, visit(c.expr()));
+					}
+					return rt;
+				}else{
+					ArrayList<Object> rt = new ArrayList<Object>();
+					for(ContentContext c : cl.content())
+					{
+						rt.add(visit(c.expr()));
+					}
+					return rt;
 				}
-				return rt;
 			}
+		}finally{
+			this.currentScope = this.currentScope.pop();
 		}
 	}
 	
