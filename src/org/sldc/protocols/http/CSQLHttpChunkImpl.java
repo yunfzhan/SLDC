@@ -205,7 +205,7 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 					beg = PAGESIZE;
 			}
 			is.close();
-			return res.size()==0?false:res;
+			return res;
 		} catch (FileNotFoundException e) {
 			return e;
 		} catch (IOException e) {

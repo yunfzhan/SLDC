@@ -63,12 +63,9 @@ public class BuildInSearchFunction {
 	private static Object searchPlain(Object o, String srchable) {
 		if(CSQLUtils.isString(o)){
 			ArrayList<Integer> res = CSQLUtils.BoyerMoore(srchable, (String) o);
-			return res.size();
+			return res;
 		}else if(o instanceof CSQLChunkDataImpl){
-			Object r = ((CSQLChunkDataImpl)o).search(srchable);
-			if(CSQLUtils.isBool(r)&&(Boolean)r==false) return false;
-			
-			return true;
+			return ((CSQLChunkDataImpl)o).search(srchable);
 		}
 		return false;
 	}
