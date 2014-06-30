@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.LoopAssist;
 import org.sldc.assist.multitypes.EqualCompareAssist;
 import org.sldc.assist.multitypes.ExprFuncAssist;
 import org.sldc.assist.multitypes.SubItemsAssist;
@@ -277,32 +278,22 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		return null;
 	}
 	
+	/*
+	 * In loop, there are three commands that change the flow of program. They are 'break', 'continue' and 'return'.
+	 * To deal with the case, I derived a subclass from CSQLExecutable to handle loop code. 
+	 * But CSQLExecutable has to depend on a subclass of its own which makes me unhappy. So I have to add a middleware to separate the parent class from sub class.
+	 * @see org.sldc.csql.cSQLBaseVisitor#visitForStat(org.sldc.csql.cSQLParser.ForStatContext)
+	 */
 	@Override 
 	public Object visitForStat(@NotNull cSQLParser.ForStatContext ctx) {
-		Object r = visit(ctx.varAssign());
-		if(r instanceof SLDCException) return r;
-		Object cond = visit(ctx.expr(0));
-		if(!CSQLUtils.isBool(cond)) return new SyntaxException(new Throwable());
-		while((Boolean)cond)
-		{
-			r=visit(ctx.stat());
-			visit(ctx.expr(1));
-			cond = visit(ctx.expr(0));
-		}
-		return r;
+		LoopAssist helper = new LoopAssist(this.currentScope);
+		return helper.visitFor(ctx);
 	}
 	
 	@Override 
 	public Object visitWhileStat(@NotNull cSQLParser.WhileStatContext ctx) {
-		Object r = visit(ctx.expr());
-		if(!CSQLUtils.isBool(r)) return r;
-		Boolean cond = (Boolean)r;
-		while(cond)
-		{
-			r=visit(ctx.stat());
-			cond = (Boolean)visit(ctx.expr());
-		}
-		return r;
+		LoopAssist helper = new LoopAssist(this.currentScope);
+		return helper.visitWhile(ctx);
 	}
 	
 	@Override 

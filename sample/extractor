@@ -10,6 +10,7 @@ ss=r[0]
 count=$count(ss)
 //$print(count)
 for i=0,i<count,i=i+1
+begin
 	$print(i+"===============")
 	$save(i+"===============")
 	$print(ss[i]['href'][0])

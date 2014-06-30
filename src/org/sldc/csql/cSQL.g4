@@ -45,16 +45,20 @@ expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x
 			;
 exprList	: expr (COMMA expr)* ;
 // syntax for a whole row or rows		
-stat		: fundecl NL										#StatFuncDecl
+statement	: fundecl NL?										#StatFuncDecl
 			| selectExpr NL?									#StatSelect
 			| block												#StatBlock
 			| ifStat elifStat* NL? elseStat?					#StatIf
-			| loopStat NL										#StatLoop
+			| loopStat NL?										#StatLoop
 			| RET expr? NL										#StatReturn
 			| expr NL											#StatExpr
 			| varAssign (COMMA varAssign)* 						#StatVar
+			| BREAK												#StatBreak
+			| CONTINUE											#StatContinue
 			| NL												#StatWS
 			;
+// because I would like to deal with statement in loop, I add this rule.
+stat		: statement ;
 stats		: stat* ;
 block		: BEGIN NL? stats END NL? ;
 // Loop
@@ -116,13 +120,15 @@ IF			: [Ii][Ff] ;
 THEN		: [Tt][Hh][Ee][Nn] ;
 ELSEIF		: [Ee][Ll][Ii][Ff] ;
 ELSE		: [Ee][Ll][Ss][Ee] ;
-RET			: [Rr][Ee][Tt][Rr] ;
+RET			: [Rr][Ee][Tt][Uu][Rr][Nn] ;
 SELECT		: [Ss][Ee][Ll][Ee][Cc][Tt] ;
 FROM		: [Ff][Rr][Oo][Mm] ;
 WHERE		: [Ww][Hh][Ee][Rr][Ee] {clearSign();} ;
 SET			: [Ss][Ee][Tt] ;
 WHILE		: [Ww][Hh][Ii][Ll][Ee] ;
 FOR			: [Ff][Oo][Rr] ;
+BREAK 		: [Bb][Rr][Ee][Aa][Kk] ;
+CONTINUE 	: [Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee] ;
 HTTP		: [Hh][Tt][Tt][Pp][Ss]? {isHttp=true;} ;
 FTP			: [Ff][Tt][Pp] {isFtp=true;} ;
 FILE		: [Ff][Ii][Ll][Ee][Ss] {isFile=true;} ;
