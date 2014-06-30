@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
+import org.sldc.assist.FunctionAssist;
 import org.sldc.assist.LoopAssist;
 import org.sldc.assist.multitypes.EqualCompareAssist;
 import org.sldc.assist.multitypes.ExprFuncAssist;
@@ -214,8 +215,8 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 					Scope scope = this.currentScope.getFuncValue(funcName);
 					scope.assignFunValues(params); // assign parameter values to formal parameters.
 					
-					CSQLExecutable runner = new CSQLExecutable(scope);
-					result = runner.run();
+					FunctionAssist helper = new FunctionAssist(scope);
+					result = helper.execute();
 				}catch(SLDCException e){
 					//To test if the function name is ideal a variable.
 					Object var = this.currentScope.getVarValue(funcName);
