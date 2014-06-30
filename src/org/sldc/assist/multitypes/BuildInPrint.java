@@ -29,7 +29,7 @@ public class BuildInPrint {
 	
 	@SuppressWarnings("rawtypes")
 	public static String print(Object obj){
-		if(CSQLBuildIns.isInvalid(obj)) return "";
+		if(CSQLBuildIns.isInvalid(obj)) return null;
 		if(obj instanceof Map)
 			return printMap((Map)obj);
 		else if(CSQLUtils.isArray(obj))
