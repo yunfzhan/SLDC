@@ -51,7 +51,7 @@ statement	: fundecl NL?										#StatFuncDecl
 			| ifStat elifStat* NL? elseStat?					#StatIf
 			| loopStat NL?										#StatLoop
 			| RET expr? NL										#StatReturn
-			| expr NL											#StatExpr
+			| expr NL?											#StatExpr
 			| varAssign (COMMA varAssign)* 						#StatVar
 			| BREAK												#StatBreak
 			| CONTINUE											#StatContinue

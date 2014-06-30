@@ -2,6 +2,7 @@ package org.sldc.assist.multitypes;
 
 import java.util.Map;
 
+import org.sldc.assist.CSQLBuildIns;
 import org.sldc.assist.CSQLUtils;
 import org.sldc.exception.SLDCException;
 
@@ -28,6 +29,7 @@ public class BuildInPrint {
 	
 	@SuppressWarnings("rawtypes")
 	public static String print(Object obj){
+		if(CSQLBuildIns.isInvalid(obj)) return "";
 		if(obj instanceof Map)
 			return printMap((Map)obj);
 		else if(CSQLUtils.isArray(obj))
