@@ -25,7 +25,7 @@ public class CSQLoopExecution extends CSQLExecutable {
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) { 
 		currentFlow = LOOP_RETURN;
 		returnValue = super.visitStatReturn(ctx);
-		return null;
+		return returnValue;
 	}
 	
 	@Override 

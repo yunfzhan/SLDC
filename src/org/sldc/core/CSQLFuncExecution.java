@@ -14,17 +14,20 @@ public class CSQLFuncExecution extends CSQLExecutable {
 	
 	public CSQLFuncExecution(Scope scope) {
 		super(scope);
+		//System.out.println("-----> Create New with "+currentFlow);
 	}
 	
 	@Override 
 	public Object visitStatReturn(@NotNull cSQLParser.StatReturnContext ctx) { 
 		currentFlow = FUNC_RETURN;
 		returnValue = super.visitStatReturn(ctx);
-		return null;
+		//System.out.println("====================="+returnValue);
+		return returnValue;
 	}
 	
 	@Override 
-	public Object visitStat(@NotNull cSQLParser.StatContext ctx) { 
+	public Object visitStat(@NotNull cSQLParser.StatContext ctx) {
+		//System.out.println(ctx.getText()+"---->"+returnValue);
 		if(currentFlow == FUNC_NONE)
 			return visitChildren(ctx); 
 		else
