@@ -23,6 +23,7 @@ row			: stat ;
 expr		: Identifier '(' exprList? ')' 	#Func	// match function call like f(), f(x), f(1,2)
 			| expr '[' expr ']'				#Array	// match array index
 			| expr '(' exprList ')'			#ExprFunc
+			| expr '.' Identifier '(' exprList? ')'	#Object
 			| '(' exprList ')'				#Bracket
 			| '-' expr						#Minus
 			| NOT expr						#Not

@@ -31,6 +31,7 @@ import org.sldc.csql.cSQLParser;
 import org.sldc.csql.cSQLParser.ContentContext;
 import org.sldc.csql.cSQLParser.ContentListContext;
 import org.sldc.csql.cSQLParser.ExprContext;
+import org.sldc.csql.cSQLParser.ObjectContext;
 import org.sldc.csql.cSQLParser.ProtocolsContext;
 import org.sldc.csql.syntax.Scope;
 import org.sldc.exception.DefConflictException;
@@ -586,5 +587,20 @@ public class CSQLExecutable extends cSQLBaseVisitor<Object> {
 		Object idx = visit(ctx.expr(1));
 		
 		return CSQLUtils.fetchArray(id, idx); 
+	}
+
+	@Override
+	public Object visitObject(ObjectContext ctx) {
+		Object o = visit(ctx.expr());
+		String func = ctx.Identifier().getText();
+		
+		ArrayList<String> params = null;
+		if(ctx.exprList()!=null)
+		{
+			params = new ArrayList<String>();
+			for(ExprContext ec : ctx.exprList().expr())
+				params.add(ec.getText());
+		}
+		return CSQLBuildIns.invokeObject(o, func, params, this.currentScope);
 	}
 }

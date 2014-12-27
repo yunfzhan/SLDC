@@ -9,8 +9,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sldc.exception.NotSupportedOperation;
 
-public class HTMLAnalyzer {
+public class HTMLAnalyzer implements IConstants {
 	/**
 	 * Jsoup does grammar check. So incomplete tags such as 'td','tbody' will get errors. This function complements incomplete tags.
 	 * @param contents
@@ -27,28 +28,55 @@ public class HTMLAnalyzer {
 		return contents;
 	}
 	
-	public static ArrayList<String> startAnalyze(String contents, String tag) throws IOException {
+	private static Object getByIndicator(Document doc, String elem, int indicator) throws NotSupportedOperation {
+		switch(indicator) {
+		case HTML_TAG:
+			return doc.getElementsByTag(elem);
+		case HTML_ATTR:
+			return doc.getElementsByAttribute(elem);
+		case HTML_INNER_TEXT:
+			return doc.text();
+		case HTML_INNER_HTML:
+			return doc.html();
+		default:
+			throw new NotSupportedOperation(new Throwable());
+		}
+	}
+	
+	public static ArrayList<String> startAnalyze(String contents, String element, int indicator) throws IOException, NotSupportedOperation {
 		String fragment = amendBodyDrop(contents);
 		Document doc = Jsoup.parse(fragment);
-		Elements elems = doc.getElementsByTag(tag);
+		Object o = getByIndicator(doc,element,indicator);
 		ArrayList<String> res = new ArrayList<String>();
-		for(Element elem : elems)
-			res.add(elem.toString());
+		if(o instanceof Elements){
+			Elements elems = (Elements)o;
+			
+			for(Element elem : elems)
+				res.add(elem.toString());
+		}else if(CSQLUtils.isString(o)){
+			res.add((String)o);
+		}
 		return res;
 	}
 	
-	public static ArrayList<String> startAnalyze(File f, String tag) throws IOException {
+	public static ArrayList<String> startAnalyze(File f, String element, int indicator) throws IOException, NotSupportedOperation {
 		CharsetDetector detector = new CharsetDetector();
 		String[] probs = detector.detectAllCharsets(new FileInputStream(f));
 		ArrayList<String> res = new ArrayList<String>();
 		if(probs.length>0)
 		{
 			Document doc = Jsoup.parse(f,probs[0]);
-			Elements elems = doc.getElementsByTag(tag);
-			for(Element elem : elems)
+			Object o = getByIndicator(doc,element,indicator);
+			if(o instanceof Elements)
 			{
-				//System.out.println(elems.get(i));
-				res.add(elem.toString());
+				Elements elems = (Elements)o;
+				for(Element elem : elems)
+				{
+					//System.out.println(elems.get(i));
+					res.add(elem.toString());
+				}
+			}else if(CSQLUtils.isString(o)){
+				res.add((String)o);
 			}
 		}
 		return res;

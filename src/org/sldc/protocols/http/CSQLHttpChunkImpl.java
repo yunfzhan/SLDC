@@ -22,6 +22,7 @@ import org.sldc.assist.CSQLUtils;
 import org.sldc.assist.HTMLAnalyzer;
 import org.sldc.core.CSQLWhereExecution;
 import org.sldc.exception.InvalidType;
+import org.sldc.exception.NotSupportedOperation;
 import org.sldc.exception.SLDCException;
 import org.sldc.protocols.CSQLChunkDataImpl;
 
@@ -139,7 +140,8 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 				}
 			}else if(CSQLUtils.isString(idx))
 			{
-				return HTMLAnalyzer.startAnalyze(this.internalPath, (String)idx);
+				// default to get Tags from HTML
+				return HTMLAnalyzer.startAnalyze(this.internalPath, (String)idx, HTML_TAG);
 			}
 			return null;
 		} catch (InvalidType e) {
@@ -148,7 +150,22 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 			return e;
 		} catch (IOException e) {
 			return e;
+		} catch (NotSupportedOperation e) {
+			return e;
 		}
+	}
+	
+	public Object getByElement(String idx, int indicator) {
+		if(CSQLUtils.isString(idx)) {
+			try {
+				return HTMLAnalyzer.startAnalyze(this.internalPath, (String)idx, indicator);
+			} catch (NotSupportedOperation e) {
+				return e;
+			} catch (IOException e) {
+				return e;
+			}
+		}
+		return new NotSupportedOperation(new Throwable());
 	}
 
 	public String toString() {
@@ -169,8 +186,16 @@ public class CSQLHttpChunkImpl extends CSQLChunkDataImpl {
 	}
 
 	@Override
-	public Object searchByTag(String tag) {
-		return getItem(tag);
+	public Object searchByElement(String elem, int indicator) {
+		switch(indicator) {
+		case HTML_TAG:
+			return getItem(elem);
+		case HTML_ATTR:
+		case HTML_INNER_TEXT:	
+		case HTML_INNER_HTML:
+			return getByElement(elem, indicator);
+		}
+		return new NotSupportedOperation(new Throwable());
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import org.sldc.assist.CSQLUtils;
 import org.sldc.exception.InvalidType;
-import org.sldc.exception.NotSupportOperation;
+import org.sldc.exception.NotSupportedOperation;
 import org.sldc.protocols.CSQLChunkDataImpl;
 
 public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
@@ -51,8 +51,8 @@ public class CSQLFileChunkImpl extends CSQLChunkDataImpl {
 	}
 
 	@Override
-	public Object searchByTag(String tag) {
-		return new NotSupportOperation(new Throwable());
+	public Object searchByElement(String elem, int indicator) {
+		return new NotSupportedOperation(new Throwable());
 	}
 
 	@Override

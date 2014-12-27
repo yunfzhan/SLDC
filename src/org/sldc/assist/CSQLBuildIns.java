@@ -3,6 +3,7 @@ package org.sldc.assist;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -33,7 +34,7 @@ public class CSQLBuildIns {
 	private static Scope currentScope = null;
 	
 	static{
-		functions.put("$", "_InCore");	// '$' major core function
+		//functions.put("$", "_InCore");	// '$' major core function
 		// output functions
 		functions.put("$echo", "print");
 		functions.put("$print", "println");
@@ -108,6 +109,24 @@ public class CSQLBuildIns {
 		return result;
 	}
 	
+	public static Object invokeObject(Object o, String method, ArrayList<String> params, Scope scope)
+	{
+		Object result = new NoSuchMethodException();
+		
+		currentScope = scope;
+		if(isInvalid(params)) {
+			result = _InCore(o, null, method);
+		}else{
+			if(method.endsWith("If")&&params.size()==2){
+				result = _InCore(o, params.get(0), method.substring(0, method.length()-2), params.get(1));
+			}else{
+				result = _InCore(o, params.get(0), method);
+			}
+		}
+		
+		return result; 
+	}
+	
 	public static boolean isInvalid(Object obj) {
 		return obj==null||obj.equals(Scope.UnDefined)||(obj instanceof SLDCException);
 	}
@@ -141,15 +160,15 @@ public class CSQLBuildIns {
 		return m.find();
 	}
 	
-	public static Object _InCore(Object contents, String plain){
-		return _InCore(contents, plain, "p");
-	}
+//	private static Object _InCore(Object contents, String plain){
+//		return _InCore(contents, plain, "p");
+//	}
 	
-	public static Object _InCore(Object contents, String srchable, String indicator) {
+	private static Object _InCore(Object contents, String srchable, String indicator) {
 		return _InCore(contents,srchable,indicator,null);
 	}
 	
-	public static Object _InCore(Object contents, String srchable, String indicator, String condition/*Up to now, it's only valid while searchByTag*/) {
+	private static Object _InCore(Object contents, String srchable, String indicator, String condition/*Up to now, it's only valid while searchByTag*/) {
 		if(srchable==null||srchable.equals("")) return false;
 		srchable = CSQLUtils.removeStringBounds(srchable);
 		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
