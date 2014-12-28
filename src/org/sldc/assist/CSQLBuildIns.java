@@ -169,9 +169,11 @@ public class CSQLBuildIns {
 	}
 	
 	private static Object _InCore(Object contents, String srchable, String indicator, String condition/*Up to now, it's only valid while searchByTag*/) {
-		if(srchable==null||srchable.equals("")) return false;
-		srchable = CSQLUtils.removeStringBounds(srchable);
-		if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
+		//if(srchable==null||srchable.equals("")) return false;
+		if(srchable!=null&&!srchable.equals("")) {
+			srchable = CSQLUtils.removeStringBounds(srchable);
+			if(srchable.equals("")) return false; // string to search can't be empty after removing quotes.
+		}
 		indicator = CSQLUtils.removeStringBounds(indicator);
 		
 		return BuildInSearchFunction.search(contents, srchable, indicator, condition, currentScope);
