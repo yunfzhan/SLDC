@@ -35,9 +35,8 @@ public class HTMLAnalyzer implements IConstants {
 		case HTML_ATTR:
 			return doc.getElementsByAttribute(elem);
 		case HTML_INNER_TEXT:
-			return doc.text();
 		case HTML_INNER_HTML:
-			return doc.html();
+			return doc.getAllElements();
 		default:
 			throw new NotSupportedOperation(new Throwable());
 		}
@@ -51,8 +50,23 @@ public class HTMLAnalyzer implements IConstants {
 		if(o instanceof Elements){
 			Elements elems = (Elements)o;
 			
-			for(Element elem : elems)
-				res.add(elem.toString());
+			for(Element elem : elems){
+				String s = null;
+				switch(indicator) {
+				case HTML_TAG:
+					s = elem.toString();
+					break;
+				case HTML_ATTR:
+					s = elem.attr(element);break;
+				case HTML_INNER_TEXT:
+					s = elem.text();break;
+				case HTML_INNER_HTML:
+					s = elem.html();break;
+				}
+				
+				if(s!=null)
+					res.add(s);
+			}
 		}else if(CSQLUtils.isString(o)){
 			res.add((String)o);
 		}
